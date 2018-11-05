@@ -1,16 +1,20 @@
 
 
-DeepLepton: Repository for training and evaluation of deep neural networks for Lepton identification
+# DeepLepton training framework: Repository for training and evaluation of DNN for lepton ID 
 ===============================================================================
 
-This package depends on DeepJetCore (https://github.com/DL4Jets/DeepJetCore)
+This package depends on DeepJetCore (https://github.com/DL4Jets/DeepJetCore) and the HEPHY fork of DeepJet (https://github.com/HephyAnalysisSW/DeepJet).
+DeepJet and DeepJetCore must be installed on a CentOS 7 machine (HEPHY: hepgpu01, CERN: lxplus7) but NOT in a release area!
 
-Setup (CERN)
+## Setup
 ==========
 
-The DeepJet package and DeepJetCore have to share the same parent directory
+The DeepJet package and DeepJetCore have to share the same parent directory. After following the installation recipe of DeepJetCore, clone the HEPHY fork of DeepJet:
+```
+git clone https://github.com/HephyAnalysisSW/DeepJet
+```
 
-Usage
+## Usage
 ==============
 
 After logging in, please source the right environment (please cd to the directory first!):
@@ -21,7 +25,6 @@ source lxplus_env.sh / gpu_env.sh
 
 
 The preparation for the training consists of the following steps
-====
 
 - define the data structure for the training (example in modules/datastructures/TrainData_template.py)
   for simplicity, copy the file to TrainData_template.py and adjust it. 
@@ -39,7 +42,7 @@ The preparation for the training consists of the following steps
   
 
 
-Training
+## Training
 ====
 
 Since the training can take a while, it is advised to open a screen session, such that it does not die at logout.
@@ -66,7 +69,7 @@ python train_template.py /path/to/the/output/of/convert/dataCollection.dc <outpu
 ```
 
 
-Evaluation
+## Evaluation
 ====
 
 After the training has finished, the performance can be evaluated.

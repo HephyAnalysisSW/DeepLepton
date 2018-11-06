@@ -137,7 +137,7 @@ for leptonClass in leptonClasses:
 x = [[0,1,2], [leptonClass['Entries'] for leptonClass in leptonClasses]]
 y = sum(([t] * w for t, w in zip(*x)), [])
 
-n_maxfileentries = 1000
+n_maxfileentries = 100000
 n_current_entries  = 0
 n_file           = 0
 

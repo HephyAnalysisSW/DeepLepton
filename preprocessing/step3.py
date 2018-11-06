@@ -11,8 +11,7 @@ from array import array
 from RootTools.core.Sample import *
 
 # TopEFT
-from DeepLepton.Tools.user import skim_output_directory as input_directory
-from DeepLepton.Tools.user import trainingFiles_directory as output_directory
+from DeepLepton.Tools.user import skim_directory 
 
 #parser
 def get_parser():
@@ -21,18 +20,25 @@ def get_parser():
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
 
-    argParser.add_argument('--version',         action='store', type=str, choices=['v1','v1_small','v2','v3', 'v3_small'],                required = True, help="Version for output directory")
+    argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'],     default='INFO',                     help="Log level for logging")
+    argParser.add_argument('--version',         action='store', type=str, required = True, help="Version for output directory")
     argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],                      required = True, help="Which year?")
     argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],                    required = True, help="Which Flavour?")
-    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_to_inf', 'pt_15_to_inf', 'noPtSelection'], required = True, help="Which pt selection?")
+    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_-1'], default = "pt_10_-1", help="Which pt selection?")
     argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD', 'TTJets', 'TTbar', 'TestSample'],   required = True, help="Which sample selection?")
-
+    argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
     argParser.add_argument('--nJobs',           action='store', nargs='?', type=int, default=1, help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',             action='store',            type=int, default=0, help="Run only job i")
 
     return argParser
 
 options = get_parser().parse_args()
+
+# Logging
+import DeepLepton.Tools.logger as logger
+logger  = logger.get_logger(options.logLevel, logFile = None)
+import RootTools.core.logger as logger_rt
+logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
 
 #some helper functions
 def printData(data):
@@ -113,43 +119,32 @@ pfCandIdList = [
 classList = ['Prompt', 'NonPrompt', 'Fake',]
 
 #define paths
-TrainFilePath = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles'
-inputPath     = os.path.join(TrainFilePath, options.version, str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
-outputPath    = os.path.join(TrainFilePath, options.version, str(options.year), options.flavour, options.ptSelection, options.sampleSelection+'_sorted')
+inputPath    = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
+outputPath   = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step3", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 
 if not os.path.exists( outputPath ):
     os.makedirs( outputPath )
 
 #get file list
-inputFileList  = os.listdir(inputPath)
-removeFileList = []
-for inputFile in inputFileList:
-    if '.root' not in inputFile:
-        removeFileList.append(inputFile)
-for inputFile in removeFileList:
-    inputFileList.remove(inputFile)
+sample = Sample.fromDirectory( "sample", inputPath, treeName = "tree" )
+sample = sample.split( n=options.nJobs, nSub=options.job )
+if len(sample.files)==0:
+    logger.info('No files found. Exiting.')
+    sys.exit(0)
 
-print inputFileList
-print 'total files: ', len(inputFileList)
+inputFileList = sample.files
 
-nJobFiles = int(len(inputFileList)/options.nJobs)
-jobFileList = []
-
-for i in xrange(nJobFiles):
-    jobFileList.append(inputFileList[options.job*nJobFiles+i])
-
-inputFileList = jobFileList
-
-print 'selected files in this job: ', inputFileList
-
+logger.info( "Processing %i files", len( inputFileList ) )
 #Loop over input files
 for inputFile in inputFileList:
     iFile     = ROOT.TFile.Open(os.path.join(inputPath,inputFile), 'read')
+    logger.info( "Input file %s", iFile.GetName() )
     iFileTree = iFile.Get('tree')
     nEntries  = iFileTree.GetEntries()
 
     #clone tree
-    oFile     = ROOT.TFile.Open(os.path.join(outputPath,inputFile), 'recreate')
+    oFile     = ROOT.TFile.Open(os.path.join(outputPath,os.path.basename(inputFile)), 'recreate')
+    logger.info( "Output file %s", oFile.GetName() )
     oFileTree = iFileTree.CloneTree(0)
 
     #add class branches
@@ -185,7 +180,7 @@ for inputFile in inputFileList:
             ptRel = oFileTree.GetLeaf('SV_pt' if pfCandId=='SV' else 'pfCand_'+pfCandId+'_ptRel')
             npf   = oFileTree.GetLeaf(npfCand).GetValue()
             if ptRel.GetLen() != npf:
-                print 'Wrong number of PF candidates!'
+                logger.warning( 'Wrong number of PF candidates!' )
 
             #collect ptRel  + indices (entry, leaf, ptRel)
             ptRelData = []
@@ -229,12 +224,10 @@ for inputFile in inputFileList:
         iFileTree.CopyAddresses(oFileTree)
         oFileTree.Fill() 
 
-    print '%i of %i Entries processed for %s' %(i+1, nEntries, inputFile)
+    logger.info( '%i of %i Entries processed for %s', i+1, nEntries, inputFile)
 
     #save and close files
     iFile.Close()
-    oFile.Write(os.path.join(outputPath,inputFile),oFile.kOverwrite)
+    oFile.Write(os.path.join(outputPath,os.path.basename(inputFile)),oFile.kOverwrite)
+    logger.info( "Written %s", os.path.join(outputPath,os.path.basename(inputFile)) )
     oFile.Close()
-
-
-

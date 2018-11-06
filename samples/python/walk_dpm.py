@@ -218,7 +218,7 @@ if __name__ == "__main__":
     proxy = renew_proxy()
     logger.info( "Using proxy %s"%proxy )
 
-    import TopEFT.Tools.logger as logger
+    import DeepLepton.Tools.logger as logger
     logger = logger.get_logger('DEBUG')
 
     walker = walk_dpm('/dpm/oeaw.ac.at/home/cms/store/user/schoef/ewkDM_ttZ_ll/')

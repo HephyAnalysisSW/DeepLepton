@@ -139,7 +139,7 @@ y = sum(([t] * w for t, w in zip(*x)), [])
 
 n_maxfileentries = 1000
 n_current_entries  = 0
-n_file           = 1
+n_file           = 0
 
 outputDir = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 
@@ -150,10 +150,10 @@ outputPath = os.path.join( outputDir, 'modulo_'+str(options.job)+'_trainfile_' )
 while (prompt['counter']<prompt["Entries"] and nonPrompt['counter']<nonPrompt["Entries"] and fake['counter']<fake["Entries"]):
 
     #(re)create and save output files
-    if n_current_entries==0 and n_file==1:
+    if n_current_entries==0 and n_file==0:
         outputFile     = ROOT.TFile(str(outputPath)+str(n_file)+'.root', 'recreate')
         outputFileTree = fake['TChain'].CloneTree(0,"")
-    if n_current_entries==0 and n_file>=2:
+    if n_current_entries==0 and n_file>0:
         logger.info("%i entries copied to %s", outputFileTree.GetEntries(), outputPath+str(n_file-1)+".root" )
         logger.info("Counter: prompt %i nonprompt %i fake %i", prompt['counter'], nonPrompt['counter'], fake['counter'])
         outputFile.Write(outputPath+str(n_file-1)+".root", outputFile.kOverwrite)
@@ -182,7 +182,7 @@ while (prompt['counter']<prompt["Entries"] and nonPrompt['counter']<nonPrompt["E
         n_file += 1
 
 #Save and Close last output File        
-logger.info("%i entries copied to %s", outputFileTree.GetEntries(), outputPath+str(n_file-1)+".root" )
+logger.info("%i entries copied to %s", outputFileTree.GetEntries(), outputPath+str(n_file)+".root" )
 logger.info("Counter: prompt %i nonprompt %i fake %i", prompt['counter'], nonPrompt['counter'], fake['counter'])
 outputFile.Write(outputPath+str(n_file)+".root", outputFile.kOverwrite)
 outputFile.Close()

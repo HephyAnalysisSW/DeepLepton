@@ -9,11 +9,12 @@ argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--plot_directory',     action='store',      default='deepLepton')
+argParser.add_argument('--flat',                                    action='store_true',     help='Run on flat ntuple data?', )
 #argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
 args = argParser.parse_args()
 
 # DeepLepton
-from DeeoLepton.Tools.user import plot_directory
+from DeepLepton.Tools.user import plot_directory
 
 # Logger
 import DeepLepton.Tools.logger as logger
@@ -26,22 +27,30 @@ from RootTools.core.standard import *
 
 #Samples
 data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
+postProcessing_directory = "deepLepton_v1/inclusive"
 from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
+from DeepLepton.samples.flat_training_samples import training_20181026
 
 if args.small:
     TTJets_DiLepton.reduceFiles( to = 1 )
     TTJets_SingleLepton.reduceFiles( to = 1 )
     #DY.reduceFiles( to = 1 )
     #QCD.reduceFiles( to = 1 )
+    training_20181026.reduceFiles( to = 1 )
 
 event_selection = "(1)"
 
 #signal and background sample
-sig_sample = TTJets_DiLepton
-bkg_sample = TTJets_SingleLepton
+
+if args.flat:
+    sig_sample = training_20181026
+    bkg_sample = training_20181026
+else:
+    sig_sample = TTJets_DiLepton
+    bkg_sample = TTJets_SingleLepton
 
 # truth categories
-prompt_selection    = "(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37)"
+prompt_selection    = "(abs({lep}_mcMatchId)==6||abs({lep}_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37)".format( lep = "lep")
 nonPrompt_selection = "(!(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37))&&(abs(lep_mcMatchAny)==4||abs(lep_mcMatchAny)==5)"
 fake_selection      = "(!(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37))&&(!(abs(lep_mcMatchAny)==4||abs(lep_mcMatchAny)==5))"
 
@@ -53,9 +62,9 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 kinematic_selection = "lep_pt>25"
 
 # lepton Ids
-deepLepton = {"name":"deepLepton", "var":"lep_deepLepton_prompt",      "color":ROOT.kGreen, "thresholds":[ i/10000. for i in range(0,10000)]}
-mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                 "color":ROOT.kBlue,  "thresholds":[ i/100. for i in range(-100,101)]}
-mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                 "color":ROOT.kRed,   "thresholds":[ i/100. for i in range(-100,101)]}
+deepLepton = {"name":"deepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen, "thresholds":[ i/10000. for i in range(0,10000)]}
+mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                                                                  "color":ROOT.kBlue,  "thresholds":[ i/100. for i in range(-100,101)]}
+mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                                                                  "color":ROOT.kRed,   "thresholds":[ i/100. for i in range(-100,101)]}
 
 lepton_ids = [
     deepLepton,

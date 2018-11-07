@@ -78,7 +78,7 @@ leptonFlavours = [
                  ]
 
 #pt selection
-pt_threshold = (10, -1 )
+pt_threshold = (15, -1 )
 
 #make FileList
 pattern  = 'tree.root'

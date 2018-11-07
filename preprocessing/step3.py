@@ -10,7 +10,7 @@ from array import array
 # RootTools
 from RootTools.core.Sample import *
 
-# TopEFT
+# DeepLepton 
 from DeepLepton.Tools.user import skim_directory 
 
 #parser

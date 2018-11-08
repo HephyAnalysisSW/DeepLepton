@@ -73,8 +73,9 @@ def get_parser():
     argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,                                        help="Version for output directory")
     argParser.add_argument('--flavour',                     action='store',                     type=str,   choices=['ele','muo'],    required = True,             help="Which flavour?")
     argParser.add_argument('--sampleSelection',             action='store',                     type=str,   choices=['DY', 'QCD', 'DYvsQCD', 'TTJets', 'TTbar'],  required = True,             help="Which flavour?")
-    argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
-    argParser.add_argument('--ptSelection',                 action='store',                     type=str,   default = "pt_10_-1",                                  help="Which flavour?")
+    argParser.add_argument('--small',                       action='store_true',                                                                                   help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
+    argParser.add_argument('--ptSelection',                 action='store',                     type=str,   default = "pt_15_-1",                                  help="Which flavour?")
+    argParser.add_argument('--ratio',                       action='store',                     type=str,   choices=['balanced', 'unbalanced'], required = True,   help="Which signal to background ratio?")
 
     return argParser
 
@@ -134,7 +135,11 @@ for leptonClass in leptonClasses:
     leptonClass['Entries'] = leptonClass['TChain'].GetEntries()
     logger.info( "flavor %s class %s entries %i", options.flavour, leptonClass['name'], leptonClass['Entries'] )
 
-x = [[0,1,2], [leptonClass['Entries'] for leptonClass in leptonClasses]]
+if options.ratio == 'balanced':
+    x = [[0,1,2], [nonPrompt['Entries']+fake['Entries'], nonPrompt['Entries'], fake['Entries']]]
+else:
+    x = [[0,1,2], [leptonClass['Entries'] for leptonClass in leptonClasses]]
+
 y = sum(([t] * w for t, w in zip(*x)), [])
 
 n_maxfileentries = 100000

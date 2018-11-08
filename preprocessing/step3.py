@@ -20,15 +20,16 @@ def get_parser():
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
 
-    argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'],     default='INFO',                     help="Log level for logging")
-    argParser.add_argument('--version',         action='store', type=str, required = True, help="Version for output directory")
-    argParser.add_argument('--year',            action='store', type=int, choices=[2016,2017],                      required = True, help="Which year?")
-    argParser.add_argument('--flavour',         action='store', type=str, choices=['ele','muo'],                    required = True, help="Which Flavour?")
-    argParser.add_argument('--ptSelection',     action='store', type=str, choices=['pt_10_-1'], default = "pt_10_-1", help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store', type=str, choices=['DYvsQCD', 'TTJets', 'TTbar', 'TestSample'],   required = True, help="Which sample selection?")
-    argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
-    argParser.add_argument('--nJobs',           action='store', nargs='?', type=int, default=1, help="Maximum number of simultaneous jobs.")
-    argParser.add_argument('--job',             action='store',            type=int, default=0, help="Run only job i")
+    argParser.add_argument('--logLevel',        action='store',  nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'], default='INFO', help="Log level for logging")
+    argParser.add_argument('--version',         action='store',             type=str, required = True, help="Version for output directory")
+    argParser.add_argument('--year',            action='store',             type=int, choices=[2016,2017],                      required = True, help="Which year?")
+    argParser.add_argument('--flavour',         action='store',             type=str, choices=['ele','muo'],                    required = True, help="Which Flavour?")
+    argParser.add_argument('--ptSelection',     action='store',             type=str, choices=['pt_15_-1'], default = "pt_15_-1", help="Which pt selection?")
+    argParser.add_argument('--sampleSelection', action='store',             type=str, choices=['DYvsQCD', 'TTJets', 'TTbar', 'TestSample'],   required = True, help="Which sample selection?")
+    argParser.add_argument('--small',           action='store_true',        help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
+    argParser.add_argument('--nJobs',           action='store', nargs='?',  type=int, default=1, help="Maximum number of simultaneous jobs.")
+    argParser.add_argument('--job',             action='store',             type=int, default=0, help="Run only job i")
+    argParser.add_argument('--tauException',    action='store_true',        help="Make Tau exception for prompt leptons")        
 
     return argParser
 
@@ -153,7 +154,12 @@ for inputFile in inputFileList:
         varName = name+'/I'
         vars()[name] = array( 'i', [ 0 ] )
         oFileTree.Branch(name , vars()[name], varName )
-        
+
+    #add not prompt class branch        
+    name = 'lep_isNotPromptId'+'_Training'
+    varName = name+'/I'
+    vars()[name] = array( 'i', [ 0 ] )
+    oFileTree.Branch(name , vars()[name], varName )
 
     #Loop over PF candidate ID
     for pfCandId in pfCandIdList:
@@ -202,25 +208,36 @@ for inputFile in inputFileList:
                     k +=1
                 #print vars()[name]
 
-        #fill training lepton classen (tau exception)
+        #fill training lepton classes (tau exception)
         for leptonClass in classList:
             name = 'lep_is'+leptonClass+'Id'+'_Training'
             classVar = oFileTree.GetLeaf('lep_is'+leptonClass+'Id')
             
-            #just copy branches
-            vars()[name][0] = 1 if classVar.GetValue()==1. else 0
+            if options.tauException:
+                #Tau exception
+                if leptonClass == 'Prompt':
+                    mcTauVar = oFileTree.GetLeaf('lep_mcMatchTau')
+                    vars()[name][0] = 1 if classVar.GetValue()==1. and mcTauVar.GetValue()!=1. else 0
+                if leptonClass == 'NonPrompt':
+                    mcTauVar  = oFileTree.GetLeaf('lep_mcMatchTau')
+                    PromptVar = oFileTree.GetLeaf('lep_isPromptId')
+                    vars()[name][0] = 1 if classVar.GetValue()==1. or (PromptVar.GetValue()==1. and mcTauVar.GetValue()==1.) else 0
+                if leptonClass == 'Fake':
+                    vars()[name][0] = 1 if classVar.GetValue()==1. else 0
+            else:
+                #just copy branches
+                vars()[name][0] = 1 if classVar.GetValue()==1. else 0
             
-            ##Tau exception
-            #if leptonClass == 'Prompt':
-            #    mcTauVar = oFileTree.GetLeaf('lep_mcMatchTau')
-            #    vars()[name][0] = 1 if classVar.GetValue()==1. and mcTauVar.GetValue()!=1. else 0
-            #if leptonClass == 'NonPrompt':
-            #    mcTauVar  = oFileTree.GetLeaf('lep_mcMatchTau')
-            #    PromptVar = oFileTree.GetLeaf('lep_isPromptId')
-            #    vars()[name][0] = 1 if classVar.GetValue()==1. or (PromptVar.GetValue()==1. and mcTauVar.GetValue()==1.) else 0
-            #if leptonClass == 'Fake':
-            #    vars()[name][0] = 1 if classVar.GetValue()==1. else 0
-            
+
+        #fill not prompt class branch
+        name = 'lep_isNotPromptId'+'_Training'
+        classVar = oFileTree.GetLeaf('lep_isPromptId')
+        if options.tauException:
+            vars()[name][0] = 0 if classVar.GetValue()==1. and mcTauVar.GetValue()!=1. else 1
+        else:
+            vars()[name][0] = 0 if classVar.GetValue()==1. else 1
+
+        #fill tree    
         iFileTree.CopyAddresses(oFileTree)
         oFileTree.Fill() 
 

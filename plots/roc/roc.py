@@ -2,6 +2,7 @@
 import ROOT
 import array
 import os
+from ROOT import gStyle
 
 # Arguments
 import argparse
@@ -62,14 +63,14 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 kinematic_selection = "lep_pt>25"
 
 # lepton Ids
-deepLepton = {"name":"deepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen, "thresholds":[ i/10000. for i in range(0,10000)]}
-mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                                                                  "color":ROOT.kBlue,  "thresholds":[ i/100. for i in range(-100,101)]}
-mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                                                                  "color":ROOT.kRed,   "thresholds":[ i/100. for i in range(-100,101)]}
+deepLepton = {"name":"deepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/10000. for i in range(0,10000)]}
+mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                                                                  "color":ROOT.kGray+1,  "thresholds":[ i/100. for i in range(-100,101)]}
+mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                                                                  "color":ROOT.kGray,    "thresholds":[ i/100. for i in range(-100,101)]}
 
 lepton_ids = [
-    deepLepton,
-    mvaTTV,
     mvaTTH, 
+    mvaTTV,
+    deepLepton,
 ]
 
 # get signal efficiency
@@ -96,9 +97,10 @@ for lepton_id in lepton_ids:
     lepton_id["bkg_eff" ] = [ lepton_id["bkg_h_eff"].Integral(i_b, lepton_id["bkg_h_eff"].GetNbinsX() + 1) for i_b in range( 0, lepton_id["bkg_h_eff"].GetNbinsX() + 1 )] 
 
     lepton_id["roc"]      = ROOT.TGraph(len(lepton_id["bkg_eff" ]), array.array('d', lepton_id["bkg_eff" ]), array.array('d', lepton_id["sig_eff" ]))
-    lepton_id["roc"].SetLineColor( lepton_id['color'] ) 
+    lepton_id["roc"].SetLineColor( lepton_id['color'] )
 
-c = ROOT.TCanvas() 
+gStyle.SetOptTitle(0)
+c = ROOT.TCanvas()
 option = "L"
 same    ="A"
 for lepton_id in lepton_ids:
@@ -106,10 +108,26 @@ for lepton_id in lepton_ids:
     lepton_id["roc"].GetXaxis().SetTitle("bkg eff")
     lepton_id["roc"].GetYaxis().SetTitle("sig eff")
     lepton_id["roc"].GetXaxis().SetLimits(0.01, 1)
-    lepton_id["roc"].GetHistogram().SetMaximum(1)
-    lepton_id["roc"].GetHistogram().SetMinimum(0)
+    lepton_id["roc"].GetHistogram().SetMaximum(1.01)
+    lepton_id["roc"].GetHistogram().SetMinimum(0.60)
+    lepton_id["roc"].SetLineWidth(2)
+    lepton_id["roc"].SetFillStyle(0)
+    lepton_id["roc"].SetFillColor(0)
+    lepton_id["roc"].SetMarkerColor(lepton_id["color"])
+    lepton_id["roc"].SetTitle(lepton_id["name"])
     lepton_id["roc"].Draw(option+same)
     same = "same"
 
+header = [
+            ROOT.TPaveLabel(.00,0.93,.20,1.0,   "CMS preliminary",                                                                                     "nbNDC"),
+            ROOT.TPaveLabel(.30,0.93,.70,1.0,   "ROC-Plot {flav} {sample} {kin}".format( flav = "Muons", sample= "TTJets", kin = kinematic_selection,),"nbNDC"),
+            ROOT.TPaveLabel(.00,0.91,1.0,0.929, "preselection: {preselect}".format( preselect = loose_id ),                                             "nbNDC"),
+         ]
+
+for line in header:
+    line.SetFillColor(gStyle.GetTitleFillColor())
+    line.Draw()
+
 c.SetLogx()
+c.BuildLegend(0.6,0.6,0.9,0.7)
 c.Print(os.path.join( plot_directory, "DeepLepton", "roc.png") )

@@ -75,11 +75,44 @@ TTJets_Muons_balancedSimple_2016 = {
 'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018110804/TTJets_balancedSimpleMuonEvaluationTestData',
 }
 
+#mixed samples
+DYvsQCD_on_TTJets_Muons_balanced_2016 = {
+'training_name'     : 'TTJets_Muons_balanced_20181108',
+'sample_name'       : 'DYvsQCD_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/DYvsQCD',
+'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/predictions/muons/20181108/EvaluationTestData_DYvsQCD_on_model_TTJets_balanced_20181108',
+}
+
+DYvsQCD_on_TTJets_Muons_balancedSimple_2016 = {
+'training_name'     : 'TTJets_Muons_balancedSimple_20181108',
+'sample_name'       : 'DYvsQCD_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/DYvsQCD',
+'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/predictions/muons/20181108/EvaluationTestData_DYvsQCD_on_model_TTJets_balancedSimple_20181108',
+}
+
+TTJets_on_DYvsQCD_Muons_balanced_2016 = {
+'training_name'     : 'DYvsQCD_Muons_balanced_20181108',
+'sample_name'       : 'TTJets_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/TTJets',
+'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/predictions/muons/20181108/EvaluationTestData_TTJets_on_model_DYvsQCD_balanced_20181108',
+}
+
+TTJets_on_DYvsQCD_Muons_balancedSimple_2016 = {
+'training_name'     : 'DYvsQCD_Muons_balancedSimple_20181108',
+'sample_name'       : 'TTJets_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/TTJets',
+'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/predictions/muons/20181108/EvaluationTestData_TTJets_on_model_DYvsQCD_balancedSimple_20181108',
+}
+
 
 #flat_sample = DYvsQCD_Muons_balanced_2016
 #flat_sample = DYvsQCD_Muons_balancedSimple_2016
 #flat_sample = TTJets_Muons_balanced_2016
-flat_sample = TTJets_Muons_balancedSimple_2016
+#flat_sample = TTJets_Muons_balancedSimple_2016
+flat_sample = DYvsQCD_on_TTJets_Muons_balanced_2016
+#flat_sample = DYvsQCD_on_TTJets_Muons_balancedSimple_2016
+#flat_sample = TTJets_on_DYvsQCD_Muons_balanced_2016
+#flat_sample = TTJets_on_DYvsQCD_Muons_balancedSimple_2016
 
 flat_files, predict_files = get_flat_files( flat_sample['flat_directory'], flat_sample['predict_directory'])
 flat_sample = get_flat_sample( flat_sample['training_name'], flat_sample['sample_name'], flat_files, predict_files )

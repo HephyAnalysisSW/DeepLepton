@@ -28,21 +28,60 @@ def get_flat_files( flat_directory, predict_directory, maxN = -1 ):
 
     return flat_files, predict_files
 
+def get_flat_sample( training_name, sample_name, flat_files, predict_files):
+
+    postfix = '_predict'
+    flat_sample         = Sample.fromFiles( training_name,         texName = sample_name,            files = flat_files,    treeName='tree' ) 
+    flat_sample_predict = Sample.fromFiles( training_name+postfix, texName = sample_name+postfix,    files = predict_files, treeName='tree' ) 
+    flat_sample.addFriend( flat_sample_predict, 'tree' )
+
+    return flat_sample
+
+#flat samples
+
+DYvsQCD_Muons_on_TTJets_2016 = {
+'training_name'     : 'DYvsQCD_Muons_20181026',
+'sample_name'       : 'TTJets_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles/v3/2016/muo/pt_15_to_inf/TTJets_sorted',
+'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/predictions/muons/EvaluationTestData_TTJets_sorted_on_model_20181026',
+}
+
+#unmixed samples
+DYvsQCD_Muons_balanced_2016 = {
+'training_name'     : 'DYvsQCD_Muons_balanced_20181108',
+'sample_name'       : 'DYvsQCD_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/DYvsQCD',
+'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018110801/DYvsQCD_balancedMuonEvaluationTestData',
+}
+
+DYvsQCD_Muons_balancedSimple_2016 = {
+'training_name'     : 'DYvsQCD_Muons_balancedSimple_20181108',
+'sample_name'       : 'DYvsQCD_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/DYvsQCD',
+'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018110802/DYvsQCD_balancedSimpleMuonEvaluationTestData',
+}
+
+TTJets_Muons_balanced_2016 = {
+'training_name'     : 'TTJets_Muons_balanced_20181108',
+'sample_name'       : 'TTJets_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/TTJets',
+'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018110803/TTJets_balancedMuonEvaluationTestData',
+}
+
+TTJets_Muons_balancedSimple_2016 = {
+'training_name'     : 'TTJets_Muons_balancedSimple_20181108',
+'sample_name'       : 'TTJets_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/TTJets',
+'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018110804/TTJets_balancedSimpleMuonEvaluationTestData',
+}
 
 
-#TTJets prediction on 20181026 DYvsQCD training
-flat_directory    = '/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles/v3/2016/muo/pt_15_to_inf/TTJets_sorted'
-predict_directory = '/afs/hephy.at/data/gmoertl01/DeepLepton/predictions/muons/EvaluationTestData_TTJets_sorted_on_model_20181026'
+#flat_sample = DYvsQCD_Muons_balanced_2016
+#flat_sample = DYvsQCD_Muons_balancedSimple_2016
+#flat_sample = TTJets_Muons_balanced_2016
+flat_sample = TTJets_Muons_balancedSimple_2016
 
-flat_files, predict_files = get_flat_files( flat_directory, predict_directory )
-
-training_20181026         = Sample.fromFiles( 'TTJets_muo',         texName = 'TTJets muons',            files = flat_files,    treeName='tree' )
-training_20181026_predict = Sample.fromFiles( 'TTJets_muo_predict', texName = 'TTJets muons prediction', files = predict_files, treeName='tree' ) 
-training_20181026.addFriend( training_20181026_predict, 'tree' ) 
-
-#usage
-# from DeepLepton.samples.flat_training_samples import training_20181026
-
-
+flat_files, predict_files = get_flat_files( flat_sample['flat_directory'], flat_sample['predict_directory'])
+flat_sample = get_flat_sample( flat_sample['training_name'], flat_sample['sample_name'], flat_files, predict_files )
 
 

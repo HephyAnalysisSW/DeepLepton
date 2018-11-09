@@ -30,25 +30,29 @@ from RootTools.core.standard import *
 data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
 postProcessing_directory = "deepLepton_v1/inclusive"
 from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
-from DeepLepton.samples.flat_training_samples import training_20181026
+from DeepLepton.samples.flat_training_samples import flat_sample
 
 if args.small:
     TTJets_DiLepton.reduceFiles( to = 1 )
     TTJets_SingleLepton.reduceFiles( to = 1 )
     #DY.reduceFiles( to = 1 )
     #QCD.reduceFiles( to = 1 )
-    training_20181026.reduceFiles( to = 1 )
+    flat_sample.reduceFiles( to = 1 )
 
 event_selection = "(1)"
 
 #signal and background sample
 
 if args.flat:
-    sig_sample = training_20181026
-    bkg_sample = training_20181026
+    sig_sample = flat_sample
+    bkg_sample = flat_sample
+    training_name = flat_sample.name
+    sample_name   = flat_sample.texName
 else:
     sig_sample = TTJets_DiLepton
     bkg_sample = TTJets_SingleLepton
+    training_name = 'TTJets_Muons_20181013'
+    sample_name   = 'TTJets_Muons'
 
 # truth categories
 prompt_selection    = "(abs({lep}_mcMatchId)==6||abs({lep}_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37)".format( lep = "lep")
@@ -119,15 +123,19 @@ for lepton_id in lepton_ids:
     same = "same"
 
 header = [
-            ROOT.TPaveLabel(.00,0.93,.20,1.0,   "CMS preliminary",                                                                                     "nbNDC"),
-            ROOT.TPaveLabel(.30,0.93,.70,1.0,   "ROC-Plot {flav} {sample} {kin}".format( flav = "Muons", sample= "TTJets", kin = kinematic_selection,),"nbNDC"),
-            ROOT.TPaveLabel(.00,0.91,1.0,0.929, "preselection: {preselect}".format( preselect = loose_id ),                                             "nbNDC"),
+            {'text': ROOT.TPaveLabel(.00,0.93,.20,1.0,   "CMS preliminary",                                                                                                                      "nbNDC"), 'font': 30  },
+            {'text': ROOT.TPaveLabel(.20,0.93,1.0,1.0,   "TestData: {sample}, {kin}    Training: {training}".format( sample = sample_name, kin = kinematic_selection, training = training_name), "nbNDC"), 'font': 130 },
+            {'text': ROOT.TPaveLabel(.00,0.91,1.0,0.929, "preselection: {preselect}".format( preselect = loose_id ),                                                                             "nbNDC"), 'font': 130 },
          ]
 
 for line in header:
-    line.SetFillColor(gStyle.GetTitleFillColor())
-    line.Draw()
+    line['text'].SetFillColor(gStyle.GetTitleFillColor())
+    line['text'].SetTextFont(line['font'])
+    line['text'].Draw()
 
 c.SetLogx()
 c.BuildLegend(0.6,0.6,0.9,0.7)
-c.Print(os.path.join( plot_directory, "DeepLepton", "roc.png") )
+directory = os.path.join( plot_directory, "DeepLepton", sample_name )
+if not os.path.exists(directory):
+    os.makedirs(directory)
+c.Print(os.path.join( directory, "{plot_name}_roc.png".format( plot_name = training_name ) ))

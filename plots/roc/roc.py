@@ -65,6 +65,7 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 
 # pt selection
 kinematic_selection = "lep_pt>25"
+kinematic_selection = "lep_pt>15&&lep_pt<=25"
 
 # lepton Ids
 deepLepton = {"name":"deepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/100000. for i in range(0,100000)]}
@@ -135,7 +136,8 @@ for line in header:
 
 c.SetLogx()
 c.BuildLegend(0.6,0.6,0.9,0.7)
+
 directory = os.path.join( plot_directory, "DeepLepton", sample_name )
 if not os.path.exists(directory):
     os.makedirs(directory)
-c.Print(os.path.join( directory, "{plot_name}_roc.png".format( plot_name = training_name ) ))
+c.Print(os.path.join( directory, "{plot_name}_{kin}_roc.png".format( plot_name = training_name, kin = kinematic_selection ) ))

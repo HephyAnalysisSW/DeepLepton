@@ -19,11 +19,15 @@
 #python -i step2_mix.py --version v4_small --year 2016 --flavour muo --sampleSelection QCD --nJobs 2 --job 0
 
 #full version
-#python -i step2_mix.py --version v4 --year 2016 --flavour muo --ratio balanced --sampleSelection DYvsQCD #SPLIT100
-#python -i step2_mix.py --version v4 --year 2016 --flavour muo --ratio balanced --sampleSelection TTJets  #SPLIT50
+#python -i step2_mix.py --version v5 --year 2016 --flavour muo --ratio balanced --sampleSelection DYvsQCD --ptSelection pt_15_-1 #SPLIT100
+#
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTJets  --ptSelection pt_5_-1   #SPLIT100
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTJets  --ptSelection pt_5_15   #SPLIT50
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTJets  --ptSelection pt_15_25  #SPLIT50
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTJets  --ptSelection pt_25_-1  #SPLIT50
 
-python -i step2_mix.py --version v5 --year 2016 --flavour muo --ratio balanced --sampleSelection DYvsQCD --ptSelection pt_15_-1 #SPLIT100
-python -i step2_mix.py --version v5 --year 2016 --flavour muo --ratio balanced --sampleSelection TTJets  --ptSelection pt_5_15  #SPLIT50
+python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTJets  --ptSelection pt_5_-1  --nJobs 100 --job 0 
+python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTJets  --ptSelection pt_5_15  --nJobs 50 --job 0 
+python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTJets  --ptSelection pt_15_25 --nJobs 50 --job 0 
+python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTJets  --ptSelection pt_25_-1 --nJobs 50 --job 0 
 
-#python -i step2_mix.py --version v5 --year 2016 --flavour muo --ratio balanced --sampleSelection DYvsQCD --ptSelection pt_15_-1 --nJobs 100 --job 0 
-#python -i step2_mix.py --version v5 --year 2016 --flavour muo --ratio balanced --sampleSelection TTJets  --ptSelection pt_5_15  --nJobs 50  --job 0 

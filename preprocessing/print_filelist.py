@@ -6,15 +6,19 @@ import numpy
 
 #leptonFlavour  = ['ele', 'muo']
 leptonFlavour   = ['muo']
-sampleSelection = ['DYvsQCD', 'TTJets']
-ptSelection     = 'pt_15_-1'
+sampleSelection = [
+                    #'DYvsQCD', 
+                    'TTJets',
+                  ]
+#ptSelection     = 'pt_15_-1'
+ptSelection     = 'pt_5_15'
 ratioTrain      = 80
 ratioTest       = 20
 
 for flavour in leptonFlavour:
     for selection in sampleSelection:
 
-        filepath = os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016',flavour,ptSelection,selection)
+        filepath = os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v5/step3/2016',flavour,ptSelection,selection)
         filelist = os.listdir(filepath)
         #print filepath
         #print filelist

@@ -27,6 +27,7 @@ def get_parser():
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
     argParser.add_argument('--forceProxy',                  action='store_true',                                                                                        help="Don't check certificate")
     argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,         help="Version for output directory")
+    argParser.add_argument('--ptSelection',                 action='store',         nargs='?',  type=str,  default='pt_5_-1',      help="List of samples to be post-processed, given as CMG component name")
 
     return argParser
 
@@ -85,8 +86,8 @@ leptonFlavours = [
                  ]
 
 #pt selection
-pt_threshold = (15, -1 )
-#pt_threshold = (5, 15 )
+ptSelectionList = options.ptSelection.split('_')
+pt_threshold = (int(ptSelectionList[1]), int(ptSelectionList[2]))
 
 #make FileList
 pattern  = 'tree.root'

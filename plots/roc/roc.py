@@ -65,12 +65,14 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 
 # pt selection
 kinematic_selection = "lep_pt>25"
-kinematic_selection = "lep_pt>15&&lep_pt<=25"
+#kinematic_selection = "lep_pt>15&&lep_pt<=25"
+#kinematic_selection = "lep_pt>5&&lep_pt<=15"
+#kinematic_selection = "lep_pt>10&&lep_pt<=15"
 
 # lepton Ids
 deepLepton = {"name":"deepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/100000. for i in range(0,100000)]}
-mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                                                                  "color":ROOT.kGray+1,  "thresholds":[ i/100. for i in range(-100,101)]}
-mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                                                                  "color":ROOT.kGray,    "thresholds":[ i/100. for i in range(-100,101)]}
+mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                                                                  "color":ROOT.kGray+1,  "thresholds":[ i/1000. for i in range(-1000,1001)]}
+mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                                                                  "color":ROOT.kGray,    "thresholds":[ i/1000. for i in range(-1000,1001)]}
 
 lepton_ids = [
     mvaTTH, 
@@ -135,7 +137,7 @@ for line in header:
     line['text'].Draw()
 
 c.SetLogx()
-c.BuildLegend(0.6,0.6,0.9,0.7)
+c.BuildLegend(0.6,0.12,0.9,0.22)
 
 directory = os.path.join( plot_directory, "DeepLepton", sample_name )
 if not os.path.exists(directory):

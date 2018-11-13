@@ -74,7 +74,8 @@ def get_parser():
     argParser.add_argument('--flavour',                     action='store',                     type=str,   choices=['ele','muo'],    required = True,             help="Which flavour?")
     argParser.add_argument('--sampleSelection',             action='store',                     type=str,   choices=['DY', 'QCD', 'DYvsQCD', 'TTJets', 'TTbar'],  required = True,             help="Which flavour?")
     argParser.add_argument('--small',                       action='store_true',                                                                                   help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
-    argParser.add_argument('--ptSelection',                 action='store',                     type=str,   default = "pt_15_-1",                                  help="Which flavour?")
+    argParser.add_argument('--ptSelectionStep1',            action='store',                     type=str,   default = "pt_5_-1",                                  help="Which ptSelection in step1?")
+    argParser.add_argument('--ptSelection',                 action='store',                     type=str,   default = "pt_5_-1",                                  help="Which ptSelection for step2?")
     argParser.add_argument('--ratio',                       action='store',                     type=str,   choices=['balanced', 'unbalanced'], required = True,   help="Which signal to background ratio?")
 
     return argParser
@@ -87,7 +88,12 @@ logger  = logger.get_logger(options.logLevel, logFile = None)
 import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
 
-selectionString = '(evt%'+str(options.nJobs)+'=='+str(options.job)+'&&abs(lep_pdgId)=='+ ('11' if options.flavour=='ele' else '13')+')'
+#pt selection option for different pt sub selection of ptSelection in step1
+pt_threshold = (int(options.ptSelection.split('_')[1]), int(options.ptSelection.split('_')[2]))
+kinematicSelection = 'lep_pt>{pt_min}'.format( pt_min=pt_threshold[0] ) if pt_threshold[1]<0 else kinematicSelection = 'lep_pt>{pt_min}&&lep_pt<={pt_max}'.format( pt_min=pt_threshold[0], pt_max=pt_threshold[1] )
+
+#selectionString
+selectionString = '(evt%{nJobs}=={job}&&abs(lep_pdgId)=={flavour}&&{kinematic})'.format( nJobs=options.nJobs, job=options.job, flavour='11' if options.flavour=='ele' else '13', kinematic = kinematicSelection)
 
 random.seed(100)
 
@@ -125,7 +131,7 @@ postfix = '' if options.nJobs==1 else "_%i" % options.job
 for leptonClass in leptonClasses:
     logger.info( "Class %s", leptonClass['name'] )
 
-    inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, leptonClass['name'], options.ptSelection)
+    inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, leptonClass['name'], options.ptSelectionStep1)
 
     for sampleFile in leptonClass['sample'].files:
             

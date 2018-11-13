@@ -48,10 +48,14 @@ DYvsQCD_Muons_on_TTJets_2016 = {
 
 #unmixed samples
 DYvsQCD_Muons_balanced_2016 = {
-'training_name'     : 'DYvsQCD_Muons_balanced_20181108',
+#'training_name'     : 'DYvsQCD_Muons_balanced_20181108',
+#'sample_name'       : 'DYvsQCD_Muons_2016',
+#'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/DYvsQCD',
+#'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018110801/DYvsQCD_balancedMuonEvaluationTestData',
+'training_name'     : 'DYvsQCD_Muons_balanced_20181113',
 'sample_name'       : 'DYvsQCD_Muons_2016',
-'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/DYvsQCD',
-'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018110801/DYvsQCD_balancedMuonEvaluationTestData',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v5/step3/2016/muo/pt_15_-1/DYvsQCD',
+'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018111302/DYvsQCD_balancedMuonEvaluationTestData',
 }
 
 DYvsQCD_Muons_balancedSimple_2016 = {
@@ -62,10 +66,14 @@ DYvsQCD_Muons_balancedSimple_2016 = {
 }
 
 TTJets_Muons_balanced_2016 = {
-'training_name'     : 'TTJets_Muons_balanced_20181108',
+#'training_name'     : 'TTJets_Muons_balanced_20181108',
+#'sample_name'       : 'TTJets_Muons_2016',
+#'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/TTJets',
+#'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018110803/TTJets_balancedMuonEvaluationTestData',
+'training_name'     : 'TTJets_Muons_balanced_20181112',
 'sample_name'       : 'TTJets_Muons_2016',
 'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/TTJets',
-'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018110803/TTJets_balancedMuonEvaluationTestData',
+'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181112/TTJets_balancedMuonEvaluationTestData',
 }
 
 TTJets_Muons_balancedSimple_2016 = {
@@ -73,6 +81,13 @@ TTJets_Muons_balancedSimple_2016 = {
 'sample_name'       : 'TTJets_Muons_2016',
 'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/TTJets',
 'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018110804/TTJets_balancedSimpleMuonEvaluationTestData',
+}
+
+TTJets_Muons_balanced_pt5to15_2016 = {
+'training_name'     : 'TTJets_Muons_balanced_pt5to15_20181113',
+'sample_name'       : 'TTJets_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v5/step3/2016/muo/pt_5_15/TTJets',
+'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181113/TTJets_balancedLowPtMuonEvaluationTestData',
 }
 
 #mixed samples
@@ -113,6 +128,8 @@ flat_sample = DYvsQCD_Muons_balanced_2016
 #flat_sample = DYvsQCD_on_TTJets_Muons_balancedSimple_2016
 #flat_sample = TTJets_on_DYvsQCD_Muons_balanced_2016
 #flat_sample = TTJets_on_DYvsQCD_Muons_balancedSimple_2016
+
+#flat_sample = TTJets_Muons_balanced_pt5to15_2016
 
 flat_files, predict_files = get_flat_files( flat_sample['flat_directory'], flat_sample['predict_directory'])
 flat_sample = get_flat_sample( flat_sample['training_name'], flat_sample['sample_name'], flat_files, predict_files )

@@ -90,7 +90,7 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
 
 #pt selection option for different pt sub selection of ptSelection in step1
 pt_threshold = (int(options.ptSelection.split('_')[1]), int(options.ptSelection.split('_')[2]))
-kinematicSelection = 'lep_pt>{pt_min}'.format( pt_min=pt_threshold[0] ) if pt_threshold[1]<0 else kinematicSelection = 'lep_pt>{pt_min}&&lep_pt<={pt_max}'.format( pt_min=pt_threshold[0], pt_max=pt_threshold[1] )
+kinematicSelection = 'lep_pt>{pt_min}'.format( pt_min=pt_threshold[0] ) if pt_threshold[1]<0 else 'lep_pt>{pt_min}&&lep_pt<={pt_max}'.format( pt_min=pt_threshold[0], pt_max=pt_threshold[1] )
 
 #selectionString
 selectionString = '(evt%{nJobs}=={job}&&abs(lep_pdgId)=={flavour}&&{kinematic})'.format( nJobs=options.nJobs, job=options.job, flavour='11' if options.flavour=='ele' else '13', kinematic = kinematicSelection)
@@ -98,7 +98,7 @@ selectionString = '(evt%{nJobs}=={job}&&abs(lep_pdgId)=={flavour}&&{kinematic})'
 random.seed(100)
 
 def getInput( sub_directories, class_name):
-    inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, class_name, options.ptSelection)
+    inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, class_name, options.ptSelectionStep1)
     inputList = [(os.path.join( inputPath, s )) for s in sub_directories]
     sample = Sample.fromDirectory( class_name, inputList, 'tree', None, selectionString)
     random.shuffle( sample.files )

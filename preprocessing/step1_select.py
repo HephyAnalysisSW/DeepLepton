@@ -27,6 +27,7 @@ def get_parser():
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
     argParser.add_argument('--forceProxy',                  action='store_true',                                                                                        help="Don't check certificate")
     argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,         help="Version for output directory")
+    argParser.add_argument('--ptSelection',                 action='store',         nargs='?',  type=str,  default='pt_5_-1',      help="List of samples to be post-processed, given as CMG component name")
 
     return argParser
 
@@ -62,6 +63,13 @@ if sample is None or len(sample.files)==0:
 else:
     logger.info( "Sample %s has %i files", sample.name, len(sample.files))
 
+# lumi scale factor
+targetLumi      = 1000 #pb-1 Which lumi to normalize to
+xSection        = sample.heppy.xSection
+normalization   = float(sample.normalization)
+lumiScaleFactor = xSection*targetLumi/normalization
+
+#file management
 len_orig = len(sample.files)
 sample = sample.split( n=options.nJobs, nSub=options.job)
 logger.info( " Run over %i/%i files for job %i/%i."%(len(sample.files), len_orig, options.job, options.nJobs))
@@ -78,7 +86,8 @@ leptonFlavours = [
                  ]
 
 #pt selection
-pt_threshold = (10, -1 )
+ptSelectionList = options.ptSelection.split('_')
+pt_threshold = (int(ptSelectionList[1]), int(ptSelectionList[2]))
 
 #make FileList
 pattern  = 'tree.root'
@@ -106,6 +115,25 @@ for leptonFlavour in leptonFlavours:
         outputFile     = ROOT.TFile(output_filename, 'recreate')
         outputFileTree = ch.CloneTree(0,"")
 
+        #add branches for lumi scale factor
+        name = 'lumi_scaleFactor1fb'
+        varName = name+'/F'
+        vars()[name] = array( 'f', [ 0 ] )
+        vars()[name][0] = lumiScaleFactor
+        outputFileTree.Branch(name , vars()[name], varName )
+ 
+        name = 'xSection_heppy'
+        varName = name+'/F'
+        vars()[name] = array( 'f', [ 0 ] )
+        vars()[name][0] = xSection
+        outputFileTree.Branch(name , vars()[name], varName )
+
+        name = 'normalization_nEvents'
+        varName = name+'/F'
+        vars()[name] = array( 'f', [ 0 ] )
+        vars()[name][0] = normalization
+        outputFileTree.Branch(name , vars()[name], varName )
+
         for inputFile in sample.files:
             readFile     = ROOT.TFile.Open(inputFile, 'read')
             readFileTree = readFile.Get('tree')
@@ -129,9 +157,9 @@ for leptonFlavour in leptonFlavours:
                     inputEntry = readFileTree.GetEntry(i)
                     readFileTree.CopyAddresses(outputFileTree)
                     outputEntry = outputFileTree.Fill()
-                    if inputEntry!=outputEntry:
-                        logger.error("error while copying entry")
-                        break
+                    #if inputEntry!=outputEntry:
+                    #    logger.error("error while copying entry")
+                    #    break
             readFile.Close()
 
         logger.info("%i entries copied to %s" %(outputFileTree.GetEntries(), output_filename))

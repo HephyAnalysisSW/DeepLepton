@@ -33,26 +33,17 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 #RootTools
 from RootTools.core.standard import *
 
-#Samples
-data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-postProcessing_directory = "deepLepton_v1/inclusive"
-from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
-from DeepLepton.samples.flat_training_samples import *
-
-if args.small:
-    TTJets_DiLepton.reduceFiles( to = 1 )
-    TTJets_SingleLepton.reduceFiles( to = 1 )
-    #DY.reduceFiles( to = 1 )
-    #QCD.reduceFiles( to = 1 )
-
 event_selection = "(1)"
 
 #signal and background sample
 
 if args.flat:
+    from DeepLepton.samples.flat_training_samples import *
 
+    nMax = 2 if args.flat else -1
+    
     flat_sampleInfo = vars()[args.flatSample]
-    flat_files, predict_files = get_flat_files( flat_sampleInfo['flat_directory'], flat_sampleInfo['predict_directory'])
+    flat_files, predict_files = get_flat_files( flat_sampleInfo['flat_directory'], flat_sampleInfo['predict_directory' if args.testData else 'predict_directory_trainData'])
     flat_sample = get_flat_sample( flat_sampleInfo['training_name'], flat_sampleInfo['sample_name'], flat_files, predict_files )
 
     sig_sample = flat_sample
@@ -62,10 +53,20 @@ if args.flat:
     sample_name   = flat_sample.texName
 
 else:
+    data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
+    postProcessing_directory = "deepLepton_v1/inclusive"
+    from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
+
     sig_sample = TTJets_DiLepton
     bkg_sample = TTJets_SingleLepton
     training_name = 'TTJets_Muons_20181013'
     sample_name   = 'TTJets_Muons'
+
+    if args.small:
+        TTJets_DiLepton.reduceFiles( to = 1 )
+        TTJets_SingleLepton.reduceFiles( to = 1 )
+        #DY.reduceFiles( to = 1 )
+        #QCD.reduceFiles( to = 1 )
 
 # truth categories
 prompt_selection    = "(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37)"
@@ -91,6 +92,8 @@ lepton_ids = [
     deepLepton,
 ]
 
+#lumi_scaleFactor = 'lumi_scaleFactor1fb'
+
 # get signal efficiency
 for lepton_id in lepton_ids:
     logger.info( "At id %s", lepton_id["name"] )
@@ -103,7 +106,7 @@ for lepton_id in lepton_ids:
 
     selectionString = "&&".join( [ kinematic_selection, loose_id,  "(!("+prompt_selection+"))" ] )
     print selectionString
-    ref                    = bkg_sample.getYieldFromDraw( selectionString = selectionString ) 
+    ref                    = bkg_sample.getYieldFromDraw( selectionString = selectionString )
     lepton_id["bkg_h_eff"] = bkg_sample.get1DHistoFromDraw( lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, binningIsExplicit = True )
     lepton_id["bkg_h_eff"].Scale( 1./ref['val'])
 
@@ -150,7 +153,15 @@ for line in header:
 c.SetLogx()
 c.BuildLegend(0.6,0.12,0.9,0.22)
 
-directory = os.path.join( plot_directory, "DeepLepton", sample_name, 'pt_related_trainings')
+if args.flat:
+    directory = os.path.join(   plot_directory, "DeepLepton", 
+                                flat_sampleInfo['sample_name'],
+                                flat_sampleInfo['training_date'],
+                                'TestData' if args.testData else 'TrainData',
+                            )
+else:
+    directory = os.path.join( plot_directory, "DeepLepton" ) 
+
 if not os.path.exists(directory):
     os.makedirs(directory)
 c.Print(os.path.join( directory, "{plot_name}_{kin}_roc.png".format( plot_name = training_name, kin = kinematic_selection ) ))

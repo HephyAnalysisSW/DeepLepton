@@ -145,13 +145,6 @@ def get_flat_variables(noTraining):
 
 #flat samples
 
-DYvsQCD_Muons_on_TTJets_2016 = {
-'training_name'     : 'DYvsQCD_Muons_20181026',
-'sample_name'       : 'TTJets_Muons_2016',
-'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainfiles/v3/2016/muo/pt_15_to_inf/TTJets_sorted',
-'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/predictions/muons/EvaluationTestData_TTJets_sorted_on_model_20181026',
-}
-
 #unmixed samples
 DYvsQCD_Muons_balanced_2016 = {
 #'training_name'     : 'DYvsQCD_Muons_balanced_20181108',
@@ -159,6 +152,7 @@ DYvsQCD_Muons_balanced_2016 = {
 #'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v4/step3/2016/muo/pt_15_-1/DYvsQCD',
 #'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018110801/DYvsQCD_balancedMuonEvaluationTestData',
 'training_name'     : 'DYvsQCD_Muons_balanced_20181113',
+'training_date'     : '2018111302',
 'sample_name'       : 'DYvsQCD_Muons_2016',
 'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v5/step3/2016/muo/pt_15_-1/DYvsQCD',
 'predict_directory' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018111302/DYvsQCD_balancedMuonEvaluationTestData',
@@ -259,20 +253,9 @@ TTJets_Muons_balanced_pt25toInf_2016 = {
 'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018111404/TTJets_balancedPt25toInfMuonEvaluationTestDataIsTrainData',
 }
 
-#flat_sample = DYvsQCD_Muons_balanced_2016
-#flat_sample = DYvsQCD_Muons_balancedSimple_2016
-#flat_sample = TTJets_Muons_balanced_2016
-#flat_sample = TTJets_Muons_balancedSimple_2016
-#flat_sample = DYvsQCD_on_TTJets_Muons_balanced_2016
-#flat_sample = DYvsQCD_on_TTJets_Muons_balancedSimple_2016
-#flat_sample = TTJets_on_DYvsQCD_Muons_balanced_2016
-#flat_sample = TTJets_on_DYvsQCD_Muons_balancedSimple_2016
 
-#flat_sample = TTJets_Muons_balanced_pt5toInf_2016
-#flat_sample = TTJets_Muons_balanced_pt5to15_2016
-#flat_sample = TTJets_Muons_balanced_pt15to25_2016
+#usage
 #flat_sample = TTJets_Muons_balanced_pt25toInf_2016
-
 #flat_files, predict_files = get_flat_files( flat_sample['flat_directory'], flat_sample['predict_directory'])
 #flat_sample = get_flat_sample( flat_sample['training_name'], flat_sample['sample_name'], flat_files, predict_files )
 

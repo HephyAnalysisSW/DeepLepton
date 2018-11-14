@@ -80,6 +80,8 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 # pt selection
 kinematic_selection = "lep_pt>{ptMin}".format(ptMin = args.ptMin) if args.ptMax==0 else "lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin, ptMax = args.ptMax)
 
+#relative lumi weight
+weightString = 'lumi_scaleFactor1fb' if args.flat else '1'
 
 # lepton Ids
 deepLepton = {"name":"deepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/100000. for i in range(0,100000)]}
@@ -92,22 +94,21 @@ lepton_ids = [
     deepLepton,
 ]
 
-#lumi_scaleFactor = 'lumi_scaleFactor1fb'
 
 # get signal efficiency
 for lepton_id in lepton_ids:
     logger.info( "At id %s", lepton_id["name"] )
     selectionString = "&&".join( [ kinematic_selection, loose_id,  prompt_selection ] )
     print selectionString
-    ref                    = sig_sample.getYieldFromDraw( selectionString = selectionString ) 
-    lepton_id["sig_h_eff"] = sig_sample.get1DHistoFromDraw(     lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, binningIsExplicit = True )
+    ref                    = sig_sample.getYieldFromDraw( selectionString = selectionString, weightString = weightString) 
+    lepton_id["sig_h_eff"] = sig_sample.get1DHistoFromDraw(     lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, weightString = weightString, binningIsExplicit = True )
     lepton_id["sig_h_eff"].Scale( 1./ref['val'])
 
 
     selectionString = "&&".join( [ kinematic_selection, loose_id,  "(!("+prompt_selection+"))" ] )
     print selectionString
-    ref                    = bkg_sample.getYieldFromDraw( selectionString = selectionString )
-    lepton_id["bkg_h_eff"] = bkg_sample.get1DHistoFromDraw( lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, binningIsExplicit = True )
+    ref                    = bkg_sample.getYieldFromDraw( selectionString = selectionString, weightString = weightString )
+    lepton_id["bkg_h_eff"] = bkg_sample.get1DHistoFromDraw( lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, weightString = weightString, binningIsExplicit = True )
     lepton_id["bkg_h_eff"].Scale( 1./ref['val'])
 
 #    e_S = 0.

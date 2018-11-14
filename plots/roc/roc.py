@@ -7,10 +7,17 @@ from ROOT import gStyle
 # Arguments
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
-argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
-argParser.add_argument('--plot_directory',     action='store',      default='deepLepton')
-argParser.add_argument('--flat',                                    action='store_true',     help='Run on flat ntuple data?', )
+argParser.add_argument('--logLevel',           action='store',           default='INFO', nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
+argParser.add_argument('--small',              action='store_true',                help='Run only on a small subset of the data?', )
+argParser.add_argument('--plot_directory',     action='store',           default='deepLepton')
+argParser.add_argument('--ptMin',              action='store',      type=int,     default=25)
+argParser.add_argument('--ptMax',              action='store',      type=int,     default=0)
+argParser.add_argument('--flat',               action='store_true',                 help='Run on flat ntuple data?', )
+argParser.add_argument('--flatSample',         action='store',           default='TTJets_Muons_balanced_pt5toInf_2016')
+
+argParser.add_argument('--year',               action='store', type=int, choices=[2016,2017],   default=2016,   help="Which year?")
+argParser.add_argument('--flavour',            action='store', type=str, choices=['ele','muo'], default='muo',  help="Which Flavour?")
+argParser.add_argument('--testData',           action='store', type=int, choices=[0,1],         default=1,      help="plot test or train data?")
 #argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
 args = argParser.parse_args()
 
@@ -30,24 +37,30 @@ from RootTools.core.standard import *
 data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
 postProcessing_directory = "deepLepton_v1/inclusive"
 from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
-from DeepLepton.samples.flat_training_samples import flat_sample
+from DeepLepton.samples.flat_training_samples import *
 
 if args.small:
     TTJets_DiLepton.reduceFiles( to = 1 )
     TTJets_SingleLepton.reduceFiles( to = 1 )
     #DY.reduceFiles( to = 1 )
     #QCD.reduceFiles( to = 1 )
-    flat_sample.reduceFiles( to = 1 )
 
 event_selection = "(1)"
 
 #signal and background sample
 
 if args.flat:
+
+    flat_sampleInfo = vars()[args.flatSample]
+    flat_files, predict_files = get_flat_files( flat_sampleInfo['flat_directory'], flat_sampleInfo['predict_directory'])
+    flat_sample = get_flat_sample( flat_sampleInfo['training_name'], flat_sampleInfo['sample_name'], flat_files, predict_files )
+
     sig_sample = flat_sample
     bkg_sample = flat_sample
+
     training_name = flat_sample.name
     sample_name   = flat_sample.texName
+
 else:
     sig_sample = TTJets_DiLepton
     bkg_sample = TTJets_SingleLepton
@@ -55,7 +68,7 @@ else:
     sample_name   = 'TTJets_Muons'
 
 # truth categories
-prompt_selection    = "(abs({lep}_mcMatchId)==6||abs({lep}_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37)".format( lep = "lep")
+prompt_selection    = "(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37)"
 nonPrompt_selection = "(!(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37))&&(abs(lep_mcMatchAny)==4||abs(lep_mcMatchAny)==5)"
 fake_selection      = "(!(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37))&&(!(abs(lep_mcMatchAny)==4||abs(lep_mcMatchAny)==5))"
 
@@ -64,10 +77,8 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 #loose_id = "abs(lep_pdgId)==13&&lep_miniRelIso<0.5"
 
 # pt selection
-kinematic_selection = "lep_pt>25"
-#kinematic_selection = "lep_pt>15&&lep_pt<=25"
-#kinematic_selection = "lep_pt>5&&lep_pt<=15"
-#kinematic_selection = "lep_pt>10&&lep_pt<=15"
+kinematic_selection = "lep_pt>{ptMin}".format(ptMin = args.ptMin) if args.ptMax==0 else "lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin, ptMax = args.ptMax)
+
 
 # lepton Ids
 deepLepton = {"name":"deepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/100000. for i in range(0,100000)]}
@@ -139,7 +150,7 @@ for line in header:
 c.SetLogx()
 c.BuildLegend(0.6,0.12,0.9,0.22)
 
-directory = os.path.join( plot_directory, "DeepLepton", sample_name )
+directory = os.path.join( plot_directory, "DeepLepton", sample_name, 'pt_related_trainings')
 if not os.path.exists(directory):
     os.makedirs(directory)
 c.Print(os.path.join( directory, "{plot_name}_{kin}_roc.png".format( plot_name = training_name, kin = kinematic_selection ) ))

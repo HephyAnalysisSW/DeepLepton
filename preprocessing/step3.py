@@ -25,7 +25,7 @@ def get_parser():
     argParser.add_argument('--year',            action='store',             type=int, choices=[2016,2017],                      required = True, help="Which year?")
     argParser.add_argument('--flavour',         action='store',             type=str, choices=['ele','muo'],                    required = True, help="Which Flavour?")
     argParser.add_argument('--ptSelection',     action='store',             type=str,  default = "pt_15_-1", help="Which pt selection?")
-    argParser.add_argument('--sampleSelection', action='store',             type=str, choices=['DYvsQCD', 'TTJets', 'TTbar', 'TestSample'],   required = True, help="Which sample selection?")
+    argParser.add_argument('--sampleSelection', action='store',             type=str, choices=['DYvsQCD', 'TTJets', 'TTs', 'TestSample'],   required = True, help="Which sample selection?")
     argParser.add_argument('--small',           action='store_true',        help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
     argParser.add_argument('--nJobs',           action='store', nargs='?',  type=int, default=1, help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',             action='store',             type=int, default=0, help="Run only job i")

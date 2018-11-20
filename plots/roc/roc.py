@@ -18,6 +18,7 @@ argParser.add_argument('--flatSample',         action='store',           default
 argParser.add_argument('--year',               action='store', type=int, choices=[2016,2017],   default=2016,   help="Which year?")
 argParser.add_argument('--flavour',            action='store', type=str, choices=['ele','muo'], default='muo',  help="Which Flavour?")
 argParser.add_argument('--testData',           action='store', type=int, choices=[0,1],         default=1,      help="plot test or train data?")
+argParser.add_argument('--lumi_weight',        action='store', type=int, choices=[0,1],         default=1,      help="apply lumi weight?")
 #argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
 args = argParser.parse_args()
 
@@ -81,7 +82,7 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 kinematic_selection = "lep_pt>{ptMin}".format(ptMin = args.ptMin) if args.ptMax==0 else "lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin, ptMax = args.ptMax)
 
 #relative lumi weight
-weightString = 'lumi_scaleFactor1fb' if args.flat else '1'
+weightString = 'lumi_scaleFactor1fb' if args.lumi_weight else '1'
 
 # lepton Ids
 deepLepton = {"name":"deepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/100000. for i in range(0,100000)]}
@@ -165,4 +166,4 @@ else:
 
 if not os.path.exists(directory):
     os.makedirs(directory)
-c.Print(os.path.join( directory, "{plot_name}_{kin}_roc.png".format( plot_name = training_name, kin = kinematic_selection ) ))
+c.Print(os.path.join( directory, "{plot_name}_{kin}_{lumi}_roc.png".format( plot_name = training_name, kin = kinematic_selection, lumi = 'lumi' if args.lumi_weight else 'noLumi' ) ))

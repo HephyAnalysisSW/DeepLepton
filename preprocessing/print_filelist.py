@@ -8,14 +8,15 @@ import numpy
 leptonFlavour   = ['muo']
 sampleSelections = [
                     #'DYvsQCD', 
-                    'TTJets',
+                    #'TTJets',
+                    'TTs',
                    ]
 
 ptSelections    = [
                     'pt_5_-1',
-                    'pt_5_15',
-                    'pt_15_25',
-                    'pt_25_-1',
+                    #'pt_5_15',
+                    #'pt_15_25',
+                    #'pt_25_-1',
                   ]
 
 ratioTrain      = 80

@@ -7,6 +7,7 @@
 import ROOT, os
 ROOT.gROOT.SetBatch(True)
 import itertools
+import copy
 
 from math                         import sqrt, cos, sin, pi
 from RootTools.core.standard      import *
@@ -97,9 +98,26 @@ def getLeptons( event, sample ):
     all_leptons = getAllLeptons( event, leptonVars + ['jetBTagDeepCSV', 'mvaTTV'], collection = "lep")
     loose_muons = filter( lambda l: abs(l['pdgId']) == 13 and loose_mu_selector(l), all_leptons )
 
-    tight_muons = filter( tight_mu_selector, loose_muons )
+    #tight_muons = filter( tight_mu_selector, loose_muons )
+    #print len(loose_muons), len( tight_muons )
+    
+    # take first two 
+    l1, l2 = ( loose_muons + [None, None] ) [:2]
+    # loop over both possibilities
+    for tag, probe, postfix in [ 
+            [ l1, l2, '1'], 
+            [ l2, l1, '2'] ]:
+        # require tight tag
+        if tag is not None and probe is not None and tight_mu_selector(tag): 
+            # recall probe and tag in potentially two configurations
+            setattr( event, "tag_%s"%postfix, tag )
+            setattr( event, "probe_%s"%postfix, probe )
+        else:
+            setattr( event, "tag_%s"%postfix, None )
+            setattr( event, "probe_%s"%postfix, None )
 
-    print len(loose_muons), len( tight_muons )
+    #print len(filter( tight_mu_selector, loose_muons )), event.probe_1, event.probe_2
+
     #event.leptons           = filter( lambda j:j['pt']>30 and j['id'], [getObjDict(event, 'lepton_', leptonVars, i) for i in range(int(getVarValue(event, 'nlepton')))] )
     #event.leptons   = filter( isAnalysisLepton, event.leptons )
     #event.b_leptons = filter( lambda j: isAnalysisLepton(j) and isBLepton(j), event.leptons )
@@ -169,7 +187,7 @@ if args.small:
         sample.reduceFiles( to = 1 )
 
 # Use some defaults
-Plot.setDefaults(stack = stack, weight = staticmethod( weight_ ), selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin='upper')
+Plot.setDefaults(stack = stack, weight = staticmethod( weight_ ), selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin=None)
 
 plots = []
 
@@ -209,18 +227,56 @@ plots.append(Plot(
   binning=[600/30,0,600],
 ))
 
-# Lepton plots
+def getter( tag_or_probe, postfix, variable ):
+    def att_getter( event, sample ):
+        l = getattr( event, "%s_%s"%( tag_or_probe, postfix ) )
+        if l is not None:
+            return l[variable]
+        return float('nan')
+    return att_getter
 
-#plots.append(Plot(
-#  texX = '|#eta|(leading non-b jet)', texY = 'Number of Events / 30 GeV',
-#  name = 'jetLeadNonB_absEta', attribute = lambda event, sample: abs(event.leading_untagged_jet['eta']) if event.leading_untagged_jet is not None else float('nan'),
-#  binning=[26,0,5.2],
-#))
+#pt, eta, etaSc, phi, pdgId, tightId, tightCharge, miniRelIso, relIso03, relIso04, sip3d, mediumMuonId, pfMuonId, lostHits, convVeto, dxy, dz, hadronicOverEm, dEtaScTrkIn, 
+#dPhiScTrkIn, eInvMinusPInv, full5x5_sigmaIetaIeta, etaSc, mvaTTH, matchedTrgObj1Mu, matchedTrgObj1El, muonInnerTrkRelErr, chargeConsistency, trackMult, 
+#miniRelIsoCharged, miniRelIsoNeutral, jetPtRelv2, jetPtRelv1, jetPtRatiov2, jetPtRatiov1, relIso03, jetBTagDeepCSV, segmentCompatibility, mvaIdSpring16, 
+#eleCutId_Spring2016_25ns_v1_ConvVetoDxyDz, mvaIdFall17noIso, edxy, edz, ip3d, sip3d, innerTrackChi2, innerTrackValidHitFraction, ptErrTk, rho, jetDR, 
+#trackerLayers, pixelLayers, trackerHits, lostHits, lostOuterHits, glbTrackProbability, isGlobalMuon, chi2LocalPosition, chi2LocalMomentum, globalTrackChi2, 
+#trkKink, caloCompatibility, nStations, mvaTTV, cleanEle, ptCorr, isGenPrompt, FO_4l, FO_3l, FO_SS, tight_4l, tight_3l, tight_SS, 
+#deepLepton_prompt, deepLepton_nonPrompt, deepLepton_fake, 
 
-plotting.fill(plots, read_variables = read_variables, sequence = sequence, max_events = 20000 if args.small else -1)
+tp_variables = [
+    [ 'pt',  [600/10,0,600], 'p_{T} (GeV)' ],
+    [ 'eta', [25,-2.5,2.5], '#eta' ],
+]
+
+tp_plots = []
+tp_pairs = {}
+for variable, binning, texX in tp_variables:
+    tp_pairs[ (variable,  texX )] = {}
+    for tag_or_probe in [ 'tag', 'probe' ]:
+        for postfix in ['1', '2']:
+            tp_plots.append(Plot(
+              texX = tag_or_probe+' '+texX, 
+              texY = 'Number of Events',
+              name = '%s_%s_%s'%( tag_or_probe, postfix, variable ),
+              attribute = getter( tag_or_probe, postfix, variable ),
+              binning   = binning,
+            ))
+        tp_pairs[ ( variable, texX )][ tag_or_probe ] = tp_plots[-2:]
+
+plotting.fill(plots + tp_plots, read_variables = read_variables, sequence = sequence, max_events = 20000 if args.small else -1)
+
+tp_draw_plots = []
+for i_variable, (variable, binning, texX) in enumerate(tp_variables):
+    for tag_or_probe in [ 'tag', 'probe' ]:
+        plot      = tp_pairs[ ( variable, texX )][ tag_or_probe ][0]
+        plot_1    = tp_pairs[ ( variable, texX )][ tag_or_probe ][1]
+        plot.name = '%s_%s'%( tag_or_probe, variable )
+        for i_s, s in enumerate(plot_1.histos):
+            for i_h, h in enumerate(s):
+                h.Add( tp_plots[2*i_variable+1].histos[i_s][i_h] )
+        tp_draw_plots.append( plot )
 
 dataMCScale = -1
-drawPlots(plots, dataMCScale)
+drawPlots(plots + tp_draw_plots, dataMCScale)
 
 logger.info( "Done with prefix %s and selectionString %s", args.selection, cutInterpreter.cutString(args.selection) )
-

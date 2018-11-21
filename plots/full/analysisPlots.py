@@ -85,36 +85,19 @@ def getJets( event, sample ):
     jetVars              = ['eta','pt','phi','btagCSV','id', 'btagDeepCSV']
     event.jets           = filter( lambda j:j['pt']>30 and j['id'], [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))] )
 
-    b_jets = filter( lambda j: isAnalysisJet(j) and isBJet(j), event.jets )
-    leading_bjet = b_jets[0] if len(b_jets)>0 else None
-    if leading_bjet is not None:
-        v_leading_bjet = ROOT.TLorentzVector()
-        v_leading_bjet.SetPtEtaPhiM(leading_bjet['pt'],leading_bjet['eta'],leading_bjet['phi'],0.)
-
-    untagged_jets = filter( lambda j: not isBJet(j), event.jets )
-    event.leading_untagged_jet = untagged_jets[0] if len(untagged_jets)>0 else None
-    if event.leading_untagged_jet is not None and leading_bjet is not None:
-        v_leading_untagged_jet = ROOT.TLorentzVector()
-        v_leading_untagged_jet.SetPtEtaPhiM(event.leading_untagged_jet['pt'],event.leading_untagged_jet['eta'],event.leading_untagged_jet['phi'],0.)
-        event.m_leadingUntagged_bJet = (v_leading_bjet+v_leading_untagged_jet).M()
-    else:
-        event.m_leadingUntagged_bJet = float('nan') 
-
-    untagged_jets.sort(key = lambda j: -abs(j['eta'])) 
-    event.mostForward_untagged_jet = untagged_jets[0] if len(untagged_jets)>0 else None 
-    if event.mostForward_untagged_jet is not None and leading_bjet is not None:
-        v_mostForward_untagged_jet = ROOT.TLorentzVector()
-        v_mostForward_untagged_jet.SetPtEtaPhiM(event.mostForward_untagged_jet['pt'],event.mostForward_untagged_jet['eta'],event.mostForward_untagged_jet['phi'],0.)
-        event.m_mostForwardUntagged_bJet = (v_leading_bjet+v_mostForward_untagged_jet).M() 
-    else:
-        event.m_mostForwardUntagged_bJet = float('nan') 
-
-    event.jets = filter( isAnalysisJet, event.jets )
+    event.jets   = filter( isAnalysisJet, event.jets )
+    event.b_jets = filter( lambda j: isAnalysisJet(j) and isBJet(j), event.jets )
 
 sequence.append( getJets )
 
-def makeMyObservables( event, sample ):
-    event.myObs = 0.
+def getLeptons( event, sample ):
+    leptonVars              = [ 'eta', 'pt', 'phi']
+    #event.leptons           = filter( lambda j:j['pt']>30 and j['id'], [getObjDict(event, 'lepton_', leptonVars, i) for i in range(int(getVarValue(event, 'nlepton')))] )
+    #event.leptons   = filter( isAnalysisLepton, event.leptons )
+    #event.b_leptons = filter( lambda j: isAnalysisLepton(j) and isBLepton(j), event.leptons )
+
+sequence.append( getLeptons )
+
 
 sequence.append( makeMyObservables )
 
@@ -221,17 +204,13 @@ plots.append(Plot(
   binning=[600/30,0,600],
 ))
 
-plots.append(Plot(
-  texX = 'p_{T}(leading non-b jet) (GeV)', texY = 'Number of Events / 30 GeV',
-  name = 'jetLeadNonB_pt', attribute = lambda event, sample: event.leading_untagged_jet['pt'] if event.leading_untagged_jet is not None else float('nan'),
-  binning=[600/30,0,600],
-))
+# Lepton plots
 
-plots.append(Plot(
-  texX = '|#eta|(leading non-b jet)', texY = 'Number of Events / 30 GeV',
-  name = 'jetLeadNonB_absEta', attribute = lambda event, sample: abs(event.leading_untagged_jet['eta']) if event.leading_untagged_jet is not None else float('nan'),
-  binning=[26,0,5.2],
-))
+#plots.append(Plot(
+#  texX = '|#eta|(leading non-b jet)', texY = 'Number of Events / 30 GeV',
+#  name = 'jetLeadNonB_absEta', attribute = lambda event, sample: abs(event.leading_untagged_jet['eta']) if event.leading_untagged_jet is not None else float('nan'),
+#  binning=[26,0,5.2],
+#))
 
 plotting.fill(plots, read_variables = read_variables, sequence = sequence, max_events = 20000 if args.small else -1)
 

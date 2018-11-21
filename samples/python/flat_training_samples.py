@@ -132,6 +132,7 @@ def get_flat_variables(noTraining):
     "lep_mvaTTH/F",
     "lep_mvaTTV/F",
     "nTrueInt/F",
+    "lumi_scaleFactor1fb/F",
     ]
 
     if not noTraining:
@@ -220,6 +221,12 @@ TTJets_Muons_balanced_pt5toInf_2016 = {
 'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTJets',
 'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018111401/TTJets_balancedPt5toInfMuonEvaluationTestData',
 'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018111401/TTJets_balancedPt5toInfMuonEvaluationTestDataIsTrainData',
+#'training_name'     : 'TTJets_Muons_balanced_pt5toInf_20181115',
+#'training_date'     : '20181115',
+#'sample_name'       : 'TTJets_Muons_2016',
+#'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTJets',
+#'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181115/TTJets_balancedPt5toInfMuonEvaluationTestData',
+#'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181115/TTJets_balancedPt5toInfMuonEvaluationTestDataIsTrainData',
 }
 
 TTJets_Muons_balanced_pt5to15_2016 = {
@@ -251,6 +258,16 @@ TTJets_Muons_balanced_pt25toInf_2016 = {
 'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_25_-1/TTJets',
 'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018111404/TTJets_balancedPt25toInfMuonEvaluationTestData',
 'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/2018111404/TTJets_balancedPt25toInfMuonEvaluationTestDataIsTrainData',
+}
+
+#TTs pt related trainings
+TTs_Muons_balanced_pt5toInf_2016 = {
+'training_name'     : 'TTs_Muons_balanced_pt5toInf_20181117',
+'training_date'     : '20181117',
+'sample_name'       : 'TTs_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181117/TTs_balanced_pt5toInf_MuonEvaluationTestData',
+'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181117/TTs_balanced_pt5toInf_MuonEvaluationTestDataIsTrainData',
 }
 
 

@@ -166,7 +166,6 @@ else:
     proxy = proxy_path
 logger.info( "Using proxy %s"%proxy )
 
-
 # Summer16 MC for Deeplepton training
 lepton_2016_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v4.pkl' 
 robert_lepton2016_v4 = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/lepton/']

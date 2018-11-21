@@ -12,7 +12,7 @@ from math                         import sqrt, cos, sin, pi
 from RootTools.core.standard      import *
 from DeepLepton.Tools.user            import plot_directory
 from DeepLepton.Tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
-from DeepLepton.Tools.objectSelection import getFilterCut, isAnalysisJet, isBJet
+from DeepLepton.Tools.objectSelection import getFilterCut, isAnalysisJet, isBJet, getAllLeptons, leptonVars, muonSelector, lepton_branches_data, lepton_branches_mc
 from DeepLepton.Tools.cutInterpreter  import cutInterpreter
 
 #
@@ -75,7 +75,7 @@ for sample in mc: sample.style = styles.fillStyle(sample.color)
 #
 read_variables =    ["weight/F",
                     "jet[pt/F,eta/F,phi/F,btagCSV/F,id/I,btagDeepCSV/F]", "njet/I", 'nJetSelected/I',
-                    "lep[pt/F,eta/F,phi/F,pdgId/I]", "nlep/I",
+                    "lep[%s,jetBTagDeepCSV/F,mvaTTV/F]"%lepton_branches_data, "nlep/I",
                     "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
                     ]
 
@@ -90,16 +90,21 @@ def getJets( event, sample ):
 
 sequence.append( getJets )
 
+loose_mu_selector = muonSelector( "loose", args.year)
+tight_mu_selector = muonSelector( "tight_2l", args.year)
+
 def getLeptons( event, sample ):
-    leptonVars              = [ 'eta', 'pt', 'phi']
+    all_leptons = getAllLeptons( event, leptonVars + ['jetBTagDeepCSV', 'mvaTTV'], collection = "lep")
+    loose_muons = filter( lambda l: abs(l['pdgId']) == 13 and loose_mu_selector(l), all_leptons )
+
+    tight_muons = filter( tight_mu_selector, loose_muons )
+
+    print len(loose_muons), len( tight_muons )
     #event.leptons           = filter( lambda j:j['pt']>30 and j['id'], [getObjDict(event, 'lepton_', leptonVars, i) for i in range(int(getVarValue(event, 'nlepton')))] )
     #event.leptons   = filter( isAnalysisLepton, event.leptons )
     #event.b_leptons = filter( lambda j: isAnalysisLepton(j) and isBLepton(j), event.leptons )
 
 sequence.append( getLeptons )
-
-
-sequence.append( makeMyObservables )
 
 # Text on the plots
 #

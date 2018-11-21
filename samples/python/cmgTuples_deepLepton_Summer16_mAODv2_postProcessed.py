@@ -20,14 +20,14 @@ try:
   import sys
   postProcessing_directory = sys.modules['__main__'].postProcessing_directory
 except:
-  postProcessing_directory = "deepLepton_v1/inclusive"
+  postProcessing_directory = "deepLepton_v4/singlelep"
 
 logger.info("Loading MC samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
 dirs = {}
 #TTJets
-dirs['TTJets_DiLepton']     = ["TTJets_DiLepton"]
-dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromT", "TTJets_SingleLeptonFromTbar"]
+dirs['TTJets_DiLepton']     = ["TTJets_DiLepton_comb"]
+#dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromT", "TTJets_SingleLeptonFromTbar"]
 ##DYvsQCD
 #dirs['DY']                  = ["DY1JetsToLL_M50_LO", "DY2JetsToLL_M50_LO", "DY3JetsToLL_M50_LO", "DY4JetsToLL_M50_LO"]
 #dirs['QCD']                 = ["QCD_Pt1000toInf_Mu5", "QCD_Pt1000toInf_Mu5_ext", "QCD_Pt120to170_Mu5", "QCD_Pt15to20_Mu5", 
@@ -72,7 +72,7 @@ dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromT", "TTJets_SingleLeptonF
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
 TTJets_DiLepton      = Sample.fromDirectory(name="TTJets_DiLepton",       treeName="Events", isData=False, color=color.TTJets,        texName="t#bar{t}(2l)",              directory=directories['TTJets_DiLepton'])
-TTJets_SingleLepton  = Sample.fromDirectory(name="TTJets_SingleLepton",   treeName="Events", isData=False, color=color.TTJets,        texName="t#bar{t}(2l)",              directory=directories['TTJets_SingleLepton'])
+#TTJets_SingleLepton  = Sample.fromDirectory(name="TTJets_SingleLepton",   treeName="Events", isData=False, color=color.TTJets,        texName="t#bar{t}(2l)",              directory=directories['TTJets_SingleLepton'])
 #DY                   = Sample.fromDirectory(name="DY",                    treeName="Events", isData=False, color=color.DY,            texName="DY",                        directory=directories['DY'])
 #QCD                  = Sample.fromDirectory(name="QCD",                   treeName="Events", isData=False, color=color.DY,            texName="QCD",                       directory=directories['QCD'])
 

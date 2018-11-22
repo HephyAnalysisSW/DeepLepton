@@ -26,6 +26,7 @@ argParser.add_argument('--noData',             action='store_true', default=Fals
 argParser.add_argument('--year',               action='store',      default=2016,            choices = [2016, 2017], type=int, help='2016 or 2017?',)
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--plot_directory',     action='store',      default='DeepLepton')
+argParser.add_argument('--sampleSelection',    action='store',      choices=['DY','TT'], default='TT'  )
 argParser.add_argument('--selection',          action='store',      default='njet1p-btag1p')
 args = argParser.parse_args()
 
@@ -37,6 +38,7 @@ import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
+args.plot_directory += "_"+args.sampleSelection
 if args.small:                        args.plot_directory += "_small"
 if args.year == 2017:                 args.plot_directory += "_Run2017"
 if args.noData:                       args.plot_directory += "_noData"
@@ -76,7 +78,7 @@ for sample in mc: sample.style = styles.fillStyle(sample.color)
 #
 read_variables =    ["weight/F",
                     "jet[pt/F,eta/F,phi/F,btagCSV/F,id/I,btagDeepCSV/F]", "njet/I", 'nJetSelected/I',
-                    "lep[%s,jetBTagDeepCSV/F,mvaTTV/F]"%lepton_branches_data, "nlep/I",
+                    "lep[%s,jetBTagDeepCSV/F,mvaTTV/F,rho/F,innerTrackChi2/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,lostOuterHits/I,trackerLayers/I,pixelLayers/I,trackerHits/I,innerTrackValidHitFraction/F,jetDR/F,edxy/F,edz/F,ip3d/F,edxy/F,edz/F,ip3d/F,jetPtRatiov1/F,jetPtRelv1/F,jetPtRatiov2/F,jetPtRelv2/F,ptErrTk/F,segmentCompatibility/F,isGlobalMuon/I,chi2LocalPosition/F,chi2LocalMomentum/F,globalTrackChi2/F,caloCompatibility/F,trkKink/F,deepLepton_prompt/F,deepLepton_nonPrompt/F,deepLepton_fake/F]"%lepton_branches_data, "nlep/I",
                     "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
                     ]
 
@@ -95,7 +97,38 @@ loose_mu_selector = muonSelector( "loose", args.year)
 tight_mu_selector = muonSelector( "tight_2l", args.year)
 
 def getLeptons( event, sample ):
-    all_leptons = getAllLeptons( event, leptonVars + ['jetBTagDeepCSV', 'mvaTTV'], collection = "lep")
+    all_leptons = getAllLeptons( event, leptonVars + [
+                                                        'jetBTagDeepCSV', 
+                                                        'mvaTTV', 
+                                                        'rho', 
+                                                        'innerTrackChi2', 
+                                                        'miniRelIsoCharged', 
+                                                        'miniRelIsoNeutral', 
+                                                        'lostOuterHits', 
+                                                        'trackerLayers', 
+                                                        'pixelLayers', 
+                                                        'trackerHits', 
+                                                        'innerTrackValidHitFraction',
+                                                        'jetDR',
+                                                        'edxy',
+                                                        'edz',
+                                                        'ip3d',
+                                                        'jetPtRatiov1',
+                                                        'jetPtRelv1',
+                                                        'jetPtRatiov2',
+                                                        'jetPtRelv2',
+                                                        'ptErrTk',
+                                                        'segmentCompatibility',
+                                                        'isGlobalMuon',
+                                                        'chi2LocalPosition',
+                                                        'chi2LocalMomentum',
+                                                        'globalTrackChi2',
+                                                        'caloCompatibility',
+                                                        'trkKink',
+                                                        'deepLepton_prompt',                                   
+                                                        'deepLepton_nonPrompt',                                   
+                                                        'deepLepton_fake',                                   
+                   ], collection = "lep")
     loose_muons = filter( lambda l: abs(l['pdgId']) == 13 and loose_mu_selector(l), all_leptons )
 
     #tight_muons = filter( tight_mu_selector, loose_muons )
@@ -107,14 +140,14 @@ def getLeptons( event, sample ):
     if l2 is not None: l2['tight'] = tight_mu_selector(l2)
 
     if l1 is not None and l2 is not None and (l1['tight'] or l2['tight']):
-        pass#print sqrt(2*l1['pt']*l2['pt']*(cosh(l1['eta']-l2['eta']) - cos(l1['phi']-l2['phi'])))
+        event.tp_mll = sqrt(2*l1['pt']*l2['pt']*(cosh(l1['eta']-l2['eta']) - cos(l1['phi']-l2['phi'])))
     else:
         event.tp_mll = float('nan')
 
-    onZ = abs( event.tp_mll - 91.2 ) < 15
-
-    # if args.onZ 
-    event.tp_selection = not onZ
+    #sample selection
+    DY = ( abs( event.tp_mll - 91.2 ) < 15 )
+    TT = ( event.tp_mll > 20 and abs( event.tp_mll - 91.2 ) > 15 )
+    event.tp_selection = vars()[args.sampleSelection]
 
     # loop over both possibilities
     for tag, probe, postfix in [ 
@@ -206,7 +239,8 @@ plots = []
 
 plots.append(Plot(
   name = 'nVtxs', texX = 'vertex multiplicity', texY = 'Number of Events',
-  attribute = TreeVariable.fromString( "nVert/I" ),
+  attribute = TreeVariable.fromString( "nVert/I" ) if (lambda event, sample: event.tp_selection) else float('nan'),
+  #attribute = TreeVariable.fromString( "nVert/I" ),
   binning=[50,0,50],
 ))
 
@@ -225,7 +259,7 @@ plots.append(Plot(
 plots.append(Plot(
     texX = 'm(tag, probe)', texY = 'Number of Events',
     name = "tp_mll",
-    attribute = lambda event, sample: event.tp_mll,
+    attribute = lambda event, sample: event.tp_mll if event.tp_selection else float('nan'),
     binning=[50,0,150],
 ))
 
@@ -237,20 +271,21 @@ plots.append(Plot(
 
 plots.append(Plot(
   texX = 'p_{T}(leading jet) (GeV)', texY = 'Number of Events / 30 GeV',
-  name = 'jet1_pt', attribute = lambda event, sample: event.jets[0]['pt'] if len(event.jets)>0 else float('nan'),
+  name = 'jet1_pt', attribute = lambda event, sample: event.jets[0]['pt'] if len(event.jets)>0 and event.tp_selection else float('nan'),
   binning=[600/30,0,600],
 ))
 
 plots.append(Plot(
   texX = 'p_{T}(2nd leading jet) (GeV)', texY = 'Number of Events / 30 GeV',
-  name = 'jet2_pt', attribute = lambda event, sample: event.jets[1]['pt'] if len(event.jets)>1 else float('nan'),
+  name = 'jet2_pt', attribute = lambda event, sample: event.jets[1]['pt'] if len(event.jets)>1 and event.tp_selection else float('nan'),
   binning=[600/30,0,600],
 ))
 
+#getter for tp_variables
 def getter( tag_or_probe, postfix, variable ):
     def att_getter( event, sample ):
         if not event.tp_selection:
-            print "vetoed!", event.tp_mll 
+            #print "vetoed!", event.tp_mll 
             return float('nan')
         l = getattr( event, "%s_%s"%( tag_or_probe, postfix ) )
         if l is not None:
@@ -267,8 +302,50 @@ def getter( tag_or_probe, postfix, variable ):
 #deepLepton_prompt, deepLepton_nonPrompt, deepLepton_fake, 
 
 tp_variables = [
-    [ 'pt',  [600/10,0,600], 'p_{T} (GeV)' ],
-    [ 'eta', [25,-2.5,2.5], '#eta' ],
+#training variables
+    #global lepton variables
+    [ 'pt',                         [600/10,0,600], 'p_{T} (GeV)' ],
+    [ 'eta',                        [25,-2.5,2.5],  '#eta' ],
+    [ 'rho',                        [80,0,40],      '#rho' ],
+    [ 'innerTrackChi2',             [50,0,10],      'innerTrackChi2' ],
+    [ 'relIso03',                   [90,0,0.5],     'relIso03' ],
+    [ 'miniRelIsoCharged',          [90,0,0.5],     'miniRelIsoCharged' ],
+    [ 'miniRelIsoNeutral',          [90,0,0.5],     'miniRelIsoNeutral' ],
+    [ 'lostOuterHits',              [16,0,15],      'lostOuterHits' ],
+    [ 'lostHits',                   [16,0,15],      'lostHits' ],
+    [ 'trackerLayers',              [16,0,15],      'trackerLayers' ],
+    [ 'pixelLayers',                [16,0,15],      'pixelLayers' ],
+    [ 'trackerHits',                [16,0,15],      'trackerHits' ],
+    [ 'innerTrackValidHitFraction', [50,0.9,1.0],   'innerTrackValidHitFraction' ],
+    [ 'jetDR',                      [50,0,0.1],     'jetDR' ],
+    [ 'dxy',                        [60,-0.15,0.15],'dxy' ],
+    [ 'dz',                         [60,-0.25,0.25],'dz' ],
+    [ 'edxy',                       [50,0,0.008],   'edxy' ],
+    [ 'edz',                        [50,0,0.02],    'edz' ],
+    [ 'ip3d',                       [50,0,0.04],     'ip3d' ],
+    [ 'sip3d',                      [50,0,8],       'sip3d' ],
+    [ 'jetPtRatiov1',               [50,0,1],       'jetPtRatiov1' ],
+    [ 'jetPtRatiov2',               [50,0,1.25],    'jetPtRatiov2' ],
+    [ 'jetPtRelv1',                 [50,0,7],       'jetPtRelv1' ],
+    [ 'jetPtRelv2',                 [50,0,20],      'jetPtRelv2' ],
+    [ 'ptErrTk',                    [50,0,50],      'ptErrTk' ],
+    [ 'jetBTagDeepCSV',             [30,0,1],       'jetBTagDeepCSV' ],
+    #muon specific variables
+    [ 'segmentCompatibility',       [10,0,1],       'segmentCompatibility' ],
+    [ 'muonInnerTrkRelErr',         [50,0,0.05],    'muonInnerTrkRelErr' ],
+    [ 'isGlobalMuon',               [2,0,1],        'isGlobalMuon' ],
+    [ 'chi2LocalPosition',          [20,0,10],      'chi2LocalPosition' ],
+    [ 'chi2LocalMomentum',          [60,0,30],      'chi2LocalMomentum' ],
+    [ 'globalTrackChi2',            [50,0,3],       'globalTrackChi2' ],
+    [ 'caloCompatibility',          [50,0,1],       'caloCompatibility' ],
+    [ 'trkKink',                    [50,0,200],     'trkKink' ],
+    #pfCand features
+#other variables
+    [ 'phi',                        [60,-3.2,3.2],  '#phi' ],
+    [ 'deepLepton_prompt',          [100,0,1],      'deepLepton_prompt' ],
+    [ 'deepLepton_nonPrompt',       [100,0,1],      'deepLepton_nonPrompt' ],
+    [ 'deepLepton_fake',            [100,0,1],      'deepLepton_fake' ],
+    [ 'mvaTTV',                     [100,-1,1],     'mvaTTV' ],
 ]
 
 var_names = [var[0] for var in tp_variables]

@@ -107,9 +107,14 @@ def getLeptons( event, sample ):
     if l2 is not None: l2['tight'] = tight_mu_selector(l2)
 
     if l1 is not None and l2 is not None and (l1['tight'] or l2['tight']):
-        print sqrt(2*l1['pt']*l2['pt']*(cosh(l1['eta']-l2['eta']) - cos(l1['phi']-l2['phi'])))
+        pass#print sqrt(2*l1['pt']*l2['pt']*(cosh(l1['eta']-l2['eta']) - cos(l1['phi']-l2['phi'])))
     else:
         event.tp_mll = float('nan')
+
+    onZ = abs( event.tp_mll - 91.2 ) < 15
+
+    # if args.onZ 
+    event.tp_selection = not onZ
 
     # loop over both possibilities
     for tag, probe, postfix in [ 
@@ -244,6 +249,9 @@ plots.append(Plot(
 
 def getter( tag_or_probe, postfix, variable ):
     def att_getter( event, sample ):
+        if not event.tp_selection:
+            print "vetoed!", event.tp_mll 
+            return float('nan')
         l = getattr( event, "%s_%s"%( tag_or_probe, postfix ) )
         if l is not None:
             return l[variable]
@@ -262,6 +270,9 @@ tp_variables = [
     [ 'pt',  [600/10,0,600], 'p_{T} (GeV)' ],
     [ 'eta', [25,-2.5,2.5], '#eta' ],
 ]
+
+var_names = [var[0] for var in tp_variables]
+assert len(var_names)==len(list(set(var_names))), "tp variable names not unique!!!!"
 
 tp_plots = []
 tp_pairs = {}
@@ -288,7 +299,7 @@ for i_variable, (variable, binning, texX) in enumerate(tp_variables):
         plot.name = '%s_%s'%( tag_or_probe, variable )
         for i_s, s in enumerate(plot_1.histos):
             for i_h, h in enumerate(s):
-                h.Add( tp_plots[2*i_variable+1].histos[i_s][i_h] )
+                h.Add( plot_1.histos[i_s][i_h] )
         tp_draw_plots.append( plot )
 
 dataMCScale = -1

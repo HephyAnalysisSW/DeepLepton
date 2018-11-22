@@ -54,8 +54,10 @@ if args.flat:
     sample_name   = flat_sample.texName
 
 else:
-    data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-    postProcessing_directory = "deepLepton_v1/inclusive"
+    #data_directory = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
+    data_directory = "/afs/hephy.at/data/gmoertl01/cmgTuples/"
+    #postProcessing_directory = "deepLepton_v1/inclusive"
+    postProcessing_directory = "deepLepton_v4/singlelep"
     from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
 
     sig_sample = TTJets_DiLepton
@@ -82,7 +84,10 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 kinematic_selection = "lep_pt>{ptMin}".format(ptMin = args.ptMin) if args.ptMax==0 else "lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin, ptMax = args.ptMax)
 
 #relative lumi weight
-weightString = 'lumi_scaleFactor1fb' if args.lumi_weight else '1'
+if args.flat:
+    weightString = 'lumi_scaleFactor1fb' if args.lumi_weight else '1'
+else:
+    weightString = '1'
 
 # lepton Ids
 deepLepton = {"name":"deepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/100000. for i in range(0,100000)]}

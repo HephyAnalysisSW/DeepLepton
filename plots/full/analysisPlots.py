@@ -9,7 +9,7 @@ ROOT.gROOT.SetBatch(True)
 import itertools
 import copy
 
-from math                         import sqrt, cos, sin, pi
+from math                         import sqrt, cos, sin, pi, cosh
 from RootTools.core.standard      import *
 from DeepLepton.Tools.user            import plot_directory
 from DeepLepton.Tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
@@ -103,12 +103,20 @@ def getLeptons( event, sample ):
     
     # take first two 
     l1, l2 = ( loose_muons + [None, None] ) [:2]
+    if l1 is not None: l1['tight'] = tight_mu_selector(l1)
+    if l2 is not None: l2['tight'] = tight_mu_selector(l2)
+
+    if l1 is not None and l2 is not None and (l1['tight'] or l2['tight']):
+        print sqrt(2*l1['pt']*l2['pt']*(cosh(l1['eta']-l2['eta']) - cos(l1['phi']-l2['phi'])))
+    else:
+        event.tp_mll = float('nan')
+
     # loop over both possibilities
     for tag, probe, postfix in [ 
             [ l1, l2, '1'], 
             [ l2, l1, '2'] ]:
         # require tight tag
-        if tag is not None and probe is not None and tight_mu_selector(tag): 
+        if tag is not None and probe is not None and tag['tight']: 
             # recall probe and tag in potentially two configurations
             setattr( event, "tag_%s"%postfix, tag )
             setattr( event, "probe_%s"%postfix, probe )
@@ -207,6 +215,13 @@ plots.append(Plot(
     texX = '#phi(E_{T}^{miss})', texY = 'Number of Events / 20 GeV',
     attribute = TreeVariable.fromString( "met_phi/F" ),
     binning=[10,-pi,pi],
+))
+
+plots.append(Plot(
+    texX = 'm(tag, probe)', texY = 'Number of Events',
+    name = "tp_mll",
+    attribute = lambda event, sample: event.tp_mll,
+    binning=[50,0,150],
 ))
 
 plots.append(Plot(

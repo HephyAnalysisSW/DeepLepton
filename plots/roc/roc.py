@@ -9,6 +9,7 @@ import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',           default='INFO', nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--small',              action='store_true',                help='Run only on a small subset of the data?', )
+argParser.add_argument('--medium',             action='store_true',                help='Run only on a medium subset of the data?', )
 argParser.add_argument('--plot_directory',     action='store',           default='deepLepton')
 argParser.add_argument('--ptMin',              action='store',      type=int,     default=25)
 argParser.add_argument('--ptMax',              action='store',      type=int,     default=0)
@@ -41,7 +42,7 @@ event_selection = "(1)"
 if args.flat:
     from DeepLepton.samples.flat_training_samples import *
 
-    nMax = 2 if args.flat else -1
+    nMax = 2 if args.small else -1
     
     flat_sampleInfo = vars()[args.flatSample]
     flat_files, predict_files = get_flat_files( flat_sampleInfo['flat_directory'], flat_sampleInfo['predict_directory' if args.testData else 'predict_directory_trainData'])
@@ -62,12 +63,12 @@ else:
 
     sig_sample = TTJets_DiLepton
     bkg_sample = TTJets_SingleLepton
-    training_name = 'TTJets_Muons_20181013'
-    sample_name   = 'TTJets_Muons'
+    training_name = 'TTs_Muons_20181017'
+    sample_name   = 'TTs_Muons'
 
-    if args.small:
-        TTJets_DiLepton.reduceFiles( to = 1 )
-        TTJets_SingleLepton.reduceFiles( to = 1 )
+    if args.small or args.medium:
+        TTJets_DiLepton.reduceFiles( to = 1 if args.small else 50 )
+        TTJets_SingleLepton.reduceFiles( to = 1 if args.small else 50 )
         #DY.reduceFiles( to = 1 )
         #QCD.reduceFiles( to = 1 )
 
@@ -167,7 +168,7 @@ if args.flat:
                                 'TestData' if args.testData else 'TrainData',
                             )
 else:
-    directory = os.path.join( plot_directory, "DeepLepton" ) 
+    directory = os.path.join( plot_directory, "DeepLepton", "full_events" ) 
 
 if not os.path.exists(directory):
     os.makedirs(directory)

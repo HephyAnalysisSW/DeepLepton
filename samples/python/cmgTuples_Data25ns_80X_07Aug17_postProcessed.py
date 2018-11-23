@@ -13,7 +13,7 @@ except:
 
 # Take post processing directory if defined in main module
 try:    postProcessing_directory = sys.modules['__main__'].postProcessing_directory
-except: postProcessing_directory = 'deepLepton_v4/singlelep'
+except: postProcessing_directory = 'deepLepton_v5/singlelep'
 
 logger.info("Loading data samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
@@ -34,7 +34,8 @@ def merge(pd, totalRunName, listOfRuns):
     dirs[pd + '_' + totalRunName] = []
     for run in listOfRuns: dirs[pd + '_' + totalRunName].extend(dirs[pd + '_' + run])
 
-for pd in ['SingleElectron','SingleMuon', 'MuonEG', 'DoubleMuon', 'DoubleEG']:
+#for pd in ['SingleElectron','SingleMuon', 'MuonEG', 'DoubleMuon', 'DoubleEG']:
+for pd in ['DoubleMuon',]:
     merge(pd, 'Run2016BCD',    ['Run2016B_v2', 'Run2016C', 'Run2016D'])
     merge(pd, 'Run2016BCDEFG', ['Run2016BCD', 'Run2016E', 'Run2016F', 'Run2016G'])
     merge(pd, 'Run2016',       ['Run2016BCDEFG', 'Run2016H'])

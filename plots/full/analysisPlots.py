@@ -24,6 +24,8 @@ argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',      default='INFO',          nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
 argParser.add_argument('--year',               action='store',      default=2016,            choices = [2016, 2017], type=int, help='2016 or 2017?',)
+argParser.add_argument('--eta_min',            action='store',      default=0.,                                      type=float, help='eta min for binning',)
+argParser.add_argument('--eta_max',            action='store',      default=2.5,                                     type=float, help='eta max for binning',)
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
 argParser.add_argument('--plot_directory',     action='store',      default='DeepLepton')
 argParser.add_argument('--sampleSelection',    action='store',      choices=['DY','TT'], default='TT'  )
@@ -42,6 +44,7 @@ args.plot_directory += "_"+args.sampleSelection
 if args.small:                        args.plot_directory += "_small"
 if args.year == 2017:                 args.plot_directory += "_Run2017"
 if args.noData:                       args.plot_directory += "_noData"
+args.plot_directory = os.path.join( args.plot_directory, 'eta_{eta_min}to{eta_max}'.format(eta_min = args.eta_min, eta_max = args.eta_max) )
 #
 # Make samples, will be searched for in the postProcessing directory
 #
@@ -58,8 +61,10 @@ if args.year == 2017:
 
 else:
     data_directory           = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"  
-    postProcessing_directory = "deepLepton_v4/singlelep"
+    postProcessing_directory = "deepLepton_v4/singlelep" 
     from DeepLepton.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
+    #data_directory           = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"  
+    #postProcessing_directory = "deepLepton_v5/singlelep" 
     data_directory           = "/afs/hephy.at/data/gmoertl01/cmgTuples/"
     postProcessing_directory = "deepLepton_v4/singlelep"
     from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
@@ -70,7 +75,8 @@ else:
 if args.year == 2017:
     mc             = [ ]
 else:
-    mc             = [ TTJets_DiLepton ]
+    #mc             = [ DY,] if args.sampleSelection=='DY' else [ TTJets_DiLepton, TTJets_SingleLepton,]
+    mc             = [ TTJets_DiLepton, TTJets_SingleLepton,]
 
 for sample in mc: sample.style = styles.fillStyle(sample.color)
 
@@ -162,6 +168,22 @@ def getLeptons( event, sample ):
             setattr( event, "tag_%s"%postfix, None )
             setattr( event, "probe_%s"%postfix, None )
 
+    #for tag, probe, postfix in [ 
+    #        [ l1, l2, '1'], 
+    #        [ l2, l1, '2'] ]:
+    #    # require tight tag
+    #    if tag is not None and probe is not None and tag['tight']: 
+    #        # recall probe and tag in potentially two configurations
+    #        if abs(tag['eta']) >= args.eta_min and abs(tag['eta']) < args.eta_max:
+    #            event.eta_selection = True
+    #            setattr( event, "tag_%s"%postfix, tag )
+    #            setattr( event, "probe_%s"%postfix, probe )
+    #    else:
+    #        event.eta_selection = False
+    #        setattr( event, "tag_%s"%postfix, None )
+    #        setattr( event, "probe_%s"%postfix, None )
+
+
     #print len(filter( tight_mu_selector, loose_muons )), event.probe_1, event.probe_2
 
     #event.leptons           = filter( lambda j:j['pt']>30 and j['id'], [getObjDict(event, 'lepton_', leptonVars, i) for i in range(int(getVarValue(event, 'nlepton')))] )
@@ -246,13 +268,13 @@ plots.append(Plot(
 
 plots.append(Plot(
     texX = 'E_{T}^{miss} (GeV)', texY = 'Number of Events / 20 GeV',
-    attribute = TreeVariable.fromString( "met_pt/F" ),
+    attribute = TreeVariable.fromString( "met_pt/F" ) if (lambda event, sample: event.tp_selection) else float('nan'),
     binning=[400/20,0,400],
 ))
 
 plots.append(Plot(
     texX = '#phi(E_{T}^{miss})', texY = 'Number of Events / 20 GeV',
-    attribute = TreeVariable.fromString( "met_phi/F" ),
+    attribute = TreeVariable.fromString( "met_phi/F" ) if (lambda event, sample: event.tp_selection) else float('nan'),
     binning=[10,-pi,pi],
 ))
 
@@ -265,7 +287,7 @@ plots.append(Plot(
 
 plots.append(Plot(
   texX = 'N_{jets}', texY = 'Number of Events',
-  attribute = TreeVariable.fromString( "nJetSelected/I" ),
+  attribute = TreeVariable.fromString( "nJetSelected/I" ) if (lambda event, sample: event.tp_selection) else float('nan'),
   binning=[5,2.5,7.5],
 ))
 
@@ -288,7 +310,7 @@ def getter( tag_or_probe, postfix, variable ):
             #print "vetoed!", event.tp_mll 
             return float('nan')
         l = getattr( event, "%s_%s"%( tag_or_probe, postfix ) )
-        if l is not None:
+        if l is not None and abs(l['eta'])>=args.eta_min and abs(l['eta'])<args.eta_max:
             return l[variable]
         return float('nan')
     return att_getter
@@ -366,7 +388,7 @@ for variable, binning, texX in tp_variables:
             ))
         tp_pairs[ ( variable, texX )][ tag_or_probe ] = tp_plots[-2:]
 
-plotting.fill(plots + tp_plots, read_variables = read_variables, sequence = sequence, max_events = 20000 if args.small else -1)
+plotting.fill(plots + tp_plots, read_variables = read_variables, sequence = sequence, max_events = 10000 if args.small else -1)
 
 tp_draw_plots = []
 for i_variable, (variable, binning, texX) in enumerate(tp_variables):

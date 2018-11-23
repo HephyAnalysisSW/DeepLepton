@@ -142,7 +142,15 @@ def get_flat_variables(noTraining):
 
     return flat_variables
 
-
+#flat test file
+testFile = {
+'training_name'     : 'TTs_Muons_balanced_pt5toInf_20181117',
+'training_date'     : '20181117',
+'sample_name'       : 'testFile',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/testfile/flat/step3',
+'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/testfile/flat/step3/EvaluationTestData_TTJets_on_model_TTs_balanced_pt5toInf_20181117',
+'predict_directory_trainData' : '',
+}
 
 #flat samples
 

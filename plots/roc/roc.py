@@ -15,6 +15,7 @@ argParser.add_argument('--ptMin',              action='store',      type=int,   
 argParser.add_argument('--ptMax',              action='store',      type=int,     default=0)
 argParser.add_argument('--flat',               action='store_true',                 help='Run on flat ntuple data?', )
 argParser.add_argument('--flatSample',         action='store',           default='TTJets_Muons_balanced_pt5toInf_2016')
+argParser.add_argument('--testFile',           action='store_true',                 help='Run on testFile for full events data?', )
 
 argParser.add_argument('--year',               action='store', type=int, choices=[2016,2017],   default=2016,   help="Which year?")
 argParser.add_argument('--flavour',            action='store', type=str, choices=['ele','muo'], default='muo',  help="Which Flavour?")
@@ -61,16 +62,22 @@ else:
     postProcessing_directory = "deepLepton_v4/singlelep"
     from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
 
-    sig_sample = TTJets_DiLepton
-    bkg_sample = TTJets_SingleLepton
-    training_name = 'TTs_Muons_20181017'
-    sample_name   = 'TTs_Muons'
+    if args.testFile:
+        sig_sample = testFile
+        bkg_sample = testFile
+        training_name = 'TTs_Muons_20181017'
+        sample_name   = 'testFile'
+    else:
+        sig_sample = TTJets_DiLepton
+        bkg_sample = TTJets_SingleLepton
+        training_name = 'TTs_Muons_20181017'
+        sample_name   = 'TTs_Muons'
 
-    if args.small or args.medium:
-        TTJets_DiLepton.reduceFiles( to = 1 if args.small else 50 )
-        TTJets_SingleLepton.reduceFiles( to = 1 if args.small else 50 )
-        #DY.reduceFiles( to = 1 )
-        #QCD.reduceFiles( to = 1 )
+        if args.small or args.medium:
+            TTJets_DiLepton.reduceFiles( to = 1 if args.small else 50 )
+            TTJets_SingleLepton.reduceFiles( to = 1 if args.small else 50 )
+            #DY.reduceFiles( to = 1 )
+            #QCD.reduceFiles( to = 1 )
 
 # truth categories
 prompt_selection    = "(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37)"
@@ -83,6 +90,9 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 
 # pt selection
 kinematic_selection = "lep_pt>{ptMin}".format(ptMin = args.ptMin) if args.ptMax==0 else "lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin, ptMax = args.ptMax)
+
+# filter LepOther with nan prediction
+filter_LepOther = 'prob_lep_isPromptId_Training<999' if args.flat else 'lep_deepLepton_prompt<999'
 
 #relative lumi weight
 if args.flat:
@@ -105,14 +115,14 @@ lepton_ids = [
 # get signal efficiency
 for lepton_id in lepton_ids:
     logger.info( "At id %s", lepton_id["name"] )
-    selectionString = "&&".join( [ kinematic_selection, loose_id,  prompt_selection ] )
+    selectionString = "&&".join( [ kinematic_selection, loose_id,  prompt_selection, filter_LepOther ] )
     print selectionString
     ref                    = sig_sample.getYieldFromDraw( selectionString = selectionString, weightString = weightString) 
     lepton_id["sig_h_eff"] = sig_sample.get1DHistoFromDraw(     lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, weightString = weightString, binningIsExplicit = True )
     lepton_id["sig_h_eff"].Scale( 1./ref['val'])
 
 
-    selectionString = "&&".join( [ kinematic_selection, loose_id,  "(!("+prompt_selection+"))" ] )
+    selectionString = "&&".join( [ kinematic_selection, loose_id,  "(!("+prompt_selection+"))", filter_LepOther ] )
     print selectionString
     ref                    = bkg_sample.getYieldFromDraw( selectionString = selectionString, weightString = weightString )
     lepton_id["bkg_h_eff"] = bkg_sample.get1DHistoFromDraw( lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, weightString = weightString, binningIsExplicit = True )

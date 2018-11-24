@@ -168,22 +168,6 @@ def getLeptons( event, sample ):
             setattr( event, "tag_%s"%postfix, None )
             setattr( event, "probe_%s"%postfix, None )
 
-    #for tag, probe, postfix in [ 
-    #        [ l1, l2, '1'], 
-    #        [ l2, l1, '2'] ]:
-    #    # require tight tag
-    #    if tag is not None and probe is not None and tag['tight']: 
-    #        # recall probe and tag in potentially two configurations
-    #        if abs(tag['eta']) >= args.eta_min and abs(tag['eta']) < args.eta_max:
-    #            event.eta_selection = True
-    #            setattr( event, "tag_%s"%postfix, tag )
-    #            setattr( event, "probe_%s"%postfix, probe )
-    #    else:
-    #        event.eta_selection = False
-    #        setattr( event, "tag_%s"%postfix, None )
-    #        setattr( event, "probe_%s"%postfix, None )
-
-
     #print len(filter( tight_mu_selector, loose_muons )), event.probe_1, event.probe_2
 
     #event.leptons           = filter( lambda j:j['pt']>30 and j['id'], [getObjDict(event, 'lepton_', leptonVars, i) for i in range(int(getVarValue(event, 'nlepton')))] )

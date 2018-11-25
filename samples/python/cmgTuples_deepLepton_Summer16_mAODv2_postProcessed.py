@@ -25,7 +25,6 @@ except:
 logger.info("Loading MC samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
 dirs = {}
-dirs['testFile']            = ["testFile"]
 #TTJets
 dirs['TTJets_DiLepton']     = ["TTJets_DiLepton_comb"]
 dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromT_comb", "TTJets_SingleLeptonFromTbar_comb"]
@@ -73,7 +72,6 @@ dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromT_comb", "TTJets_SingleLe
 
 directories = { key : [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]] for key in dirs.keys()}
 
-testFile             = Sample.fromDirectory(name="testFile",              treeName="Events", isData=False, color=color.TTJets,        texName="t#bar{t}(1l)",              directory=directories['testFile'])
 TTJets_DiLepton      = Sample.fromDirectory(name="TTJets_DiLepton",       treeName="Events", isData=False, color=color.TTJets,        texName="t#bar{t}(2l)",              directory=directories['TTJets_DiLepton'])
 TTJets_SingleLepton  = Sample.fromDirectory(name="TTJets_SingleLepton",   treeName="Events", isData=False, color=color.TTJets1l,      texName="t#bar{t}(1l)",              directory=directories['TTJets_SingleLepton'])
 #DY                   = Sample.fromDirectory(name="DY",                    treeName="Events", isData=False, color=color.DY,            texName="DY",                        directory=directories['DY'])

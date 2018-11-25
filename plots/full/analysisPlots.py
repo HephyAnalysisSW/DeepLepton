@@ -50,23 +50,23 @@ args.plot_directory = os.path.join( args.plot_directory, 'eta_{eta_min}to{eta_ma
 #
 
 if args.year == 2017:
-    postProcessing_directory = "TopEFT_PP_2017_v14/dilep"
-    data_directory           = "/afs/hephy.at/data/dspitzbart02/cmgTuples"  
-    from DeepLepton.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
-    from DeepLepton.samples.cmgTuples_Summer17_92X_mAODv2_postProcessed import *
+    pass
+    #postProcessing_directory = "TopEFT_PP_2017_v14/dilep"
+    #data_directory           = "/afs/hephy.at/data/dspitzbart02/cmgTuples"  
+    #from DeepLepton.samples.cmgTuples_Data25ns_92X_Run2017_postProcessed import *
+    #from DeepLepton.samples.cmgTuples_Summer17_92X_mAODv2_postProcessed import *
 
     #SingleElectron_data = SingleElectron_Run2017
     #SingleMuon_data     = SingleMuon_Run2017
     #SingleEleMu_data    = SingleEleMu_Run2017
-
 else:
     data_directory           = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"  
-    postProcessing_directory = "deepLepton_v4/singlelep" 
+    postProcessing_directory = "deepLepton_v5/singlelep" 
     from DeepLepton.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
     #data_directory           = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"  
     #postProcessing_directory = "deepLepton_v5/singlelep" 
-    data_directory           = "/afs/hephy.at/data/gmoertl01/cmgTuples/"
-    postProcessing_directory = "deepLepton_v4/singlelep"
+    data_directory           = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"  
+    postProcessing_directory = "deepLepton_v5/singlelep"
     from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
 
     DoubleMuon_data     = DoubleMuon_Run2016
@@ -76,15 +76,18 @@ if args.year == 2017:
     mc             = [ ]
 else:
     #mc             = [ DY,] if args.sampleSelection=='DY' else [ TTJets_DiLepton, TTJets_SingleLepton,]
-    mc             = [ TTJets_DiLepton, TTJets_SingleLepton,]
+    mc             = [ TTJets_DiLepton ]#, TTJets_SingleLepton,]
 
 for sample in mc: sample.style = styles.fillStyle(sample.color)
 
 # Read variables and sequences
 #
-read_variables =    ["weight/F",
+deepLepton_input_branches = "jetBTagDeepCSV/F,mvaTTV/F,rho/F,innerTrackChi2/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,lostOuterHits/I,trackerLayers/I,pixelLayers/I,trackerHits/I,innerTrackValidHitFraction/F,jetDR/F,edxy/F,edz/F,ip3d/F,edxy/F,edz/F,ip3d/F,jetPtRatiov1/F,jetPtRelv1/F,jetPtRatiov2/F,jetPtRelv2/F,ptErrTk/F,segmentCompatibility/F,isGlobalMuon/I,chi2LocalPosition/F,chi2LocalMomentum/F,globalTrackChi2/F,caloCompatibility/F,trkKink/F,deepLepton_prompt/F,deepLepton_nonPrompt/F,deepLepton_fake/F,glbTrackProbability/F,nStations/F,iLepGood/I" 
+deepLepton_vars           = map( lambda s:s.split('/')[0], deepLepton_input_branches.split(',') )
+read_variables =   ["weight/F",
+                    "evt/l", "run/I", "lumi/I",
                     "jet[pt/F,eta/F,phi/F,btagCSV/F,id/I,btagDeepCSV/F]", "njet/I", 'nJetSelected/I',
-                    "lep[%s,jetBTagDeepCSV/F,mvaTTV/F,rho/F,innerTrackChi2/F,miniRelIsoCharged/F,miniRelIsoNeutral/F,lostOuterHits/I,trackerLayers/I,pixelLayers/I,trackerHits/I,innerTrackValidHitFraction/F,jetDR/F,edxy/F,edz/F,ip3d/F,edxy/F,edz/F,ip3d/F,jetPtRatiov1/F,jetPtRelv1/F,jetPtRatiov2/F,jetPtRelv2/F,ptErrTk/F,segmentCompatibility/F,isGlobalMuon/I,chi2LocalPosition/F,chi2LocalMomentum/F,globalTrackChi2/F,caloCompatibility/F,trkKink/F,deepLepton_prompt/F,deepLepton_nonPrompt/F,deepLepton_fake/F]"%lepton_branches_data, "nlep/I",
+                    "nlep/I",  "lep[%s,%s]"%(lepton_branches_data,deepLepton_input_branches),
                     "met_pt/F", "met_phi/F", "metSig/F", "ht/F", "nBTag/I", 
                     ]
 
@@ -103,50 +106,19 @@ loose_mu_selector = muonSelector( "loose", args.year)
 tight_mu_selector = muonSelector( "tight_2l", args.year)
 
 def getLeptons( event, sample ):
-    all_leptons = getAllLeptons( event, leptonVars + [
-                                                        'jetBTagDeepCSV', 
-                                                        'mvaTTV', 
-                                                        'rho', 
-                                                        'innerTrackChi2', 
-                                                        'miniRelIsoCharged', 
-                                                        'miniRelIsoNeutral', 
-                                                        'lostOuterHits', 
-                                                        'trackerLayers', 
-                                                        'pixelLayers', 
-                                                        'trackerHits', 
-                                                        'innerTrackValidHitFraction',
-                                                        'jetDR',
-                                                        'edxy',
-                                                        'edz',
-                                                        'ip3d',
-                                                        'jetPtRatiov1',
-                                                        'jetPtRelv1',
-                                                        'jetPtRatiov2',
-                                                        'jetPtRelv2',
-                                                        'ptErrTk',
-                                                        'segmentCompatibility',
-                                                        'isGlobalMuon',
-                                                        'chi2LocalPosition',
-                                                        'chi2LocalMomentum',
-                                                        'globalTrackChi2',
-                                                        'caloCompatibility',
-                                                        'trkKink',
-                                                        'deepLepton_prompt',                                   
-                                                        'deepLepton_nonPrompt',                                   
-                                                        'deepLepton_fake',                                   
-                   ], collection = "lep")
+    all_leptons = getAllLeptons( event, leptonVars + deepLepton_vars, collection = "lep")
     loose_muons = filter( lambda l: abs(l['pdgId']) == 13 and loose_mu_selector(l), all_leptons )
 
     #tight_muons = filter( tight_mu_selector, loose_muons )
     #print len(loose_muons), len( tight_muons )
     
     # take first two 
-    l1, l2 = ( loose_muons + [None, None] ) [:2]
-    if l1 is not None: l1['tight'] = tight_mu_selector(l1)
-    if l2 is not None: l2['tight'] = tight_mu_selector(l2)
+    event.l1, event.l2 = ( loose_muons + [None, None] ) [:2]
+    if event.l1 is not None: event.l1['tight'] = tight_mu_selector(event.l1)
+    if event.l2 is not None: event.l2['tight'] = tight_mu_selector(event.l2)
 
-    if l1 is not None and l2 is not None and (l1['tight'] or l2['tight']):
-        event.tp_mll = sqrt(2*l1['pt']*l2['pt']*(cosh(l1['eta']-l2['eta']) - cos(l1['phi']-l2['phi'])))
+    if event.l1 is not None and event.l2 is not None and (event.l1['tight'] or event.l2['tight']):
+        event.tp_mll = sqrt(2*event.l1['pt']*event.l2['pt']*(cosh(event.l1['eta']-event.l2['eta']) - cos(event.l1['phi']-event.l2['phi'])))
     else:
         event.tp_mll = float('nan')
 
@@ -157,8 +129,8 @@ def getLeptons( event, sample ):
 
     # loop over both possibilities
     for tag, probe, postfix in [ 
-            [ l1, l2, '1'], 
-            [ l2, l1, '2'] ]:
+            [ event.l1, event.l2, '1'], 
+            [ event.l2, event.l1, '2'] ]:
         # require tight tag
         if tag is not None and probe is not None and tag['tight']: 
             # recall probe and tag in potentially two configurations
@@ -175,6 +147,35 @@ def getLeptons( event, sample ):
     #event.b_leptons = filter( lambda j: isAnalysisLepton(j) and isBLepton(j), event.leptons )
 
 sequence.append( getLeptons )
+
+# DeepLepton
+# candidates
+read_variables.append( VectorTreeVariable.fromString('DL_pfCand_neutral[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,puppiWeight/F,fromPV/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
+read_variables.append( VectorTreeVariable.fromString('DL_pfCand_charged[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,puppiWeight/F,dzAssociatedPV/F,fromPV/F,selectedLeptons_mask/I]', nMax=500 )) # default nMax is 100
+read_variables.append( VectorTreeVariable.fromString('DL_pfCand_photon[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,puppiWeight/F,fromPV/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
+read_variables.append( VectorTreeVariable.fromString('DL_pfCand_electron[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,pdgId/I,selectedLeptons_mask/I]', nMax=50 )) # default nMax is 100
+read_variables.append( VectorTreeVariable.fromString('DL_pfCand_muon[pt/F,eta/F,phi/F,dxy_pf/F,dz_pf/F,pdgId/I,selectedLeptons_mask/I]', nMax=50 )) # default nMax is 100
+read_variables.append( VectorTreeVariable.fromString('DL_SV[pt/F,eta/F,phi/F,chi2/F,ndof/F,dxy/F,edxy/F,ip3d/F,eip3d/F,sip3d/F,cosTheta/F,jetPt/F,jetEta/F,jetDR/F,maxDxyTracks/F,secDxyTracks/F,maxD3dTracks/F,secD3dTracks/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
+read_variables.extend( map( TreeVariable.fromString, ["nDL_pfCand_neutral/I", "nDL_pfCand_charged/I", "nDL_pfCand_photon/I", "nDL_pfCand_electron/I", "nDL_pfCand_muon/I", "nDL_SV/I"]) )
+
+from TopEFT.Tools.DeepLeptonReader import evaluator
+import numpy as np
+def deepLepton(event, sample ):
+    # set the event
+    evaluator.setEvent( event)
+    features_normalized = np.array( [ evaluator.prepare_features_normalized( "lep", i_lep ) for i_lep in range(event.nlep) ], dtype=np.float32 )
+
+    for l in [event.l1, event.l2]:
+        if l is not None:
+            if l['iLepGood'] >= 0:
+                 l['candidates'] = evaluator.pf_candidates_for_lepton( "lep", l['iLepGood'], maskName = "selectedLeptons" )
+            else:
+                 l['candidates'] = None 
+
+    #if event.tag_1 is not None:   print event.tag_1['candidates']
+    #if event.probe_1 is not None: print event.probe_1['candidates']
+
+sequence.append( deepLepton )
 
 # Text on the plots
 #
@@ -216,7 +217,6 @@ allPlots   = {}
 
 data_sample.setSelectionString([getFilterCut(isData=True, year=args.year)])
 data_sample.name           = "data"
-data_sample.read_variables = ["evt/I","run/I"]
 data_sample.style          = styles.errorStyle(ROOT.kBlack)
 lumi_scale                 = data_sample.lumi/1000
 

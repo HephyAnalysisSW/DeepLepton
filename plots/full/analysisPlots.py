@@ -159,13 +159,16 @@ read_variables.extend( map( TreeVariable.fromString, ["nDL_pfCand_neutral/I", "n
 
 #PF Candidates flavors and binning
 pfCand_plot_binning = {
-                'neutral'  : {'mult': [21,0,20],'sumPt': [20,0,5]  },
-                'charged'  : {'mult': [71,0,70],'sumPt': [40,0,20] },
-                'photon'   : {'mult': [41,0,40],'sumPt': [40,0,10] },
-                'electron' : {'mult': [21,0,20],'sumPt': [20,0,5]  },
-                'muon'     : {'mult': [21,0,20],'sumPt': [20,0,5]  },
+                'neutral'  : {'mult': [21,0,20],'sumPt': [25,0,25]  },
+                'charged'  : {'mult': [71,0,70],'sumPt': [50,0,100] },
+                'photon'   : {'mult': [41,0,40],'sumPt': [50,0,50]  },
+                'electron' : {'mult': [21,0,20],'sumPt': [25,0,25]  },
+                'muon'     : {'mult': [21,0,20],'sumPt': [25,0,25]  },
              }
 pfCand_flavors = pfCand_plot_binning.keys()
+SV_plot_binning = {
+                'sv'       : {'mult': [6,0,5],'sumPt': [25,0,30]    },
+             }
 
 
 from TopEFT.Tools.DeepLeptonReader import evaluator
@@ -180,13 +183,19 @@ def deepLepton(event, sample ):
             if l['iLepGood'] >= 0:
                 l['candidates'] = evaluator.pf_candidates_for_lepton( "lep", l['iLepGood'], maskName = "selectedLeptons" )
 
+                #pfCands
                 for flavor in pfCand_flavors:
                     cands = l['candidates'][flavor]
                     #print len(cands), cands
-                    l['pfCands_mult_%s'%flavor]  =len( cands )
+                    l['pfCands_mult_%s'%flavor]  = len( cands )
                     l['pfCands_sumPt_%s'%flavor] = sum( [ c['pfCand_{fl}_pt_ptRelSorted'.format(fl=flavor)] for c in cands ], 0. )
                     #setattr( event, l['pfCands_mult_%s'%flavor], len( cands ) )
                     #setattr( event, l['pfCands_sumPt_%s'%flavor], sum( [ c['pfCand_{fl}_pt_ptRelSorted'.format(fl=flavor)] for c in cands ], 0. ) )
+
+                #SV
+                cands = l['candidates']['SV']
+                l['sv_mult']  = len( cands )
+                l['sv_sumPt'] = sum( [ c['SV_pt_ptSorted'] for c in cands ], 0. )                
 
             else:
                 l['candidates'] = None
@@ -195,6 +204,8 @@ def deepLepton(event, sample ):
                     l['pfCands_sumPt_%s'%flavor] = None
                     #setattr( event, l['pfCands_mult_%s'%flavor], None ) 
                     #setattr( event, l['pfCands_sumPt_%s'%flavor], None )
+                l['sv_mult']  = None
+                l['sv_sumPt'] = None              
 
             
     #if event.tag_2 is not None:   print event.tag_2['candidates']
@@ -384,6 +395,10 @@ for flavor in pfCand_flavors:
     pfCand_variables = ['mult', 'sumPt']
     for variable in pfCand_variables:
         tp_variables.append(['pfCands_%s_%s'%(variable,flavor), pfCand_plot_binning[flavor][variable], '%s_%s'%(variable,flavor)])
+#add SV variables
+SV_variables = ['mult', 'sumPt']
+for variable in SV_variables:
+    tp_variables.append(['sv_%s'%variable, SV_plot_binning['sv'][variable], 'sv_%s'%variable])
 
 
 var_names = [var[0] for var in tp_variables]

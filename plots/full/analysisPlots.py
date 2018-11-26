@@ -75,8 +75,7 @@ else:
 if args.year == 2017:
     mc             = [ ]
 else:
-    #mc             = [ DY,] if args.sampleSelection=='DY' else [ TTJets_DiLepton, TTJets_SingleLepton,]
-    mc             = [ TTJets_DiLepton ]#, TTJets_SingleLepton,]
+    mc             = [ DY,] if args.sampleSelection=='DY' else [ TTJets_DiLepton, TTJets_SingleLepton,]
 
 for sample in mc: sample.style = styles.fillStyle(sample.color)
 
@@ -158,6 +157,17 @@ read_variables.append( VectorTreeVariable.fromString('DL_pfCand_muon[pt/F,eta/F,
 read_variables.append( VectorTreeVariable.fromString('DL_SV[pt/F,eta/F,phi/F,chi2/F,ndof/F,dxy/F,edxy/F,ip3d/F,eip3d/F,sip3d/F,cosTheta/F,jetPt/F,jetEta/F,jetDR/F,maxDxyTracks/F,secDxyTracks/F,maxD3dTracks/F,secD3dTracks/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
 read_variables.extend( map( TreeVariable.fromString, ["nDL_pfCand_neutral/I", "nDL_pfCand_charged/I", "nDL_pfCand_photon/I", "nDL_pfCand_electron/I", "nDL_pfCand_muon/I", "nDL_SV/I"]) )
 
+#PF Candidates flavors and binning
+pfCand_plot_binning = {
+                'neutral'  : {'mult': [21,0,20],'sumPt': [50,0,5]   },
+                'charged'  : {'mult': [71,0,70],'sumPt': [200,0,20] },
+                'photon'   : {'mult': [41,0,40],'sumPt': [100,0,10] },
+                'electron' : {'mult': [21,0,20],'sumPt': [50,0,5]   },
+                'muon'     : {'mult': [21,0,20],'sumPt': [50,0,5]   },
+             }
+pfCand_flavors = pfCand_plot_binning.keys()
+
+
 from TopEFT.Tools.DeepLeptonReader import evaluator
 import numpy as np
 def deepLepton(event, sample ):
@@ -168,14 +178,30 @@ def deepLepton(event, sample ):
     for l in [event.l1, event.l2]:
         if l is not None:
             if l['iLepGood'] >= 0:
-                 l['candidates'] = evaluator.pf_candidates_for_lepton( "lep", l['iLepGood'], maskName = "selectedLeptons" )
-            else:
-                 l['candidates'] = None 
+                l['candidates'] = evaluator.pf_candidates_for_lepton( "lep", l['iLepGood'], maskName = "selectedLeptons" )
 
-    #if event.tag_1 is not None:   print event.tag_1['candidates']
-    #if event.probe_1 is not None: print event.probe_1['candidates']
+                for flavor in pfCand_flavors:
+                    cands = l['candidates'][flavor]
+                    #print len(cands), cands
+                    l['pfCands_mult_%s'%flavor]  =len( cands )
+                    l['pfCands_sumPt_%s'%flavor] = sum( [ c['pfCand_{fl}_pt_ptRelSorted'.format(fl=flavor)] for c in cands ], 0. )
+                    #setattr( event, l['pfCands_mult_%s'%flavor], len( cands ) )
+                    #setattr( event, l['pfCands_sumPt_%s'%flavor], sum( [ c['pfCand_{fl}_pt_ptRelSorted'.format(fl=flavor)] for c in cands ], 0. ) )
+
+            else:
+                l['candidates'] = None
+                for flavor in pfCand_flavors:
+                    l['pfCands_mult_%s'%flavor]  = None 
+                    l['pfCands_sumPt_%s'%flavor] = None
+                    #setattr( event, l['pfCands_mult_%s'%flavor], None ) 
+                    #setattr( event, l['pfCands_sumPt_%s'%flavor], None )
+
+            
+    #if event.tag_2 is not None:   print event.tag_2['candidates']
+    #if event.probe_2 is not None: print event.probe_2['candidates']
 
 sequence.append( deepLepton )
+
 
 # Text on the plots
 #
@@ -221,7 +247,7 @@ data_sample.style          = styles.errorStyle(ROOT.kBlack)
 lumi_scale                 = data_sample.lumi/1000
 
 if args.noData: lumi_scale = 35.9
-weight_ = lambda event, sample: event.weight
+weight_ = lambda event, sample: event.weight*event.tp_selection
 
 for sample in mc:
   sample.scale          = lumi_scale
@@ -245,20 +271,19 @@ plots = []
 
 plots.append(Plot(
   name = 'nVtxs', texX = 'vertex multiplicity', texY = 'Number of Events',
-  attribute = TreeVariable.fromString( "nVert/I" ) if (lambda event, sample: event.tp_selection) else float('nan'),
-  #attribute = TreeVariable.fromString( "nVert/I" ),
+  attribute = TreeVariable.fromString( "nVert/I" ),
   binning=[50,0,50],
 ))
 
 plots.append(Plot(
     texX = 'E_{T}^{miss} (GeV)', texY = 'Number of Events / 20 GeV',
-    attribute = TreeVariable.fromString( "met_pt/F" ) if (lambda event, sample: event.tp_selection) else float('nan'),
+    attribute = TreeVariable.fromString( "met_pt/F" ),
     binning=[400/20,0,400],
 ))
 
 plots.append(Plot(
     texX = '#phi(E_{T}^{miss})', texY = 'Number of Events / 20 GeV',
-    attribute = TreeVariable.fromString( "met_phi/F" ) if (lambda event, sample: event.tp_selection) else float('nan'),
+    attribute = TreeVariable.fromString( "met_phi/F" ),
     binning=[10,-pi,pi],
 ))
 
@@ -271,7 +296,7 @@ plots.append(Plot(
 
 plots.append(Plot(
   texX = 'N_{jets}', texY = 'Number of Events',
-  attribute = TreeVariable.fromString( "nJetSelected/I" ) if (lambda event, sample: event.tp_selection) else float('nan'),
+  attribute = TreeVariable.fromString( "nJetSelected/I" ),
   binning=[5,2.5,7.5],
 ))
 
@@ -354,6 +379,13 @@ tp_variables = [
     [ 'mvaTTV',                     [100,-1,1],     'mvaTTV' ],
 ]
 
+#add pfCand variables
+for flavor in pfCand_flavors:
+    pfCand_variables = ['mult', 'sumPt']
+    for variable in pfCand_variables:
+        tp_variables.append(['pfCands_%s_%s'%(variable,flavor), pfCand_plot_binning[flavor][variable], '%s_%s'%(variable,flavor)])
+
+
 var_names = [var[0] for var in tp_variables]
 assert len(var_names)==len(list(set(var_names))), "tp variable names not unique!!!!"
 
@@ -372,7 +404,7 @@ for variable, binning, texX in tp_variables:
             ))
         tp_pairs[ ( variable, texX )][ tag_or_probe ] = tp_plots[-2:]
 
-plotting.fill(plots + tp_plots, read_variables = read_variables, sequence = sequence, max_events = 10000 if args.small else -1)
+plotting.fill(plots + tp_plots, read_variables = read_variables, sequence = sequence, max_events = 30000 if args.small else -1)
 
 tp_draw_plots = []
 for i_variable, (variable, binning, texX) in enumerate(tp_variables):

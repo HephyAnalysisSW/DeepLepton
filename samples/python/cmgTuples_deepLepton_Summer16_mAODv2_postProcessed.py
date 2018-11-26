@@ -29,7 +29,7 @@ dirs = {}
 dirs['TTJets_DiLepton']     = ["TTJets_DiLepton_comb"]
 dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromT_comb", "TTJets_SingleLeptonFromTbar_comb"]
 ##DYvsQCD
-#dirs['DY']                  = ["DYJetsToLL_M50_LO_ext"]
+dirs['DY']                  = ["DYJetsToLL_M50_LO_ext"]
 #dirs['DY']                  = ["DY1JetsToLL_M50_LO", "DY2JetsToLL_M50_LO", "DY3JetsToLL_M50_LO", "DY4JetsToLL_M50_LO"]
 #dirs['QCD']                 = ["QCD_Pt1000toInf_Mu5", "QCD_Pt1000toInf_Mu5_ext", "QCD_Pt120to170_Mu5", "QCD_Pt15to20_Mu5", 
 #                               "QCD_Pt170to300_Mu5", "QCD_Pt170to300_Mu5_ext", "QCD_Pt20to30_Mu5", "QCD_Pt300to470_Mu5", 
@@ -74,7 +74,7 @@ directories = { key : [ os.path.join( data_directory, postProcessing_directory, 
 
 TTJets_DiLepton      = Sample.fromDirectory(name="TTJets_DiLepton",       treeName="Events", isData=False, color=color.TTJets,        texName="t#bar{t}(2l)",              directory=directories['TTJets_DiLepton'])
 TTJets_SingleLepton  = Sample.fromDirectory(name="TTJets_SingleLepton",   treeName="Events", isData=False, color=color.TTJets1l,      texName="t#bar{t}(1l)",              directory=directories['TTJets_SingleLepton'])
-#DY                   = Sample.fromDirectory(name="DY",                    treeName="Events", isData=False, color=color.DY,            texName="DY",                        directory=directories['DY'])
+DY                   = Sample.fromDirectory(name="DY",                    treeName="Events", isData=False, color=color.DY,            texName="DY",                        directory=directories['DY'])
 #QCD                  = Sample.fromDirectory(name="QCD",                   treeName="Events", isData=False, color=color.DY,            texName="QCD",                       directory=directories['QCD'])
 
 #TTZtoLLNuNu     = Sample.fromDirectory(name="TTZtoLLNuNu",      treeName="Events", isData=False, color=color.TTZtoLLNuNu,       texName="t#bar{t}Z (l#bar{l}/#nu#bar{#nu})",     directory=directories['TTZtoLLNuNu'])

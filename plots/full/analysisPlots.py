@@ -159,11 +159,11 @@ read_variables.extend( map( TreeVariable.fromString, ["nDL_pfCand_neutral/I", "n
 
 #PF Candidates flavors and binning
 pfCand_plot_binning = {
-                'neutral'  : {'mult': [21,0,20],'sumPt': [50,0,5]   },
-                'charged'  : {'mult': [71,0,70],'sumPt': [200,0,20] },
-                'photon'   : {'mult': [41,0,40],'sumPt': [100,0,10] },
-                'electron' : {'mult': [21,0,20],'sumPt': [50,0,5]   },
-                'muon'     : {'mult': [21,0,20],'sumPt': [50,0,5]   },
+                'neutral'  : {'mult': [21,0,20],'sumPt': [20,0,5]   },
+                'charged'  : {'mult': [71,0,70],'sumPt': [80,0,20] },
+                'photon'   : {'mult': [41,0,40],'sumPt': [40,0,10] },
+                'electron' : {'mult': [21,0,20],'sumPt': [20,0,5]   },
+                'muon'     : {'mult': [21,0,20],'sumPt': [20,0,5]   },
              }
 pfCand_flavors = pfCand_plot_binning.keys()
 

@@ -22,7 +22,7 @@
 
 #full version
 
-#QCD
+#DYvsQCD
 #python -i step2_mix.py --version v5 --year 2016 --flavour muo --ratio balanced --sampleSelection DYvsQCD --ptSelection pt_15_-1 #SPLIT100
 
 ##TTJets
@@ -35,14 +35,6 @@
 #python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTs  --ptSelection pt_5_-1   #SPLIT135
 #python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTs  --ptSelection pt_10_-1  #SPLIT100
 
-
-python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTs  --ptSelection pt_5_-1  --nJobs 135 --job 25 
-python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTs  --ptSelection pt_5_-1  --nJobs 135 --job 26
-python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTs  --ptSelection pt_5_-1  --nJobs 135 --job 27
-python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTs  --ptSelection pt_5_-1  --nJobs 135 --job 28
-python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTs  --ptSelection pt_5_-1  --nJobs 135 --job 29
-python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTs  --ptSelection pt_5_-1  --nJobs 135 --job 31
-python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection TTs  --ptSelection pt_5_-1  --nJobs 135 --job 32
-
-
+#AllSamples
+python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1   #SPLIT250
 

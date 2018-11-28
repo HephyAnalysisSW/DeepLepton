@@ -384,7 +384,7 @@ tp_variables = [
     [ 'caloCompatibility',          [40,0,1],       'caloCompatibility' ],
     [ 'trkKink',                    [40,0,200],     'trkKink' ],
     #pfCand features
-other variables
+#other variables
     [ 'phi',                        [50,-3.2,3.2],  '#phi' ],
     [ 'deepLepton_prompt',          [50,0,1],      'deepLepton_prompt' ],
     [ 'deepLepton_nonPrompt',       [50,0,1],      'deepLepton_nonPrompt' ],

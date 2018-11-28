@@ -19,8 +19,8 @@ argParser.add_argument('--testFile',           action='store_true',             
 
 argParser.add_argument('--year',               action='store', type=int, choices=[2016,2017],   default=2016,   help="Which year?")
 argParser.add_argument('--flavour',            action='store', type=str, choices=['ele','muo'], default='muo',  help="Which Flavour?")
-argParser.add_argument('--testData',           action='store', type=int, choices=[0,1],         default=1,      help="plot test or train data?")
-argParser.add_argument('--lumi_weight',        action='store', type=int, choices=[0,1],         default=1,      help="apply lumi weight?")
+argParser.add_argument('--testData',           action='store_true',   help="plot test or train data?")
+argParser.add_argument('--lumi_weight',        action='store_true',   help="apply lumi weight?")
 #argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
 args = argParser.parse_args()
 

@@ -34,7 +34,7 @@ argParser.add_argument('--flatSample',         action='store',           default
 
 argParser.add_argument('--year',               action='store', type=int, choices=[2016,2017],   default=2016,   help="Which year?")
 argParser.add_argument('--flavour',            action='store', type=str, choices=['ele','muo'], default='muo',  help="Which Flavour?")
-argParser.add_argument('--testData',           action='store', type=int, choices=[0,1],         default=1,      help="plot test or train data?")
+argParser.add_argument('--testData',           action='store_true',      help="plot test or train data?")
 
 
 #argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
@@ -119,7 +119,6 @@ pfCand_plot_binning = {
              }
 pfCand_flavors = pfCand_plot_binning.keys()
 
-isTestData=args.testData  #1=true, 0=false
 
 ####################################
 # loop over samples and draw plots #
@@ -547,7 +546,7 @@ for ecalType in ecalTypes:
         tex.SetTextSize(0.04)
         tex.SetTextAlign(11) # align right
         lines = [
-          (0.25, 0.95, 'TestData' if isTestData else 'TrainData'),
+          (0.25, 0.95, 'TestData' if args.testData else 'TrainData'),
           (0.55, 0.95, kinematic_selection_name+" "+ecalType["Name"]+" "+leptonFlavour["Name"]+"s")
         ]
         return [tex.DrawLatex(*l) for l in lines]

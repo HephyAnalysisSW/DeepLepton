@@ -270,12 +270,18 @@ TTJets_Muons_balanced_pt25toInf_2016 = {
 
 #TTs pt related trainings
 TTs_Muons_balanced_pt5toInf_2016 = {
-'training_name'     : 'TTs_Muons_balanced_pt5toInf_20181117',
-'training_date'     : '20181117',
+#'training_name'     : 'TTs_Muons_balanced_pt5toInf_20181117',
+#'training_date'     : '20181117',
+#'sample_name'       : 'TTs_Muons_2016',
+#'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+#'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181117/TTs_balanced_pt5toInf_MuonEvaluationTestData',
+#'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181117/TTs_balanced_pt5toInf_MuonEvaluationTestDataIsTrainData',
+'training_name'     : 'TTs_Muons_balanced_pt5toInf_20181127',
+'training_date'     : '20181127',
 'sample_name'       : 'TTs_Muons_2016',
 'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
-'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181117/TTs_balanced_pt5toInf_MuonEvaluationTestData',
-'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181117/TTs_balanced_pt5toInf_MuonEvaluationTestDataIsTrainData',
+'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181127/TTs_balanced_pt5toInf_MuonEvaluationTestData',
+'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181127/TTs_balanced_pt5toInf_MuonEvaluationTestDataIsTrainData',
 }
 
 

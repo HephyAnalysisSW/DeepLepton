@@ -271,7 +271,7 @@ weight_ = lambda event, sample: event.weight*event.tp_selection
 for sample in mc:
   sample.scale          = lumi_scale
   sample.read_variables = ["reweightPU36fb/F", "reweightBTagDeepCSV_SF/F",]
-  sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightPU36fb*args.reduceMC
+  sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightPU36fb*(1 if args.small else args.reduceMC)
   #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
   #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
   sample.setSelectionString([getFilterCut(isData=False, year=args.year)])

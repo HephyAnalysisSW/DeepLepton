@@ -81,9 +81,6 @@ if args.year == 2017:
     mc             = [ ]
 else:
     mc             = [ DY, TTJets_DiLepton, TTJets_SingleLepton,]
-    if args.reduceMC!=1:
-        for listItem in mc:
-            listItem.reduceFiles( factor = args.reduceMC )
 
 for sample in mc: sample.style = styles.fillStyle(sample.color)
 
@@ -275,6 +272,9 @@ for sample in mc:
   #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
   #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
   sample.setSelectionString([getFilterCut(isData=False, year=args.year)])
+  if args.reduceMC!=1:
+    sample.reduceFiles( factor = args.reduceMC )
+
 
 if not args.noData:
   stack = Stack(mc, data_sample)
@@ -283,7 +283,7 @@ else:
 
 if args.small:
     for sample in stack.samples:
-        sample.reduceFiles( to = 1 )
+        sample.reduceFiles( to = 2 )
 
 # Use some defaults
 Plot.setDefaults(stack = stack, weight = staticmethod( weight_ ), selectionString = cutInterpreter.cutString(args.selection), addOverFlowBin=None)

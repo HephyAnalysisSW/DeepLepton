@@ -384,7 +384,7 @@ tp_variables = [
     [ 'caloCompatibility',          [40,0,1],       'caloCompatibility' ],
     [ 'trkKink',                    [40,0,200],     'trkKink' ],
     #pfCand features
-#other variables
+other variables
     [ 'phi',                        [50,-3.2,3.2],  '#phi' ],
     [ 'deepLepton_prompt',          [50,0,1],      'deepLepton_prompt' ],
     [ 'deepLepton_nonPrompt',       [50,0,1],      'deepLepton_nonPrompt' ],
@@ -410,7 +410,8 @@ tp_plots = []
 tp_pairs = {}
 for variable, binning, texX in tp_variables:
     tp_pairs[ (variable,  texX )] = {}
-    for tag_or_probe in [ 'tag', 'probe' ]:
+    #for tag_or_probe in [ 'tag', 'probe' ]:
+    for tag_or_probe in [ 'probe' ]:
         for postfix in ['1', '2']:
             tp_plots.append(Plot(
               texX = tag_or_probe+' '+texX, 
@@ -425,7 +426,8 @@ plotting.fill(plots + tp_plots, read_variables = read_variables, sequence = sequ
 
 tp_draw_plots = []
 for i_variable, (variable, binning, texX) in enumerate(tp_variables):
-    for tag_or_probe in [ 'tag', 'probe' ]:
+    #for tag_or_probe in [ 'tag', 'probe' ]:
+    for tag_or_probe in [ 'probe' ]:
         plot      = tp_pairs[ ( variable, texX )][ tag_or_probe ][0]
         plot_1    = tp_pairs[ ( variable, texX )][ tag_or_probe ][1]
         plot.name = '%s_%s'%( tag_or_probe, variable )

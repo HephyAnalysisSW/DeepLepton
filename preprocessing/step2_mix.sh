@@ -38,3 +38,26 @@
 #AllSamples
 python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1   #SPLIT250
 
+##restart
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 229
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 230
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 231
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 232
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 233
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 234
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 235
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 236
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 237
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 238
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 239
+#
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 240
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 241
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 242
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 243
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 244
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 245
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 246
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 247
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 248
+#python -i step2_mix.py --version v6 --year 2016 --flavour muo --ratio balanced --sampleSelection AllSamples  --ptSelection pt_5_-1 --nJobs 250 --job 249

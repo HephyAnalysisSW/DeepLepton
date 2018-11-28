@@ -25,7 +25,6 @@ argParser.add_argument('--logLevel',           action='store',      default='INF
 argParser.add_argument('--noData',             action='store_true', default=False,           help='also plot data?')
 argParser.add_argument('--year',               action='store',      default=2016,            choices = [2016, 2017], type=int, help='2016 or 2017?',)
 argParser.add_argument('--reduceMC',           action='store',      default=1,               type=int, help='Reduce MC sample by a factor?',)
-argParser.add_argument('--reduceData',         action='store',      default=1,               type=int, help='Reduce MC sample by a factor?',)
 argParser.add_argument('--eta_min',            action='store',      default=0.,                                      type=float, help='eta min for binning',)
 argParser.add_argument('--eta_max',            action='store',      default=2.5,                                     type=float, help='eta max for binning',)
 argParser.add_argument('--small',                                   action='store_true',     help='Run only on a small subset of the data?', )
@@ -50,7 +49,7 @@ args.plot_directory += "_"+args.sampleSelection
 if args.small:                        args.plot_directory += "_small"
 if args.year == 2017:                 args.plot_directory += "_Run2017"
 if args.noData:                       args.plot_directory += "_noData"
-args.plot_directory = os.path.join( args.plot_directory, args.data+'_reducedData'+args.reduceData+'_reducedMC'+args.reduceMC, 'eta_{eta_min}to{eta_max}'.format(eta_min = args.eta_min, eta_max = args.eta_max) )
+args.plot_directory = os.path.join( args.plot_directory, args.data+'_reducedMC'+args.reduceMC, 'eta_{eta_min}to{eta_max}'.format(eta_min = args.eta_min, eta_max = args.eta_max) )
 #
 # Make samples, will be searched for in the postProcessing directory
 #
@@ -275,9 +274,6 @@ for sample in mc:
   sample.setSelectionString([getFilterCut(isData=False, year=args.year)])
   if args.reduceMC!=1:
     sample.reduceFiles( factor = args.reduceMC )
-
-if args.reduceData!=1:
-    data_sample.reduceFiles( factor = args.reduceData )
 
 if not args.noData:
   stack = Stack(mc, data_sample)

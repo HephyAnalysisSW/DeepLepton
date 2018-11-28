@@ -412,6 +412,7 @@ for variable, binning, texX in tp_variables:
     tp_pairs[ (variable,  texX )] = {}
     #for tag_or_probe in [ 'tag', 'probe' ]:
     for tag_or_probe in [ 'probe' ]:
+    #for tag_or_probe in [ 'tag' ]:
         for postfix in ['1', '2']:
             tp_plots.append(Plot(
               texX = tag_or_probe+' '+texX, 
@@ -428,6 +429,7 @@ tp_draw_plots = []
 for i_variable, (variable, binning, texX) in enumerate(tp_variables):
     #for tag_or_probe in [ 'tag', 'probe' ]:
     for tag_or_probe in [ 'probe' ]:
+    #for tag_or_probe in [ 'tag' ]:
         plot      = tp_pairs[ ( variable, texX )][ tag_or_probe ][0]
         plot_1    = tp_pairs[ ( variable, texX )][ tag_or_probe ][1]
         plot.name = '%s_%s'%( tag_or_probe, variable )

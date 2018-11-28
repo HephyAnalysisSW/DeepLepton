@@ -37,6 +37,8 @@ def merge(pd, totalRunName, listOfRuns):
 #for pd in ['SingleElectron','SingleMuon', 'MuonEG', 'DoubleMuon', 'DoubleEG']:
 for pd in ['DoubleMuon',]:
     merge(pd, 'Run2016BCD',    ['Run2016B_v2', 'Run2016C', 'Run2016D'])
+    merge(pd, 'Run2016EF',     ['Run2016E', 'Run2016F'])
+    merge(pd, 'Run2016GH',     ['Run2016G', 'Run2016H'])
     merge(pd, 'Run2016BCDEFG', ['Run2016BCD', 'Run2016E', 'Run2016F', 'Run2016G'])
     merge(pd, 'Run2016',       ['Run2016BCDEFG', 'Run2016H'])
 
@@ -51,6 +53,9 @@ def getSample(pd, runName, lumi):
 
 #DoubleEG_Run2016                = getSample('DoubleEG',         'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
 DoubleMuon_Run2016              = getSample('DoubleMuon',       'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
+DoubleMuon_Run2016BCD           = getSample('DoubleMuon',       'Run2016BCD',    (5.744+2.573+4.248)*1000)
+DoubleMuon_Run2016EF            = getSample('DoubleMuon',       'Run2016EF',     (4.009+3.101)*1000)
+DoubleMuon_Run2016GH            = getSample('DoubleMuon',       'Run2016GH',     (7.540+8.329+0.210)*1000)
 #SingleElectron_Run2016          = getSample('SingleElectron',   'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
 #SingleMuon_Run2016              = getSample('SingleMuon',       'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
 #MuonEG_Run2016                  = getSample('MuonEG',           'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)

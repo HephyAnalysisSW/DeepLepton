@@ -49,7 +49,7 @@ args.plot_directory += "_"+args.sampleSelection
 if args.small:                        args.plot_directory += "_small"
 if args.year == 2017:                 args.plot_directory += "_Run2017"
 if args.noData:                       args.plot_directory += "_noData"
-args.plot_directory = os.path.join( args.plot_directory, args.data+'_reducedMC'+args.reduceMC, 'eta_{eta_min}to{eta_max}'.format(eta_min = args.eta_min, eta_max = args.eta_max) )
+args.plot_directory = os.path.join( args.plot_directory, args.data+'_reducedMC'+str(args.reduceMC), 'eta_{eta_min}to{eta_max}'.format(eta_min = args.eta_min, eta_max = args.eta_max) )
 #
 # Make samples, will be searched for in the postProcessing directory
 #
@@ -289,7 +289,7 @@ Plot.setDefaults(stack = stack, weight = staticmethod( weight_ ), selectionStrin
 
 plots = []
 
-if args.trainingInput:
+if args.trainingInput and not args.tag:
 
     plots.append(Plot(
       name = 'nVtxs', texX = 'vertex multiplicity', texY = 'Number of Events',

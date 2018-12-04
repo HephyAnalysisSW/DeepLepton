@@ -282,14 +282,22 @@ TTs_Muons_balanced_pt5toInf_2016 = {
 #'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
 #'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181127/TTs_balanced_pt5toInf_MuonEvaluationTestData',
 #'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181127/TTs_balanced_pt5toInf_MuonEvaluationTestDataIsTrainData',
-'training_name'     : 'TTs_Muons_balanced_pt5toInf_20181201',
-'training_date'     : '20181201',
+'training_name'     : 'TTs_Muons_balanced_pt5toInf_20181202',
+'training_date'     : '20181202',
 'sample_name'       : 'TTs_Muons_2016',
 'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
-'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181201/TTs_balanced_pt5toInf_MuonEvaluationTestData',
-'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181201/TTs_balanced_pt5toInf_MuonEvaluationTestDataIsTrainData',
+'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181202/TTs_balanced_pt5toInf_MuonEvaluationTestData',
+'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181202/TTs_balanced_pt5toInf_MuonEvaluationTestDataIsTrainData',
 }
 
+TTs_Muons_balanced_test_pt5toInf_2016 = {
+'training_name'     : 'TTs_Muons_balanced_pt5toInf_20181204',
+'training_date'     : '20181204',
+'sample_name'       : 'TTs_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181204/TTs_balanced_pt5toInf_MuonEvaluationTestData',
+'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181204/TTs_balanced_pt5toInf_MuonEvaluationTestDataIsTrainData',
+}
 
 #usage
 #flat_sample = TTJets_Muons_balanced_pt25toInf_2016

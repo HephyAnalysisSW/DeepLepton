@@ -20,7 +20,7 @@ try:
   import sys
   postProcessing_directory = sys.modules['__main__'].postProcessing_directory
 except:
-  postProcessing_directory = "deepLepton_v5/singlelep"
+  postProcessing_directory = "deepLepton_v6/singlelep"
 
 logger.info("Loading MC samples from directory %s", os.path.join(data_directory, postProcessing_directory))
 
@@ -29,7 +29,7 @@ dirs = {}
 dirs['TTJets_DiLepton']     = ["TTJets_DiLepton_comb"]
 dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromT_comb", "TTJets_SingleLeptonFromTbar_comb"]
 ##DYvsQCD
-dirs['DY']                  = ["DYJetsToLL_M50_LO_ext"]
+dirs['DY']                  = ["DYJetsToLL_M50_LO_ext_comb", "DYJetsToLL_M10to50_comb"]
 #dirs['DY']                  = ["DY1JetsToLL_M50_LO", "DY2JetsToLL_M50_LO", "DY3JetsToLL_M50_LO", "DY4JetsToLL_M50_LO"]
 #dirs['QCD']                 = ["QCD_Pt1000toInf_Mu5", "QCD_Pt1000toInf_Mu5_ext", "QCD_Pt120to170_Mu5", "QCD_Pt15to20_Mu5", 
 #                               "QCD_Pt170to300_Mu5", "QCD_Pt170to300_Mu5_ext", "QCD_Pt20to30_Mu5", "QCD_Pt300to470_Mu5", 

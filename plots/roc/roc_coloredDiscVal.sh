@@ -6,8 +6,8 @@
 ##########
 
 #testData
-#python -i roc_coloredDiscVal.py --small --flat --ptMin 5  --ptMax 10  --testData 1 --flatSample TTs_Muons_balanced_pt5toInf_2016
-python -i roc_coloredDiscVal.py --small --flat --ptMin 5  --ptMax 25  --testData 1 --flatSample TTs_Muons_balanced_pt5toInf_2016
+#python -i roc_coloredDiscVal.py --small --flat --ptMin 5  --ptMax 10  --testData 1 --flatSample TTs_Muons_balanced_test_pt5toInf_2016
+python -i roc_coloredDiscVal.py --small --flat --ptMin 5  --ptMax 25  --testData 1 --flatSample TTs_Muons_balanced_test_pt5toInf_2016
 
 ##trainData
 #python -i roc_coloredDiscVal.py --flat --ptMin 5  --ptMax 25  --testData 0 --flatSample TTJets_Muons_balanced_pt5toInf_2016

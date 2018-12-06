@@ -35,6 +35,7 @@ argParser.add_argument('--flatSample',         action='store',           default
 argParser.add_argument('--year',               action='store', type=int, choices=[2016,2017],   default=2016,   help="Which year?")
 argParser.add_argument('--flavour',            action='store', type=str, choices=['ele','muo'], default='muo',  help="Which Flavour?")
 argParser.add_argument('--testData',           action='store_true',      help="plot test or train data?")
+argParser.add_argument('--looseId',            action='store_true',      help="plot data with looseId preselection?")
 
 
 #argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
@@ -125,7 +126,7 @@ pfCand_flavors = pfCand_plot_binning.keys()
 ####################################
 
 loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1&&lep_pfMuonId&&lep_mediumMuonId"
-preselectionString=loose_id 
+preselectionString= loose_id if args.looseId else "abs(lep_pdgId)==13&&lep_pt>5" 
 
 #define class samples
 samplePrompt    = deepcopy(sample)
@@ -203,7 +204,7 @@ for ecalType in ecalTypes:
         binning=[2,0,1],
     ))
     
-    if not noTraining:
+    if not noTraining and args.looseId:
         plots.append(Plot(name=plotname+'DL_prob_isPrompt',
             texX = 'DL_prob_isPrompt', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.prob_lep_isPromptId_Training,
@@ -559,7 +560,7 @@ for ecalType in ecalTypes:
                                         sampleInfo['sample_name'],
                                         sampleInfo['training_date'] if not noTraining else 'noTraining',                
                                         'TestData' if args.testData else 'TrainData',
-                                        'histograms', kinematic_selection_name + "_"+ecalType["Name"], ("log" if log else "lin")
+                                        'histograms', kinematic_selection_name + "_"+ecalType["Name"]+('_looseIdSelection' if args.looseId else '_noSelection'), ("log" if log else "lin")
                                         ))
         for plot in plots:
           #if not max(l[0].GetMaximum() for l in plot.histos): continue # Empty plot

@@ -51,7 +51,7 @@ args.eS=args.eS/100.
 
 maxN = -1
 if args.small:
-    maxN = 1
+    maxN = 10
 
 #get flat sample
 if args.flat:
@@ -107,7 +107,7 @@ logY=0
 
 ptCuts=[]
 if args.binned=='pt':
-    ptCuts.append({"Name":"pt5to250", "lower_limit":10, "upper_limit":250         })
+    ptCuts.append({"Name":"pt10to250", "lower_limit":10, "upper_limit":250         })
 else:
     ptCuts.append({"Name":"pt25toInf","lower_limit":25, "upper_limit":float("Inf")})
     ptCuts.append({"Name":"pt10to25" ,"lower_limit":10, "upper_limit":25})
@@ -197,8 +197,7 @@ for relIsoCut in relIsoCuts:
                     maxpval = pval
                     break
 
-                print '\n'
-                print maxpval, eSVal
+                print maxpval, pval, eSVal
 
             #calculate bin values
             for dataset in readerData:
@@ -206,7 +205,7 @@ for relIsoCut in relIsoCuts:
                 if not len(dataset)==0:
                     x.append(j*binWidth)
                     y_eS.append(eS(maxpval,dataset))
-                    y_eB.append(eB(maxpval,dataset)*10)
+                    y_eB.append(eB(maxpval,dataset))
                     print j*binWidth, maxpval, y_eB[-1], y_eS[-1]
 
             #Draw Graphs
@@ -232,7 +231,7 @@ for relIsoCut in relIsoCuts:
             #Draw Graphs
             n=len(x)
             graph=ROOT.TGraph(n,x,y_eB)
-            gname=("eB x 10 "+plot["name"]+" (for plotted eS)")
+            gname=("eB "+plot["name"]+" (for plotted eS)")
             graph.SetName(gname)
             graph.SetTitle(gname)
             #graph.SetLineStyle( 2 )
@@ -256,18 +255,7 @@ for relIsoCut in relIsoCuts:
         mg.GetYaxis().SetTitle('eS,eB')
         if logY==0:
             mg.GetYaxis().SetRangeUser(0.0,1.02)
-        if args.flavour=='muo':
-            if args.binned=='pt':
-                yleg1 = 0.35
-            else:
-                yleg1 = 0.65
-        if args.flavour=='ele':
-            if ptCut['name']=="pt10to25":
-                yleg1 = 0.65
-            if ptCut['name']=="pt25toInf":
-                yleg1 = 0.25
-            else:
-                yleg1 = 0.35
+        yleg1 = 0.35
         yleg2 = yleg1 + 0.25
         c.BuildLegend(0.55,yleg1,0.9,yleg2)
 

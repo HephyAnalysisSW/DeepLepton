@@ -112,11 +112,11 @@ kinematic_selection_name = "pt{ptMin}to{ptMax}".format(ptMin = args.ptMin, ptMax
 
 #PF Candidates
 pfCand_plot_binning = {
-                'neutral'  : {'mult': [21,0,20],'sumPt': [50,0,5]   },
-                'charged'  : {'mult': [71,0,70],'sumPt': [200,0,20] }, 
-                'photon'   : {'mult': [41,0,40],'sumPt': [100,0,10] }, 
-                'electron' : {'mult': [21,0,20],'sumPt': [50,0,5]   }, 
-                'muon'     : {'mult': [21,0,20],'sumPt': [50,0,5]   },
+                'neutral'  : {'mult': [21,0,20],'sumPt': [50,0,25] },
+                'charged'  : {'mult': [71,0,70],'sumPt': [50,0,100]}, 
+                'photon'   : {'mult': [41,0,40],'sumPt': [50,0,50] }, 
+                'electron' : {'mult': [21,0,20],'sumPt': [50,0,25] }, 
+                'muon'     : {'mult': [21,0,20],'sumPt': [50,0,25] },
              }
 pfCand_flavors = pfCand_plot_binning.keys()
 
@@ -240,12 +240,12 @@ for ecalType in ecalTypes:
     plots.append(Plot(name=plotname+'rho',
         texX = 'rho', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_rho,
-        binning=[80,0,40],
+        binning=[80,0,50],
     ))
     plots.append(Plot(name=plotname+'innerTrackChi2',
         texX = 'innerTrackChi2', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_innerTrackChi2,
-        binning=[50,0,5] if leptonFlavour["Name"]=="Muon" else [50,0,10],
+        binning=[50,0,10],
     ))
     plots.append(Plot(name=plotname+'relIso03',
         texX = 'relIso03', texY = 'Number of Events',
@@ -255,7 +255,7 @@ for ecalType in ecalTypes:
     plots.append(Plot(name=plotname+'relIso04',
         texX = 'relIso04', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_relIso04,
-        binning=[90,0,0.7],
+        binning=[90,0,1.0],
     ))
     plots.append(Plot(name=plotname+'miniRelIso',
         texX = 'miniRelIso', texY = 'Number of Events',
@@ -296,37 +296,37 @@ for ecalType in ecalTypes:
     plots.append(Plot(name=plotname+'jetDR',
         texX = 'jetDR', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_jetDR,
-        binning=[50,0,0.1],
+        binning=[50,0,0.2],
     ))
     plots.append(Plot(name=plotname+'dxy',
         texX = 'dxy', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_dxy,
-        binning=[60,-0.03,0.03] if leptonFlavour["Name"]=="Muon" else [60,-0.15,0.15],
+        binning=[50,-0.03,0.03] if leptonFlavour["Name"]=="Muon" else [50,-0.15,0.15],
     ))
     plots.append(Plot(name=plotname+'dz',
         texX = 'dz', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_dz,
-        binning=[60,-0.1,0.1] if leptonFlavour["Name"]=="Muon" else [60,-0.25,0.25],
+        binning=[50,-0.1,0.1] if leptonFlavour["Name"]=="Muon" else [50,-0.25,0.25],
     ))
     plots.append(Plot(name=plotname+'errorDxy',
         texX = 'errorDxy', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_edxy,
-        binning=[50,0,0.004] if leptonFlavour["Name"]=="Muon" else [100,0,0.008],
+        binning=[50,0,0.008],
     ))
     plots.append(Plot(name=plotname+'errorDz',
         texX = 'errorDz', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_edz,
-        binning=[50,0,0.01] if leptonFlavour["Name"]=="Muon" else [100,0,0.02],
+        binning=[50,0,0.02],
     ))
     plots.append(Plot(name=plotname+'d3DwrtPV',
         texX = 'd3DwrtPV', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_ip3d,
-        binning=[100,0,0.02] if leptonFlavour["Name"]=="Muon" else [100,0,0.04],
+        binning=[50,0,0.05],
     ))
     plots.append(Plot(name=plotname+'significanceD3DwrtPV',
         texX = 'significanceD3DwrtPV', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_sip3d,
-        binning=[100,0,8],
+        binning=[100,0,20],
     ))
     plots.append(Plot(name=plotname+'effectiveArea03',
         texX = 'EffectiveArea03', texY = 'Number of Events',
@@ -336,7 +336,7 @@ for ecalType in ecalTypes:
     plots.append(Plot(name=plotname+'jetPtRatiov1',
         texX = 'pt(lepton)/pt(nearestJet)', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_jetPtRatiov1,
-        binning=[50,0,1],
+        binning=[50,0,1.25],
     ))
     plots.append(Plot(name=plotname+'jetPtRatiov2',
         texX = 'pt(lepton)/[rawpt(jet-PU-lep)*L2L3Res+pt(lepton)]', texY = 'Number of Events',
@@ -346,23 +346,23 @@ for ecalType in ecalTypes:
     plots.append(Plot(name=plotname+'jetPtRelv1',
         texX = 'lepPtTransverseToJetAxisV1', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_jetPtRelv1,
-        binning=[100,0,7],
+        binning=[50,0,15],
     ))
     plots.append(Plot(name=plotname+'jetPtRelv2',
         texX = 'lepPtTransverseToJetAxisV1', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_jetPtRelv2,
-        binning=[200,0,20],
+        binning=[50,0,40],
     ))
     plots.append(Plot(name=plotname+'ptErrTk',
         texX = 'ptErrorTrack', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_ptErrTk,
-        binning=[100,0,10] if leptonFlavour["Name"]=="Muon" else [100,0,50],
+        binning=[50,0,20],
     ))
 
     plots.append(Plot(name=plotname+'nTrueInt',
         texX = 'nTrueInt', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.nTrueInt,
-        binning=[55,0,55],
+        binning=[60,0,60],
     ))
     plots.append(Plot(name=plotname+'MVA_TTH',
         texX = 'mvaTTH', texY = 'Number of Events',
@@ -474,7 +474,7 @@ for ecalType in ecalTypes:
         plots.append(Plot(name=plotname+'muonInnerTrkRelErr',
             texX = 'muonInnerTrkRelErr', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.lep_muonInnerTrkRelErr,
-            binning=[50,0,0.05],
+            binning=[50,0,0.1],
         ))
         plots.append(Plot(name=plotname+'isGlobalMuon',
             texX = 'isGlobalMuon', texY = 'Number of Events',
@@ -484,22 +484,22 @@ for ecalType in ecalTypes:
         plots.append(Plot(name=plotname+'chi2LocalPosition',
             texX = 'chi2LocalPosition', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.lep_chi2LocalPosition,
-            binning=[100,0,10],
+            binning=[50,0,20],
         ))
         plots.append(Plot(name=plotname+'chi2LocalMomentum',
             texX = 'chi2LocalMomentum', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.lep_chi2LocalMomentum,
-            binning=[100,0,30],
+            binning=[50,0,50],
         ))
         plots.append(Plot(name=plotname+'gobalTrackChi2',
             texX = 'gobalTrackChi2', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.lep_globalTrackChi2,
-            binning=[50,0,3],
+            binning=[50,0,5],
         ))
         plots.append(Plot(name=plotname+'gobalTrackProb',
             texX = 'gobalTrackProb', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.lep_glbTrackProbability,
-            binning=[50,0,8],
+            binning=[50,0,15],
         ))
         plots.append(Plot(name=plotname+'caloCompatibility',
             texX = 'caloCompatibility', texY = 'Number of Events',

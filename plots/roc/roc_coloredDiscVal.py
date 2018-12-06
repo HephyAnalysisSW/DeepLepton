@@ -81,7 +81,12 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 # pt selection
 ptBinning = 5.
 ptBins    = int((args.ptMax-args.ptMin)/ptBinning)
-kinematic_selections = ["lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin + i*ptBinning, ptMax = args.ptMin + (i+1)*ptBinning if args.ptMin + (i+1)*ptBinning<args.ptMax else args.ptMax) for i in xrange(ptBins)]
+kinematic_selections = [
+                        {"name":                         "pt{ptMin}to{ptMax}".format(ptMin = int(args.ptMin + i*ptBinning), ptMax = int(args.ptMin + (i+1)*ptBinning) if args.ptMin + (i+1)*ptBinning<args.ptMax else args.ptMax), 
+                         "selectionString": "lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin + i*ptBinning, ptMax = args.ptMin + (i+1)*ptBinning if args.ptMin + (i+1)*ptBinning<args.ptMax else args.ptMax)}
+                         for i in xrange(ptBins)
+                       ]
+kinematic_selections.append({"name": "pt25toInf", "selectionString": "lep_pt>25"})
 
 #relative lumi weight
 weightString = 'lumi_scaleFactor1fb' if args.lumi_weight else '1'
@@ -102,14 +107,14 @@ lepton_ids = [
 for kinematic_selection in kinematic_selections:
     for lepton_id in lepton_ids:
         logger.info( "At id %s", lepton_id["name"] )
-        selectionString = "&&".join( [ kinematic_selection, loose_id,  prompt_selection ] )
+        selectionString = "&&".join( [ kinematic_selection["selectionString"], loose_id,  prompt_selection ] )
         print selectionString
         ref                    = sig_sample.getYieldFromDraw( selectionString = selectionString, weightString = weightString) 
         lepton_id["sig_h_eff"] = sig_sample.get1DHistoFromDraw(     lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, weightString = weightString, binningIsExplicit = True )
         lepton_id["sig_h_eff"].Scale( 1./ref['val'])
 
 
-        selectionString = "&&".join( [ kinematic_selection, loose_id,  "(!("+prompt_selection+"))" ] )
+        selectionString = "&&".join( [ kinematic_selection["selectionString"], loose_id,  "(!("+prompt_selection+"))" ] )
         print selectionString
         ref                    = bkg_sample.getYieldFromDraw( selectionString = selectionString, weightString = weightString )
         lepton_id["bkg_h_eff"] = bkg_sample.get1DHistoFromDraw( lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, weightString = weightString, binningIsExplicit = True )
@@ -122,8 +127,8 @@ for kinematic_selection in kinematic_selections:
         lepton_id["sig_eff" ] = [ lepton_id["sig_h_eff"].Integral(i_b, lepton_id["sig_h_eff"].GetNbinsX() + 1) for i_b in range( 0, lepton_id["sig_h_eff"].GetNbinsX() + 1 )] 
         lepton_id["bkg_eff" ] = [ lepton_id["bkg_h_eff"].Integral(i_b, lepton_id["bkg_h_eff"].GetNbinsX() + 1) for i_b in range( 0, lepton_id["bkg_h_eff"].GetNbinsX() + 1 )] 
 
-        lepton_id["roc_"+kinematic_selection] = ROOT.TGraph(len(lepton_id["bkg_eff" ]), array.array('d', lepton_id["bkg_eff" ]), array.array('d', lepton_id["sig_eff" ]))
-        lepton_id["roc_"+kinematic_selection].SetLineColor( lepton_id['color'] )
+        lepton_id["roc_"+kinematic_selection["name"]] = ROOT.TGraph(len(lepton_id["bkg_eff" ]), array.array('d', lepton_id["bkg_eff" ]), array.array('d', lepton_id["sig_eff" ]))
+        lepton_id["roc_"+kinematic_selection["name"]].SetLineColor( lepton_id['color'] )
 
 gStyle.SetOptTitle(0)
 c = ROOT.TCanvas()
@@ -134,42 +139,42 @@ latex    = {}
 latexPos = 0.65
 for kinematic_selection in kinematic_selections:
     for lepton_id in lepton_ids:
-        marker.update({kinematic_selection+lepton_id["name"]: []})
-        latex.update({kinematic_selection+lepton_id["name"]: []})
+        marker.update({kinematic_selection["name"]+lepton_id["name"]: []})
+        latex.update({kinematic_selection["name"]+lepton_id["name"]: []})
         #lepton_id["roc"].GetXaxis().SetRangeUser(0.01, 1)
-        lepton_id["roc_"+kinematic_selection].GetXaxis().SetTitle("bkg eff")
-        lepton_id["roc_"+kinematic_selection].GetYaxis().SetTitle("sig eff")
-        lepton_id["roc_"+kinematic_selection].GetXaxis().SetLimits(0.01, 1)
-        lepton_id["roc_"+kinematic_selection].GetHistogram().SetMaximum(1.01)
-        lepton_id["roc_"+kinematic_selection].GetHistogram().SetMinimum(0.60)
-        lepton_id["roc_"+kinematic_selection].SetLineWidth(0)
-        lepton_id["roc_"+kinematic_selection].SetFillStyle(0)
-        lepton_id["roc_"+kinematic_selection].SetFillColor(0)
-        lepton_id["roc_"+kinematic_selection].SetMarkerStyle(1)
-        lepton_id["roc_"+kinematic_selection].SetMarkerColor(lepton_id["color"])
-        lepton_id["roc_"+kinematic_selection].SetTitle(lepton_id["name"]+'_'+kinematic_selection)
-        lepton_id["roc_"+kinematic_selection].Draw(option+same)
+        lepton_id["roc_"+kinematic_selection["name"]].GetXaxis().SetTitle("bkg eff")
+        lepton_id["roc_"+kinematic_selection["name"]].GetYaxis().SetTitle("sig eff")
+        lepton_id["roc_"+kinematic_selection["name"]].GetXaxis().SetLimits(0.01, 1)
+        lepton_id["roc_"+kinematic_selection["name"]].GetHistogram().SetMaximum(1.01)
+        lepton_id["roc_"+kinematic_selection["name"]].GetHistogram().SetMinimum(0.60)
+        lepton_id["roc_"+kinematic_selection["name"]].SetLineWidth(0)
+        lepton_id["roc_"+kinematic_selection["name"]].SetFillStyle(0)
+        lepton_id["roc_"+kinematic_selection["name"]].SetFillColor(0)
+        lepton_id["roc_"+kinematic_selection["name"]].SetMarkerStyle(1)
+        lepton_id["roc_"+kinematic_selection["name"]].SetMarkerColor(lepton_id["color"])
+        lepton_id["roc_"+kinematic_selection["name"]].SetTitle(lepton_id["name"]+'_'+kinematic_selection["name"])
+        lepton_id["roc_"+kinematic_selection["name"]].Draw(option+same)
         same = "same"
-        n=lepton_id["roc_"+kinematic_selection].GetN()
+        n=lepton_id["roc_"+kinematic_selection["name"]].GetN()
         x=ROOT.Double(0)
         y=ROOT.Double(0)
         p=1
         counter = 0
         for i in xrange(n):
-            lepton_id["roc_"+kinematic_selection].GetPoint(i,x,y)
+            lepton_id["roc_"+kinematic_selection["name"]].GetPoint(i,x,y)
             #color = 1+int(lepton_id["thresholds"][i]*lepton_id["thresholds"][i]*lepton_id["thresholds"][i]*lepton_id["thresholds"][i]*50 + 0.5) + 50
             color = 1+int((lepton_id["thresholds"][i]**p)*50 + 0.5) + 50
             color = color if color<=99 else 2
-            if y>0.60:
-                marker[kinematic_selection+lepton_id["name"]].append( ROOT.TMarker(x,y,6) )
-                marker[kinematic_selection+lepton_id["name"]][i].SetMarkerColor(color)
-                marker[kinematic_selection+lepton_id["name"]][i].Draw()
+            if y>0.60 and x>0.01:
+                marker[kinematic_selection["name"]+lepton_id["name"]].append( ROOT.TMarker(x,y,6) )
+                marker[kinematic_selection["name"]+lepton_id["name"]][i].SetMarkerColor(color)
+                marker[kinematic_selection["name"]+lepton_id["name"]][i].Draw()
             if y < latexPos and counter == 0:
-                latex[kinematic_selection+lepton_id["name"]] = ROOT.TLatex(x,y, kinematic_selection)
-                latex[kinematic_selection+lepton_id["name"]].SetTextSize(0.020)
-                latex[kinematic_selection+lepton_id["name"]].SetTextFont(42)
-                latex[kinematic_selection+lepton_id["name"]].SetTextAlign(21)
-                latex[kinematic_selection+lepton_id["name"]].Draw()
+                latex[kinematic_selection["name"]+lepton_id["name"]] = ROOT.TLatex(x,y, kinematic_selection["name"])
+                latex[kinematic_selection["name"]+lepton_id["name"]].SetTextSize(0.020)
+                latex[kinematic_selection["name"]+lepton_id["name"]].SetTextFont(42)
+                latex[kinematic_selection["name"]+lepton_id["name"]].SetTextAlign(21)
+                latex[kinematic_selection["name"]+lepton_id["name"]].Draw()
                 counter += 1
                 latexPos += 0.05
 header = [
@@ -211,4 +216,4 @@ else:
 
 if not os.path.exists(directory):
     os.makedirs(directory)
-c.Print(os.path.join( directory, "{plot_name}_{lumi}_roc_ptBinned{ptMin}to{ptMax}.png".format( plot_name = training_name, lumi = 'lumi' if args.lumi_weight else 'noLumi' , ptMin = args.ptMin, ptMax = args.ptMax) ))
+c.Print(os.path.join( directory, "{plot_name}_{lumi}_roc_lowPtBinned{ptMin}to{ptMax}plusHighPt.png".format( plot_name = training_name, lumi = 'lumi' if args.lumi_weight else 'noLumi' , ptMin = args.ptMin, ptMax = args.ptMax) ))

@@ -51,7 +51,7 @@ args.eS=args.eS/100.
 
 maxN = -1
 if args.small:
-    maxN = 10
+    maxN = 1
 
 #get flat sample
 if args.flat:
@@ -200,12 +200,13 @@ for relIsoCut in relIsoCuts:
                 print maxpval, pval, eSVal
 
             #calculate bin values
+            factor = 3. if not ptCut["Name"]=="pt10to25" else 1.
             for dataset in readerData:
                 j += 1
                 if not len(dataset)==0:
                     x.append(j*binWidth)
                     y_eS.append(eS(maxpval,dataset))
-                    y_eB.append(eB(maxpval,dataset))
+                    y_eB.append(eB(maxpval,dataset)*factor)
                     print j*binWidth, maxpval, y_eB[-1], y_eS[-1]
 
             #Draw Graphs
@@ -231,7 +232,7 @@ for relIsoCut in relIsoCuts:
             #Draw Graphs
             n=len(x)
             graph=ROOT.TGraph(n,x,y_eB)
-            gname=("eB "+plot["name"]+" (for plotted eS)")
+            gname=("eB "+("x "+str(int(factor))+" " if not ptCut["Name"]=="pt10to25" else "")+plot["name"]+" (for plotted eS)")
             graph.SetName(gname)
             graph.SetTitle(gname)
             #graph.SetLineStyle( 2 )
@@ -280,6 +281,6 @@ for relIsoCut in relIsoCuts:
             directory = os.path.join( plot_directory, "DeepLepton" )
         if not os.path.exists(directory):
             os.makedirs(directory)
-        c.Print(os.path.join( directory, "{plot_name}_{kin}_{lumi}_roc_binned_{binVar}_for_eS_of_{sigeff}.png".format( 
-                            plot_name = sample.name, kin = ptCut["Name"], lumi = 'lumi' if args.lumi_weight else 'noLumi', binVar = args.binned, sigeff = str(args.eS ) )))
+        c.Print(os.path.join( directory, "{plot_name}_{kin}_{lumi}_roc_binned_{binVar}_for_eS_of_{sigeff}{eBscaled}.png".format( 
+                            plot_name = sample.name, kin = ptCut["Name"], lumi = 'lumi' if args.lumi_weight else 'noLumi', binVar = args.binned, sigeff = str(args.eS ), eBscaled = "eBscaled" if not ptCut["Name"]=="pt10to25" else "" )))
 

@@ -93,12 +93,12 @@ weightString = 'lumi_scaleFactor1fb' if args.lumi_weight else '1'
 
 # lepton Ids
 deepLepton = {"name":"deepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/10000. for i in range(0,10000)]}
-mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                                                                  "color":ROOT.kGray+1,  "thresholds":[ i/100. for i in range(-100,101)]}
+mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                                                                  "color":ROOT.kGray+1,  "thresholds":[ i/10000. for i in range(-10000,10001)]}
 mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                                                                  "color":ROOT.kGray,    "thresholds":[ i/100. for i in range(-100,101)]}
 
 lepton_ids = [
     #mvaTTH, 
-    #mvaTTV,
+    mvaTTV,
     deepLepton,
 ]
 
@@ -136,9 +136,9 @@ option   = "P"
 same     = "A"
 marker   = {}
 latex    = {}
-latexPos = 0.65
-for kinematic_selection in kinematic_selections:
-    for lepton_id in lepton_ids:
+for lepton_id in lepton_ids:
+    latexPos = 0.65
+    for kinematic_selection in kinematic_selections:
         marker.update({kinematic_selection["name"]+lepton_id["name"]: []})
         latex.update({kinematic_selection["name"]+lepton_id["name"]: []})
         #lepton_id["roc"].GetXaxis().SetRangeUser(0.01, 1)
@@ -163,10 +163,11 @@ for kinematic_selection in kinematic_selections:
         for i in xrange(n):
             lepton_id["roc_"+kinematic_selection["name"]].GetPoint(i,x,y)
             #color = 1+int(lepton_id["thresholds"][i]*lepton_id["thresholds"][i]*lepton_id["thresholds"][i]*lepton_id["thresholds"][i]*50 + 0.5) + 50
-            color = 1+int((lepton_id["thresholds"][i]**p)*50 + 0.5) + 50
+            discVal = lepton_id["thresholds"][i] if lepton_id["name"]=="deepLepton" else (lepton_id["thresholds"][i]+1.)/2.
+            color = 1+int((discVal**p)*50 + 0.5) + 50
             color = color if color<=99 else 2
             if y>0.60 and x>0.01:
-                marker[kinematic_selection["name"]+lepton_id["name"]].append( ROOT.TMarker(x,y,6) )
+                marker[kinematic_selection["name"]+lepton_id["name"]].append( ROOT.TMarker(x,y,6 if lepton_id["name"]=="deepLepton" else 1) )
                 marker[kinematic_selection["name"]+lepton_id["name"]][i].SetMarkerColor(color)
                 marker[kinematic_selection["name"]+lepton_id["name"]][i].Draw()
             if y < latexPos and counter == 0:
@@ -174,6 +175,7 @@ for kinematic_selection in kinematic_selections:
                 latex[kinematic_selection["name"]+lepton_id["name"]].SetTextSize(0.020)
                 latex[kinematic_selection["name"]+lepton_id["name"]].SetTextFont(42)
                 latex[kinematic_selection["name"]+lepton_id["name"]].SetTextAlign(21)
+                latex[kinematic_selection["name"]+lepton_id["name"]].SetTextColor(lepton_id["color"])
                 latex[kinematic_selection["name"]+lepton_id["name"]].Draw()
                 counter += 1
                 latexPos += 0.05
@@ -210,10 +212,11 @@ if args.flat:
                                 flat_sampleInfo['sample_name'],
                                 flat_sampleInfo['training_date'],
                                 'TestData' if args.testData else 'TrainData',
+                                'roc',
                             )
 else:
     directory = os.path.join( plot_directory, "DeepLepton" ) 
 
 if not os.path.exists(directory):
     os.makedirs(directory)
-c.Print(os.path.join( directory, "{plot_name}_{lumi}_roc_lowPtBinned{ptMin}to{ptMax}plusHighPt.png".format( plot_name = training_name, lumi = 'lumi' if args.lumi_weight else 'noLumi' , ptMin = args.ptMin, ptMax = args.ptMax) ))
+c.Print(os.path.join( directory, "roc_colored_{lepid}_discriminator_{lumi}.png".format( lepid = lepton_id["name"], lumi = 'lumi' if args.lumi_weight else 'noLumi' )))

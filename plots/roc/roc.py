@@ -176,10 +176,11 @@ if args.flat:
                                 flat_sampleInfo['sample_name'],
                                 flat_sampleInfo['training_date'],
                                 'TestData' if args.testData else 'TrainData',
+                                'roc',
                             )
 else:
     directory = os.path.join( plot_directory, "DeepLepton", "full_events" ) 
 
 if not os.path.exists(directory):
     os.makedirs(directory)
-c.Print(os.path.join( directory, "{plot_name}_{kin}_{lumi}_roc.png".format( plot_name = training_name, kin = kinematic_selection, lumi = 'lumi' if args.lumi_weight else 'noLumi' ) ))
+c.Print(os.path.join( directory, "roc_{kin}_{lumi}.png".format( plot_name = training_name, kin = kinematic_selection, lumi = 'lumi' if args.lumi_weight else 'noLumi' ) ))

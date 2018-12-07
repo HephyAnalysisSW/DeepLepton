@@ -33,8 +33,9 @@ argParser.add_argument('--flavour',            action='store', type=str, choices
 argParser.add_argument('--testData',           action='store_true',       help="plot test or train data?")
 argParser.add_argument('--lumi_weight',        action='store_true',       help="apply lumi weight?")
 
-argParser.add_argument('--binned',             action='store', type=str, choices=['pt','eta','nTrueInt'], default='pt',                 help="Which variable for binning?")
-argParser.add_argument('--eS',                 action='store', type=int, default=90,                                    help="Draw efficiencies for an overall signal efficiency?")
+argParser.add_argument('--binned',             action='store', type=str, choices=['pt','low_pt','high_pt','eta','nTrueInt'], default='pt',                 help="Which variable for binning?")
+argParser.add_argument('--eS_TTV',                 action='store', type=int, default=90,                                    help="Draw TTV/TTH efficiencies for an overall signal efficiency?")
+argParser.add_argument('--eS_DL',                  action='store', type=int, default=90,                                    help="Draw DeepLepton efficiencies for an overall signal efficiency?")
 #argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
 args = argParser.parse_args()
 
@@ -47,7 +48,6 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 ##############################
 # load samples and variables #
 ##############################
-args.eS=args.eS/100.
 
 maxN = -1
 if args.small:
@@ -75,16 +75,18 @@ isTestData = args.testData
 
 leptonFlavour = {'fullName':'Electron' if args.flavour=='ele' else 'Muon', 'name':args.flavour, 'pdgId': 11 if args.flavour=='ele' else 13, 'trainDates': [], 'plotTestData': isTestData}
 leptonFlavour['trainDates'].append({'date': sampleInfo['training_date'],  'plots': [
-                                      {'name': 'LeptonMVA_TTH',       'MVAType': 'MVA_Id', 'var': 'lep_mvaTTH',                   'color':ROOT.kGray,    'lineWidth': 2, 'thresholds':[ i/100. for i in range(0,100)]},
-                                      {'name': 'LeptonMVA_TTV',       'MVAType': 'MVA_Id', 'var': 'lep_mvaTTV',                   'color':ROOT.kGray+1,  'lineWidth': 2, 'thresholds':[ i/100. for i in range(-100,101)]},
-                                      {'name': 'DeepLepton',          'MVAType': 'DL_Id',  'var': 'prob_lep_isPromptId_Training', 'color':ROOT.kGreen+2, 'lineWidth': 2, 'thresholds':[ i/100. for i in range(-100,101)]},
+                                      {'name': 'LeptonMVA_TTH',       'MVAType': 'MVA_Id', 'var': 'lep_mvaTTH',                   'color':ROOT.kGray,    'lineWidth': 2, 'eS': args.eS_TTV, 'thresholds':[ i/100. for i in range(0,100)]},
+                                      {'name': 'LeptonMVA_TTV',       'MVAType': 'MVA_Id', 'var': 'lep_mvaTTV',                   'color':ROOT.kGray+1,  'lineWidth': 2, 'eS': args.eS_TTV, 'thresholds':[ i/100. for i in range(-100,101)]},
+                                      {'name': 'DeepLepton',          'MVAType': 'DL_Id',  'var': 'prob_lep_isPromptId_Training', 'color':ROOT.kGreen+2, 'lineWidth': 2, 'eS': args.eS_DL, 'thresholds':[ i/100. for i in range(-100,101)]},
                                                                                    ]})
 
 
 binnedList={}
-binnedList.update({"pt":       {"varName":"|pt|",                                           "Var":"lep_pt",                                             "abs":1, "cuts":[0, 250],      "bins":50, "eS": args.eS }})
-binnedList.update({"eta":      {"varName":"|etaSc|" if args.flavour=='ele' else "|eta|",    "Var":"lep_etaSc" if args.flavour=='ele' else "lep_eta",    "abs":1, "cuts":[0, 2.5],      "bins":50, "eS": args.eS }})
-binnedList.update({"nTrueInt": {"varName":"nTrueInt",                                       "Var":"nTrueInt",                                           "abs":0, "cuts":[0, 50],       "bins":50, "eS": args.eS }})
+binnedList.update({"pt":       {"varName":"|p_{T}|",                                        "Var":"lep_pt",                                             "abs":1, "cuts":[0, 200],      "bins":40}})
+binnedList.update({"low_pt":   {"varName":"|p_{T}|",                                        "Var":"lep_pt",                                             "abs":1, "cuts":[0, 50],       "bins":50}})
+binnedList.update({"high_pt":  {"varName":"|p_{T}|",                                        "Var":"lep_pt",                                             "abs":1, "cuts":[0, 200],      "bins":40}})
+binnedList.update({"eta":      {"varName":"|etaSc|" if args.flavour=='ele' else "|#eta|",   "Var":"lep_etaSc" if args.flavour=='ele' else "lep_eta",    "abs":1, "cuts":[0, 2.5],      "bins":50}})
+binnedList.update({"nTrueInt": {"varName":"nTrueInt",                                       "Var":"nTrueInt",                                           "abs":0, "cuts":[0, 50],       "bins":50}})
 
 ###############
 # define cuts #
@@ -107,7 +109,13 @@ logY=0
 
 ptCuts=[]
 if args.binned=='pt':
-    ptCuts.append({"Name":"pt10to250", "lower_limit":10, "upper_limit":250         })
+    ptCuts.append({"Name":"pt10to200", "lower_limit":10, "upper_limit":200         })
+elif args.binned=='low_pt':
+    ptCuts.append({"Name":"pt10to50" ,"lower_limit":10, "upper_limit":50})
+    #ptCuts.append({"Name":"pt10to25" ,"lower_limit":10, "upper_limit":25})
+elif args.binned=='high_pt':
+    ptCuts.append({"Name":"pt50toInf","lower_limit":50, "upper_limit":float("Inf")})
+    #ptCuts.append({"Name":"pt25toInf","lower_limit":25, "upper_limit":float("Inf")})
 else:
     ptCuts.append({"Name":"pt25toInf","lower_limit":25, "upper_limit":float("Inf")})
     ptCuts.append({"Name":"pt10to25" ,"lower_limit":10, "upper_limit":25})
@@ -180,6 +188,8 @@ for relIsoCut in relIsoCuts:
             x    = array('d')
             y_eS = array('d')
             y_eB = array('d')
+            
+            WP = plot["eS"]/100.
 
             #calculate cut value for overall eS 
             #select full reader data
@@ -193,7 +203,7 @@ for relIsoCut in relIsoCuts:
             prange = plot['thresholds']
             for pval in prange:
                 eSVal = eS(pval,eSreaderData)
-                if eSVal<=args.eS and not eSVal<=0.:
+                if eSVal<=WP and not eSVal<=0.:
                     maxpval = pval
                     break
 
@@ -212,7 +222,7 @@ for relIsoCut in relIsoCuts:
             #Draw Graphs
             n=len(x)
             g.append(ROOT.TGraph(n,x,y_eS))
-            gname=("eS "+plot["name"]+" (for overall eS={sigeff})".format(sigeff=str(args.eS)))
+            gname=("eS "+plot["name"]+" (for overall eS={sigeff})".format(sigeff=str(WP)))
             g[ng].SetName(gname)
             g[ng].SetTitle(gname)
             g[ng].SetLineColor( 0 )
@@ -276,11 +286,17 @@ for relIsoCut in relIsoCuts:
                                         sampleInfo['sample_name'],
                                         sampleInfo['training_date'],
                                         'TestData' if args.testData else 'TrainData',
+                                        'binnedEfficiencies',
+                                        args.binned,
                                     )
         else:
             directory = os.path.join( plot_directory, "DeepLepton" )
         if not os.path.exists(directory):
             os.makedirs(directory)
-        c.Print(os.path.join( directory, "{plot_name}_{kin}_{lumi}_roc_binned_{binVar}_for_eS_of_{sigeff}{eBscaled}.png".format( 
-                            plot_name = sample.name, kin = ptCut["Name"], lumi = 'lumi' if args.lumi_weight else 'noLumi', binVar = args.binned, sigeff = str(args.eS ), eBscaled = "eBscaled" if not ptCut["Name"]=="pt10to25" else "" )))
-
+        c.Print(os.path.join( directory, "binned_{binVar}_{kin}_{lumi}_eS_TTV{eS_TTV}_eS_DL{eS_DL}{eBscaled}.png".format( 
+                            binVar = args.binned, kin = ptCut["Name"], lumi = 'lumi' if args.lumi_weight else 'noLumi',
+                            eS_TTV = str(args.eS_TTV/100.), eS_DL = str(args.eS_DL/100.) , eBscaled = "_eBscaled" if factor!=1. else "" )))
+        if args.binned=='pt':
+            c.Print(os.path.join( directory, "root_binned_{binVar}_{kin}_{lumi}_eS_TTV{eS_TTV}_eS_DL{eS_DL}{eBscaled}.root".format( 
+                                binVar = args.binned, kin = ptCut["Name"], lumi = 'lumi' if args.lumi_weight else 'noLumi',
+                                eS_TTV = str(args.eS_TTV/100.), eS_DL = str(args.eS_DL/100.) , eBscaled = "_eBscaled" if factor!=1. else "" )))

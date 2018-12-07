@@ -84,7 +84,7 @@ leptonFlavour['trainDates'].append({'date': sampleInfo['training_date'],  'plots
 binnedList={}
 binnedList.update({"pt":       {"varName":"|p_{T}|",                                        "Var":"lep_pt",                                             "abs":1, "cuts":[0, 200],      "bins":40}})
 binnedList.update({"low_pt":   {"varName":"|p_{T}|",                                        "Var":"lep_pt",                                             "abs":1, "cuts":[0, 50],       "bins":50}})
-binnedList.update({"high_pt":  {"varName":"|p_{T}|",                                        "Var":"lep_pt",                                             "abs":1, "cuts":[0, 200],      "bins":40}})
+binnedList.update({"high_pt":  {"varName":"|p_{T}|",                                        "Var":"lep_pt",                                             "abs":1, "cuts":[0, 100],      "bins":100}})
 binnedList.update({"eta":      {"varName":"|etaSc|" if args.flavour=='ele' else "|#eta|",   "Var":"lep_etaSc" if args.flavour=='ele' else "lep_eta",    "abs":1, "cuts":[0, 2.5],      "bins":50}})
 binnedList.update({"nTrueInt": {"varName":"nTrueInt",                                       "Var":"nTrueInt",                                           "abs":0, "cuts":[0, 50],       "bins":50}})
 
@@ -111,10 +111,12 @@ ptCuts=[]
 if args.binned=='pt':
     ptCuts.append({"Name":"pt10to200", "lower_limit":10, "upper_limit":200         })
 elif args.binned=='low_pt':
-    ptCuts.append({"Name":"pt10to50" ,"lower_limit":10, "upper_limit":50})
+    ptCuts.append({"Name":"pt15to50" ,"lower_limit":15, "upper_limit":50})
+    #ptCuts.append({"Name":"pt10to50" ,"lower_limit":10, "upper_limit":50})
     #ptCuts.append({"Name":"pt10to25" ,"lower_limit":10, "upper_limit":25})
 elif args.binned=='high_pt':
-    ptCuts.append({"Name":"pt50toInf","lower_limit":50, "upper_limit":float("Inf")})
+    ptCuts.append({"Name":"pt50to100","lower_limit":50, "upper_limit":100})
+    #ptCuts.append({"Name":"pt50toInf","lower_limit":50, "upper_limit":float("Inf")})
     #ptCuts.append({"Name":"pt25toInf","lower_limit":25, "upper_limit":float("Inf")})
 else:
     ptCuts.append({"Name":"pt25toInf","lower_limit":25, "upper_limit":float("Inf")})

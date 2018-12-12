@@ -36,6 +36,7 @@ argParser.add_argument('--year',               action='store', type=int, choices
 argParser.add_argument('--flavour',            action='store', type=str, choices=['ele','muo'], default='muo',  help="Which Flavour?")
 argParser.add_argument('--testData',           action='store_true',      help="plot test or train data?")
 argParser.add_argument('--looseId',            action='store_true',      help="plot data with looseId preselection?")
+argParser.add_argument('--varSelection',       action='store', type=str, choices=['fullClasses','simpleClasses','noTrainingIDs'], default='fullClasses',  help="Which lepton classes?")
 
 
 #argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
@@ -82,8 +83,7 @@ else:
     print "FIXME: implement full events first."
 
 # variables to read
-noTraining = False
-flat_variables = get_flat_variables(noTraining)
+flat_variables = get_flat_variables(args.varSelection)
 
 #########################
 # define plot structure #
@@ -129,29 +129,50 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 preselectionString= loose_id if args.looseId else "abs(lep_pdgId)==13&&lep_pt>5" 
 
 #define class samples
-samplePrompt    = deepcopy(sample)
-sampleNonPrompt = deepcopy(sample)
-sampleFake      = deepcopy(sample)
+if args.varSelection in ['fullClasses', 'noTrainingIDs']:
+    samplePrompt    = deepcopy(sample)
+    sampleNonPrompt = deepcopy(sample)
+    sampleFake      = deepcopy(sample)
 
-samplePrompt.setSelectionString("(lep_isPromptId_Training==1&&"+preselectionString+")")
-sampleNonPrompt.setSelectionString("(lep_isNonPromptId_Training==1&&"+preselectionString+")")
-sampleFake.setSelectionString("(lep_isFakeId_Training==1&&"+preselectionString+")")
+    samplePrompt.setSelectionString("(lep_isPromptId_Training==1&&"+preselectionString+")")
+    sampleNonPrompt.setSelectionString("(lep_isNonPromptId_Training==1&&"+preselectionString+")")
+    sampleFake.setSelectionString("(lep_isFakeId_Training==1&&"+preselectionString+")")
 
-samplePrompt.name    = "Prompt"
-sampleNonPrompt.name = "NonPrompt"
-sampleFake.name      = "Fake"
+    samplePrompt.name    = "Prompt"
+    sampleNonPrompt.name = "NonPrompt"
+    sampleFake.name      = "Fake"
 
-samplePrompt.texName    = "Prompt"
-sampleNonPrompt.texName = "NonPrompt"
-sampleFake.texName      = "Fake"
+    samplePrompt.texName    = "Prompt"
+    sampleNonPrompt.texName = "NonPrompt"
+    sampleFake.texName      = "Fake"
 
-samplePrompt.style    = fillStyle(color=ROOT.kCyan, style=3004, lineColor=ROOT.kCyan)
-sampleNonPrompt.style = fillStyle(color=ROOT.kBlue, style=3004, lineColor=ROOT.kBlue)
-sampleFake.style      = fillStyle(color=ROOT.kGray, style=3004, lineColor=ROOT.kGray)
+    samplePrompt.style    = fillStyle(color=ROOT.kCyan, style=3004, lineColor=ROOT.kCyan)
+    sampleNonPrompt.style = fillStyle(color=ROOT.kBlue, style=3004, lineColor=ROOT.kBlue)
+    sampleFake.style      = fillStyle(color=ROOT.kGray, style=3004, lineColor=ROOT.kGray)
 
-# Define stack
-mc    = [samplePrompt,sampleNonPrompt,sampleFake]  # A full example would be e.g. mc = [ttbar, ttz, ttw, ...]
-stack = Stack(mc) # A full example would be e.g. stack = Stack( mc, [data], [signal1], [signal2] ) -> Samples in "mc" are stacked in the plot
+    # Define stack
+    mc    = [samplePrompt,sampleNonPrompt,sampleFake]  # A full example would be e.g. mc = [ttbar, ttz, ttw, ...]
+    stack = Stack(mc) # A full example would be e.g. stack = Stack( mc, [data], [signal1], [signal2] ) -> Samples in "mc" are stacked in the plot
+
+if args.varSelection=='simpleClasses':
+    samplePrompt    = deepcopy(sample)
+    sampleNotPrompt = deepcopy(sample)
+
+    samplePrompt.setSelectionString("(lep_isPromptId_Training==1&&"+preselectionString+")")
+    sampleNotPrompt.setSelectionString("(lep_isNotPromptId_Training==1&&"+preselectionString+")")
+
+    samplePrompt.name    = "Prompt"
+    sampleNotPrompt.name = "NotPrompt"
+
+    samplePrompt.texName    = "Prompt"
+    sampleNotPrompt.texName = "NotPrompt"
+
+    samplePrompt.style    = fillStyle(color=ROOT.kCyan, style=3004, lineColor=ROOT.kCyan)
+    sampleNotPrompt.style = fillStyle(color=ROOT.kGray+2, style=3004, lineColor=ROOT.kGray+2)
+
+    # Define stack
+    mc    = [samplePrompt,sampleNotPrompt]  # A full example would be e.g. mc = [ttbar, ttz, ttw, ...]
+    stack = Stack(mc) # A full example would be e.g. stack = Stack( mc, [data], [signal1], [signal2] ) -> Samples in "mc" are stacked in the plot
 
 for ecalType in ecalTypes:
         
@@ -204,7 +225,7 @@ for ecalType in ecalTypes:
         binning=[2,0,1],
     ))
     
-    if not noTraining and args.looseId:
+    if args.varSelection=='fullClasses' and args.looseId:
         plots.append(Plot(name=plotname+'DL_prob_isPrompt',
             texX = 'DL_prob_isPrompt', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.prob_lep_isPromptId_Training,
@@ -218,6 +239,18 @@ for ecalType in ecalTypes:
         plots.append(Plot(name=plotname+'DL_prob_isFake',
             texX = 'DL_prob_isFake', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.prob_lep_isFakeId_Training,
+            binning=[33,0,1],
+        ))
+
+    if args.varSelection=='simpleClasses' and args.looseId:
+        plots.append(Plot(name=plotname+'DL_prob_isPrompt',
+            texX = 'DL_prob_isPrompt', texY = 'Number of Events',
+            attribute = lambda lepton, sample: lepton.prob_lep_isPromptId_Training,
+            binning=[33,0,1],
+        ))
+        plots.append(Plot(name=plotname+'DL_prob_isNotPrompt',
+            texX = 'DL_prob_isNotPrompt', texY = 'Number of Events',
+            attribute = lambda lepton, sample: lepton.prob_lep_isNotPromptId_Training,
             binning=[33,0,1],
         ))
 
@@ -558,7 +591,7 @@ for ecalType in ecalTypes:
         plot_directory_ = (os.path.join(
                                         plot_directory,
                                         sampleInfo['sample_name'],
-                                        sampleInfo['training_date'] if not noTraining else 'noTraining',                
+                                        sampleInfo['training_date'] if args.varSelection!='noTrainingIDs' else 'noTraining',                
                                         'TestData' if args.testData else 'TrainData',
                                         'histograms', kinematic_selection_name + "_"+ecalType["Name"]+('_looseIdSelection' if args.looseId else '_noSelection'), ("log" if log else "lin")
                                         ))

@@ -11,18 +11,18 @@
 ### flat samples ###
 ####################
 
-python -i roc.py --flat --ptMin 5  --ptMax 0   --testData --flatSample TTs_Muons_globalVarsOnly_2016 --lumi_weight 
-python -i roc.py --flat --ptMin 25 --ptMax 0   --testData --flatSample TTs_Muons_globalVarsOnly_2016 --lumi_weight 
-python -i roc.py --flat --ptMin 5  --ptMax 25  --testData --flatSample TTs_Muons_globalVarsOnly_2016 --lumi_weight
-python -i roc.py --flat --ptMin 10 --ptMax 25  --testData --flatSample TTs_Muons_globalVarsOnly_2016 --lumi_weight
-python -i roc.py --flat --ptMin 10 --ptMax 0   --testData --flatSample TTs_Muons_globalVarsOnly_2016 --lumi_weight 
-python -i roc.py --flat --ptMin 10 --ptMax 250 --testData --flatSample TTs_Muons_globalVarsOnly_2016 --lumi_weight 
+python -i roc.py --flat --ptMin 5  --ptMax 0   --flatSample TTs_Muons_pooling_2016 --lumi_weight --testData 
+python -i roc.py --flat --ptMin 25 --ptMax 0   --flatSample TTs_Muons_pooling_2016 --lumi_weight --testData 
+python -i roc.py --flat --ptMin 5  --ptMax 25  --flatSample TTs_Muons_pooling_2016 --lumi_weight --testData 
+python -i roc.py --flat --ptMin 10 --ptMax 25  --flatSample TTs_Muons_pooling_2016 --lumi_weight --testData 
+python -i roc.py --flat --ptMin 10 --ptMax 0   --flatSample TTs_Muons_pooling_2016 --lumi_weight --testData 
+python -i roc.py --flat --ptMin 10 --ptMax 250 --flatSample TTs_Muons_pooling_2016 --lumi_weight --testData 
 
-python -i roc.py --flat --ptMin 5  --ptMax 0   --flatSample TTs_Muons_globalVarsOnly_2016 --lumi_weight 
-python -i roc.py --flat --ptMin 25 --ptMax 0   --flatSample TTs_Muons_globalVarsOnly_2016 --lumi_weight 
-python -i roc.py --flat --ptMin 5  --ptMax 25  --flatSample TTs_Muons_globalVarsOnly_2016 --lumi_weight
-python -i roc.py --flat --ptMin 10 --ptMax 25  --flatSample TTs_Muons_globalVarsOnly_2016 --lumi_weight
-python -i roc.py --flat --ptMin 10 --ptMax 0   --flatSample TTs_Muons_globalVarsOnly_2016 --lumi_weight 
+python -i roc.py --flat --ptMin 5  --ptMax 0   --flatSample TTs_Muons_pooling_2016 --lumi_weight 
+python -i roc.py --flat --ptMin 25 --ptMax 0   --flatSample TTs_Muons_pooling_2016 --lumi_weight 
+python -i roc.py --flat --ptMin 5  --ptMax 25  --flatSample TTs_Muons_pooling_2016 --lumi_weight
+python -i roc.py --flat --ptMin 10 --ptMax 25  --flatSample TTs_Muons_pooling_2016 --lumi_weight
+python -i roc.py --flat --ptMin 10 --ptMax 0   --flatSample TTs_Muons_pooling_2016 --lumi_weight 
 
 
 

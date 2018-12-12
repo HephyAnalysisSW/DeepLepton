@@ -145,6 +145,10 @@ def get_flat_variables(varSelection):
 
     return flat_variables
 
+####################
+### flat samples ###
+####################
+
 #flat test file
 testFile = {
 'training_name'     : 'TTs_Muons_balanced_pt5toInf_20181117',
@@ -155,7 +159,9 @@ testFile = {
 'predict_directory_trainData' : '',
 }
 
-#flat samples
+##############################
+### prompt reference class ###
+##############################
 
 #unmixed samples
 DYvsQCD_Muons_balanced_2016 = {
@@ -302,6 +308,11 @@ TTs_Muons_balanced_test_pt5toInf_2016 = {
 'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181205-03/TTs_balanced_pt5toInf_MuonEvaluationTestDataIsTrainData',
 }
 
+#################################
+### nonPrompt reference class ###
+#################################
+
+#Standard Training
 TTs_Muons_2016 = {
 'training_name'     : 'TTs_Muons_20181211-01',
 'training_date'     : '20181211-01',
@@ -311,6 +322,7 @@ TTs_Muons_2016 = {
 'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181211-01/TTs_Muon_EvaluationTestDataIsTrainData',
 }
 
+#Test Architectures
 TTs_Muons_splitDense_2016 = {
 'training_name'     : 'TTs_Muons_splitDense_20181211-02',
 'training_date'     : '20181211-02',
@@ -338,6 +350,23 @@ TTs_Muons_globalVarsOnly_2016 = {
 'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181211-04/TTs_Muon_globalVarsOnly_EvaluationTestDataIsTrainData',
 }
 
+TTs_Muons_pooling_2016 = {
+'training_name'     : 'TTs_Muons_pooling_20181212-01',
+'training_date'     : '20181212-01',
+'sample_name'       : 'TTs_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181212-01/TTs_Muon_pooling_EvaluationTestData',
+'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181212-01/TTs_Muon_pooling_EvaluationTestDataIsTrainData',
+}
+
+#TTs_Muons_biLSTM_2016 = {
+#'training_name'     : 'TTs_Muons_biLSTM_20181212-02',
+#'training_date'     : '20181212-02',
+#'sample_name'       : 'TTs_Muons_2016',
+#'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+#'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181212-02/TTs_Muon_biLSTM_EvaluationTestData',
+#'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181212-02/TTs_Muon_biLSTM_EvaluationTestDataIsTrainData',
+#}
 
 
 #usage

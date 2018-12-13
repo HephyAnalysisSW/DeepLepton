@@ -9,7 +9,8 @@ leptonFlavour   = ['muo']
 sampleSelections = [
                     #'DYvsQCD', 
                     #'TTJets',
-                    'TTs',
+                    #'TTs',
+                    'AllSamples',
                    ]
 
 ptSelections    = [

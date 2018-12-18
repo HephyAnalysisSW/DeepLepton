@@ -81,7 +81,7 @@ def get_parser():
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                     help="Run only job i")
     argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,                                        help="Version for output directory")
     argParser.add_argument('--flavour',                     action='store',                     type=str,   choices=['ele','muo'],    required = True,             help="Which flavour?")
-    argParser.add_argument('--sampleSelection',             action='store',                     type=str,   choices=['DYvsQCD', 'TTJets', 'TTs', 'AllSamples'],   required = True,             help="Which flavour?")
+    argParser.add_argument('--sampleSelection',             action='store',                     type=str,   choices=['DYvsQCD', 'TTJets', 'TTs', 'all'],   required = True,             help="Which flavour?")
     argParser.add_argument('--small',                       action='store_true',                                                                                   help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
     argParser.add_argument('--ptSelectionStep1',            action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection in step1?")
     argParser.add_argument('--ptSelection',                 action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection for step2?")
@@ -127,10 +127,10 @@ if options.year == 2016:
         samplePrompt    = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016, "Prompt")
         sampleNonPrompt = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016, "NonPrompt")
         sampleFake      = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016, "Fake")
-    elif options.sampleSelection == "AllSamples":
-        samplePrompt    = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+DY_2016+QCD_2016, "Prompt")
-        sampleNonPrompt = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+DY_2016+QCD_2016, "NonPrompt")
-        sampleFake      = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+DY_2016+QCD_2016, "Fake")
+    elif options.sampleSelection == "all":
+        samplePrompt    = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+DY_2016,  "Prompt")
+        sampleNonPrompt = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+QCD_2016, "NonPrompt")
+        sampleFake      = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+QCD_2016, "Fake")
 
 if options.small:
     for s in [ samplePrompt, sampleNonPrompt, sampleFake ]: 

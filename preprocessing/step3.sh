@@ -17,7 +17,10 @@
 #python -i step3.py --version v6 --year 2016 --flavour muo --ptSelection pt_5_-1   --sampleSelection TTs  #SPLIT54
 #python -i step3.py --version v6 --year 2016 --flavour muo --ptSelection pt_5_-1   --sampleSelection TTs_test  #SPLIT32
 
+#DYvsQCD
+python -i step3.py --version v6 --year 2016 --flavour muo --ptSelection pt_5_-1   --sampleSelection DYvsQCD  #SPLIT137
+
 #AllSamples
-python -i step3.py --version v6 --year 2016 --flavour muo --ptSelection pt_5_-1   --sampleSelection AllSamples  #SPLIT75
+python -i step3.py --version v6 --year 2016 --flavour muo --ptSelection pt_5_-1   --sampleSelection all  #SPLIT75
 
 

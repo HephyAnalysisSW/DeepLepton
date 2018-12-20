@@ -7,10 +7,10 @@ import numpy
 #leptonFlavour  = ['ele', 'muo']
 leptonFlavour   = ['muo']
 sampleSelections = [
-                    #'DYvsQCD', 
+                    'DYvsQCD', 
                     #'TTJets',
                     #'TTs',
-                    'AllSamples',
+                    'all',
                    ]
 
 ptSelections    = [

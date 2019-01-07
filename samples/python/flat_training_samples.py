@@ -359,15 +359,6 @@ TTs_Muons_pooling_2016 = {
 'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181212-01/TTs_Muon_pooling_EvaluationTestDataIsTrainData',
 }
 
-TTs_Muons_biLSTM_2016 = {
-'training_name'     : 'TTs_Muons_biLSTM_20181212-02',
-'training_date'     : '20181212-02',
-'sample_name'       : 'TTs_Muons_2016',
-'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
-'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181212-02/TTs_Muon_biLSTM_EvaluationTestData',
-'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181212-02/TTs_Muon_biLSTM_EvaluationTestDataIsTrainData',
-}
-
 TTs_Muons_TTVonly_2016 = {
 'training_name'     : 'TTs_Muons_TTVonly_20181212-03',
 'training_date'     : '20181212-03',
@@ -394,6 +385,51 @@ TTs_Muons_noCNN_2016 = {
 'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181212-05/TTs_Muon_noCNN_EvaluationTestData',
 'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181212-05/TTs_Muon_noCNN_EvaluationTestDataIsTrainData',
 }
+
+TTs_Muons_biLSTM_simpleClasses_2016 = {
+'training_name'     : 'TTs_Muons_biLSTM_simpleClasses_20181228-01',
+'training_date'     : '20181228-01',
+'sample_name'       : 'TTs_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181228-01/TTs_Muon_biLSTM_simpleClasses_EvaluationTestData',
+'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181228-01/TTs_Muon_biLSTM_simpleClasses_EvaluationTestDataIsTrainData',
+}
+
+TTs_Muons_biLSTM_2016 = {
+#'training_name'     : 'TTs_Muons_biLSTM_20181212-02',
+#'training_date'     : '20181212-02',
+#'sample_name'       : 'TTs_Muons_2016',
+#'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+#'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181212-02/TTs_Muon_biLSTM_EvaluationTestData',
+#'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181212-02/TTs_Muon_biLSTM_EvaluationTestDataIsTrainData',
+'training_name'     : 'TTs_Muons_biLSTM_20181228-02',
+'training_date'     : '20181228-02',
+'sample_name'       : 'TTs_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181228-02/TTs_Muon_biLSTM_EvaluationTestData',
+'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181228-02/TTs_Muon_biLSTM_EvaluationTestDataIsTrainData',
+}
+
+TTs_Muons_biLSTM_split_2016 = {
+'training_name'     : 'TTs_Muons_biLSTM_split_20181228-03',
+'training_date'     : '20181228-03',
+'sample_name'       : 'TTs_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181228-03/TTs_Muon_biLSTM_split_EvaluationTestData',
+'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181228-03/TTs_Muon_biLSTM_split_EvaluationTestDataIsTrainData',
+}
+
+TTs_Muons_biLSTM_split_simpleClasses_2016 = {
+'training_name'     : 'TTs_Muons_biLSTM_split_simpleClasses_20181228-04',
+'training_date'     : '20181228-04',
+'sample_name'       : 'TTs_Muons_2016',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181228-04/TTs_Muon_biLSTM_split_simpleClasses_EvaluationTestData',
+'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181228-04/TTs_Muon_biLSTM_split_simpleClasses_EvaluationTestDataIsTrainData',
+}
+
+
+
 
 #Cross Evaluation
 DYvsQCD_Muons_onDYvsQCD_2016 = {
@@ -423,7 +459,7 @@ DYvsQCD_Muons_onAll_2016 = {
 
 TTs_Muons_onTTs_2016 = {
 'training_name'     : 'TTs_Muons_onTTs_20181221-02',
-'training_date'     : '2018121-02',
+'training_date'     : '20181221-02',
 'sample_name'       : 'TTs_Muons_2016',
 'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
 'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181221-02/TTs_Muon_EvaluationTestData',

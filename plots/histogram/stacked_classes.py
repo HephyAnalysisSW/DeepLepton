@@ -76,8 +76,12 @@ if args.small:
 if args.flat:
 
     sampleInfo = vars()[args.flatSample]
-    flat_files, predict_files = get_flat_files( sampleInfo['flat_directory'], sampleInfo['predict_directory' if args.testData else 'predict_directory_trainData'], maxN)
-    sample = get_flat_sample( sampleInfo['training_name'], sampleInfo['sample_name'], flat_files, predict_files )
+    if args.trainingClasses=='noTraining':
+        flat_files = get_flat_files_noTraining( sampleInfo['flat_directory'], sampleInfo['flat_txtfile'], maxN )
+        sample = get_flat_sample_noTraining( sampleInfo['sample_name'], flat_files )
+    else:
+        flat_files, predict_files = get_flat_files( sampleInfo['flat_directory'], sampleInfo['predict_directory' if args.testData else 'predict_directory_trainData'], maxN )
+        sample = get_flat_sample( sampleInfo['training_name'], sampleInfo['sample_name'], flat_files, predict_files )
 
 else:
     print "FIXME: implement full events first."
@@ -129,7 +133,7 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 preselectionString= loose_id if args.looseId else "abs(lep_pdgId)==13&&lep_pt>5" 
 
 #define class samples
-if args.trainingClasses in ['fullClasses', 'noTrainingIDs']:
+if args.trainingClasses in ['fullClasses', 'noTraining']:
     samplePrompt    = deepcopy(sample)
     sampleNonPrompt = deepcopy(sample)
     sampleFake      = deepcopy(sample)
@@ -591,7 +595,7 @@ for ecalType in ecalTypes:
         plot_directory_ = (os.path.join(
                                         plot_directory,
                                         sampleInfo['sample_name'],
-                                        sampleInfo['training_date'] if args.trainingClasses!='noTraining' else 'noTraining',                
+                                        sampleInfo['training_date'],                
                                         'TestData' if args.testData else 'TrainData',
                                         'histograms', kinematic_selection_name + "_"+ecalType["Name"]+('_looseIdSelection' if args.looseId else '_noSelection'), ("log" if log else "lin")
                                         ))

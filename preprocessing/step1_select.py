@@ -21,7 +21,8 @@ def get_parser():
     argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'],     default='INFO',                     help="Log level for logging")
     #argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
     argParser.add_argument('--year',                        action='store',                     type=int,   choices=[2016,2017],    required = True,                    help="Which year?")
-    argParser.add_argument('--sample',                      action='store',         nargs='?',  type=str,                           default='WZTo3LNu',                help="List of samples to be post-processed, given as CMG component name")
+    argParser.add_argument('--flavor',                      action='store',                     type=str,   choices=['muo', 'ele'], default='muo',                      help="muo or ele?")
+    argParser.add_argument('--sample',                      action='store',         nargs='?',  type=str,                           default='WZTo3LNu',                 help="List of samples to be post-processed, given as CMG component name")
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                          help="Run only job i")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
@@ -54,7 +55,6 @@ try:
 except:
     raise ValueError( "Could not load sample '%s' from %s "%( options.sample, module_ ) )
 
-
 sample = lepton_heppy_mapper.from_heppy_samplename(heppy_sample.name, maxN = maxN)
     
 if sample is None or len(sample.files)==0:
@@ -80,10 +80,8 @@ logger.debug( "Files to be run over:\n%s", "\n".join(sample.files) )
 output_directory = os.path.join( skim_directory, options.version+('_small' if options.small else ''), 'step1', str(options.year) ) 
 
 leptonClasses  = [{'name':'Prompt', 'var': 'lep_isPromptId'}, {'name':'NonPrompt', 'var': 'lep_isNonPromptId'}, {'name':'Fake', 'var': 'lep_isFakeId'}]
-leptonFlavours = [
-                    {'name':'muo', 'pdgId': 13},
-#                    {'name':'ele', 'pdgId': 11}, 
-                 ]
+leptonFlavor   =  {'name':'muo', 'pdgId': 13} if args.flavor == 'muo' else  {'name':'ele', 'pdgId': 11}
+               
 
 #pt selection
 ptSelectionList = options.ptSelection.split('_')
@@ -99,69 +97,68 @@ ch.Add(sample.files[0])
 
 postfix = '' if options.nJobs==1 else "_%i" % options.job
 
-for leptonFlavour in leptonFlavours:
-    for leptonClass in leptonClasses:
-        output_filename = os.path.join( output_directory, 
-                                        leptonFlavour['name'], 
-                                        leptonClass['name'], 
-                                        'pt_%i_%i' % pt_threshold,
-                                        sample.name,
-                                        'lepton%s.root'%postfix )
+for leptonClass in leptonClasses:
+output_filename = os.path.join( output_directory, 
+				leptonFlavor['name'], 
+				leptonClass['name'], 
+				'pt_%i_%i' % pt_threshold,
+				sample.name,
+				'lepton%s.root'%postfix )
 
-        dirname = os.path.dirname( output_filename )
-        if not os.path.exists( dirname ):
-            os.makedirs( dirname )
+dirname = os.path.dirname( output_filename )
+if not os.path.exists( dirname ):
+    os.makedirs( dirname )
 
-        outputFile     = ROOT.TFile(output_filename, 'recreate')
-        outputFileTree = ch.CloneTree(0,"")
+outputFile     = ROOT.TFile(output_filename, 'recreate')
+outputFileTree = ch.CloneTree(0,"")
 
-        #add branches for lumi scale factor
-        name = 'lumi_scaleFactor1fb'
-        varName = name+'/F'
-        vars()[name] = array( 'f', [ 0 ] )
-        vars()[name][0] = lumiScaleFactor
-        outputFileTree.Branch(name , vars()[name], varName )
- 
-        name = 'xSection_heppy'
-        varName = name+'/F'
-        vars()[name] = array( 'f', [ 0 ] )
-        vars()[name][0] = xSection
-        outputFileTree.Branch(name , vars()[name], varName )
+#add branches for lumi scale factor
+name = 'lumi_scaleFactor1fb'
+varName = name+'/F'
+vars()[name] = array( 'f', [ 0 ] )
+vars()[name][0] = lumiScaleFactor
+outputFileTree.Branch(name , vars()[name], varName )
 
-        name = 'normalization_nEvents'
-        varName = name+'/F'
-        vars()[name] = array( 'f', [ 0 ] )
-        vars()[name][0] = normalization
-        outputFileTree.Branch(name , vars()[name], varName )
+name = 'xSection_heppy'
+varName = name+'/F'
+vars()[name] = array( 'f', [ 0 ] )
+vars()[name][0] = xSection
+outputFileTree.Branch(name , vars()[name], varName )
 
-        for inputFile in sample.files:
-            readFile     = ROOT.TFile.Open(inputFile, 'read')
-            readFileTree = readFile.Get('tree')
-            readFileTree.CopyAddresses(outputFileTree)
+name = 'normalization_nEvents'
+varName = name+'/F'
+vars()[name] = array( 'f', [ 0 ] )
+vars()[name][0] = normalization
+outputFileTree.Branch(name , vars()[name], varName )
 
-            pdgId     = readFileTree.GetLeaf("lep_pdgId")
-            isClassId = readFileTree.GetLeaf(leptonClass["var"])
-            pt        = readFileTree.GetLeaf("lep_pt")
+for inputFile in sample.files:
+    readFile     = ROOT.TFile.Open(inputFile, 'read')
+    readFileTree = readFile.Get('tree')
+    readFileTree.CopyAddresses(outputFileTree)
 
-            for i in xrange(readFileTree.GetEntries()):
-                pdgId.GetBranch().GetEntry(i)
-                isClassId.GetBranch().GetEntry(i)
-                pt.GetBranch().GetEntry(i)
+    pdgId     = readFileTree.GetLeaf("lep_pdgId")
+    isClassId = readFileTree.GetLeaf(leptonClass["var"])
+    pt        = readFileTree.GetLeaf("lep_pt")
 
-                lep_pdgId     = pdgId.GetValue()
-                lep_isClassId = isClassId.GetValue()
-                lep_pt        = pt.GetValue()
+    for i in xrange(readFileTree.GetEntries()):
+	pdgId.GetBranch().GetEntry(i)
+	isClassId.GetBranch().GetEntry(i)
+	pt.GetBranch().GetEntry(i)
 
-                #print lep_pdgId, lep_isClassId 
-                if abs(lep_pdgId)==leptonFlavour["pdgId"] and lep_isClassId==1 and lep_pt>pt_threshold[0] and ( lep_pt<=pt_threshold[1] or pt_threshold[1]<0):
-                    inputEntry = readFileTree.GetEntry(i)
-                    readFileTree.CopyAddresses(outputFileTree)
-                    outputEntry = outputFileTree.Fill()
-                    #if inputEntry!=outputEntry:
-                    #    logger.error("error while copying entry")
-                    #    break
-            readFile.Close()
+	lep_pdgId     = pdgId.GetValue()
+	lep_isClassId = isClassId.GetValue()
+	lep_pt        = pt.GetValue()
 
-        logger.info("%i entries copied to %s" %(outputFileTree.GetEntries(), output_filename))
-        outputFile.Write(output_filename, outputFile.kOverwrite)
-        outputFile.Close()
+	#print lep_pdgId, lep_isClassId 
+	if abs(lep_pdgId)==leptonFlavor["pdgId"] and lep_isClassId==1 and lep_pt>pt_threshold[0] and ( lep_pt<=pt_threshold[1] or pt_threshold[1]<0):
+	    inputEntry = readFileTree.GetEntry(i)
+	    readFileTree.CopyAddresses(outputFileTree)
+	    outputEntry = outputFileTree.Fill()
+	    #if inputEntry!=outputEntry:
+	    #    logger.error("error while copying entry")
+	    #    break
+    readFile.Close()
+
+logger.info("%i entries copied to %s" %(outputFileTree.GetEntries(), output_filename))
+outputFile.Write(output_filename, outputFile.kOverwrite)
+outputFile.Close()

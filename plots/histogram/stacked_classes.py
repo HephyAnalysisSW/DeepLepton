@@ -36,7 +36,7 @@ argParser.add_argument('--year',               action='store', type=int, choices
 argParser.add_argument('--flavour',            action='store', type=str, choices=['ele','muo'], default='muo',  help="Which Flavour?")
 argParser.add_argument('--testData',           action='store_true',      help="plot test or train data?")
 argParser.add_argument('--looseId',            action='store_true',      help="plot data with looseId preselection?")
-argParser.add_argument('--varSelection',       action='store', type=str, choices=['fullClasses','simpleClasses','noTrainingIDs'], default='fullClasses',  help="Which lepton classes?")
+argParser.add_argument('--trainingClasses',    action='store', type=str, choices=['fullClasses','simpleClasses','noTraining'], default='fullClasses',  help="Which lepton classes, select no training for input data plots?")
 
 
 #argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
@@ -83,7 +83,7 @@ else:
     print "FIXME: implement full events first."
 
 # variables to read
-flat_variables = get_flat_variables(args.varSelection)
+flat_variables = get_flat_variables(args.trainingClasses)
 
 #########################
 # define plot structure #
@@ -129,7 +129,7 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 preselectionString= loose_id if args.looseId else "abs(lep_pdgId)==13&&lep_pt>5" 
 
 #define class samples
-if args.varSelection in ['fullClasses', 'noTrainingIDs']:
+if args.trainingClasses in ['fullClasses', 'noTrainingIDs']:
     samplePrompt    = deepcopy(sample)
     sampleNonPrompt = deepcopy(sample)
     sampleFake      = deepcopy(sample)
@@ -154,7 +154,7 @@ if args.varSelection in ['fullClasses', 'noTrainingIDs']:
     mc    = [samplePrompt,sampleNonPrompt,sampleFake]  # A full example would be e.g. mc = [ttbar, ttz, ttw, ...]
     stack = Stack(mc) # A full example would be e.g. stack = Stack( mc, [data], [signal1], [signal2] ) -> Samples in "mc" are stacked in the plot
 
-if args.varSelection=='simpleClasses':
+if args.trainingClasses=='simpleClasses':
     samplePrompt    = deepcopy(sample)
     sampleNotPrompt = deepcopy(sample)
 
@@ -225,7 +225,7 @@ for ecalType in ecalTypes:
         binning=[2,0,1],
     ))
     
-    if args.varSelection=='fullClasses' and args.looseId:
+    if args.trainingClasses=='fullClasses' and args.looseId:
         plots.append(Plot(name=plotname+'DL_prob_isPrompt',
             texX = 'DL_prob_isPrompt', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.prob_lep_isPromptId_Training,
@@ -242,7 +242,7 @@ for ecalType in ecalTypes:
             binning=[33,0,1],
         ))
 
-    if args.varSelection=='simpleClasses' and args.looseId:
+    if args.trainingClasses=='simpleClasses' and args.looseId:
         plots.append(Plot(name=plotname+'DL_prob_isPrompt',
             texX = 'DL_prob_isPrompt', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.prob_lep_isPromptId_Training,
@@ -591,7 +591,7 @@ for ecalType in ecalTypes:
         plot_directory_ = (os.path.join(
                                         plot_directory,
                                         sampleInfo['sample_name'],
-                                        sampleInfo['training_date'] if args.varSelection!='noTrainingIDs' else 'noTraining',                
+                                        sampleInfo['training_date'] if args.trainingClasses!='noTraining' else 'noTraining',                
                                         'TestData' if args.testData else 'TrainData',
                                         'histograms', kinematic_selection_name + "_"+ecalType["Name"]+('_looseIdSelection' if args.looseId else '_noSelection'), ("log" if log else "lin")
                                         ))

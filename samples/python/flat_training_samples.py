@@ -5,6 +5,10 @@ import os
 # RootTools
 from RootTools.core.standard import *
 
+########################
+### helper functions ###
+########################
+
 #Get flat ntuple files + prediction files
 def get_flat_files( flat_directory, predict_directory, maxN = -1 ):
 
@@ -36,6 +40,32 @@ def get_flat_sample( training_name, sample_name, flat_files, predict_files):
     flat_sample.addFriend( flat_sample_predict, 'tree' )
 
     return flat_sample
+
+#Get only flat ntuple files (when no training was performed and input training data plots are needed)
+def get_flat_files_noTraining( flat_directory, flat_txtfile, maxN = -1 ):
+
+    #get flat files
+    with open(flat_txtfile) as f:
+        flat_files = f.read().splitlines()
+
+    #get only maxN files
+    if len(flat_files)>maxN and maxN>0:
+        del flat_files[maxN:]
+
+    #append directory to file names
+    flat_files = [file_name.replace(file_name, os.path.join(flat_directory, file_name)) for file_name in flat_files]
+
+    return flat_files
+
+def get_flat_sample_noTraining( sample_name, flat_files ):
+
+    flat_sample = Sample.fromFiles( sample_name+'_sample', texName = sample_name, files = flat_files, treeName='tree' ) 
+
+    return flat_sample
+
+#################
+### variables ###
+#################
 
 def get_flat_variables(varSelection):
 
@@ -148,6 +178,14 @@ def get_flat_variables(varSelection):
 ####################
 ### flat samples ###
 ####################
+
+#bare training samples
+TTs_Muons_2016_noTraining = {
+'sample_name'       : 'TTs_Muons_2016',
+'training_date'     : 'noTraining',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+'flat_txtfile'      : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs/50train_muo.txt',
+}
 
 #flat test file
 testFile = {

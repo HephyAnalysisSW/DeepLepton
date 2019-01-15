@@ -85,7 +85,7 @@ binnedList.update({"pt":       {"varName":"|p_{T}|",                            
 binnedList.update({"low_pt":   {"varName":"|p_{T}|",                                        "Var":"lep_pt",                                             "abs":1, "cuts":[0, 50],       "bins":50}})
 binnedList.update({"high_pt":  {"varName":"|p_{T}|",                                        "Var":"lep_pt",                                             "abs":1, "cuts":[0, 100],      "bins":100}})
 binnedList.update({"eta":      {"varName":"|etaSc|" if args.flavour=='ele' else "|#eta|",   "Var":"lep_etaSc" if args.flavour=='ele' else "lep_eta",    "abs":1, "cuts":[0, 2.5],      "bins":50}})
-binnedList.update({"nTrueInt": {"varName":"nTrueInt",                                       "Var":"nTrueInt",                                           "abs":0, "cuts":[0, 50],       "bins":50}})
+binnedList.update({"nTrueInt": {"varName":"N_{vertex}",                                       "Var":"nTrueInt",                                           "abs":0, "cuts":[0, 50],       "bins":50}})
 
 ###############
 # define cuts #
@@ -180,8 +180,8 @@ for relIsoCut in relIsoCuts:
         
         #Initialize Mulitgraph
         gStyle.SetOptTitle(0)
-        gStyle.SetLegendBorderSize(0)
-        gStyle.SetFillStyle(4000)
+        #gStyle.SetLegendBorderSize(0)
+        #gStyle.SetFillStyle(4000)
         c=ROOT.TCanvas()
         if logY==1:
             c.SetLogy()
@@ -298,10 +298,10 @@ for relIsoCut in relIsoCuts:
         mg.GetYaxis().SetTitle('sig, bkg eff')
         if logY==0:
             mg.GetYaxis().SetRangeUser(0.0,1.02)
-        yleg1 = 0.35
+        yleg1 = 0.39
         yleg2 = yleg1 + 0.20
         c.SetGrid()
-        c.BuildLegend(0.575,yleg1,0.875,yleg2)
+        c.BuildLegend(0.675,yleg1,0.875,yleg2)
 
         header = [
         #{'text': ROOT.TPaveLabel(.00,0.96,.20,1.0,  "CMS preliminary",                                                                                                                   "nbNDC"), 'font': 30  },

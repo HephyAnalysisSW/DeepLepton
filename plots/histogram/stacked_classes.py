@@ -601,8 +601,8 @@ for ecalType in ecalTypes:
         tex.SetTextSize(0.04)
         tex.SetTextAlign(11) # align right
         lines = [
-          (0.10, 0.95, ('test data' if args.testData else 'training data')+' '+sampleInfo["sample_name"].replace("_"," ").replace(" 2016","") ),
-          (0.60, 0.95, kinematic_selection_name)
+          (0.16, 0.95, ('test data' if args.testData else 'training data  -  ')+sampleInfo["sample_name"].replace("_"," ").replace(" 2016","")+', '+kinematic_selection_name ),
+          #(0.65, 0.95, kinematic_selection_name)
         ]
         return [tex.DrawLatex(*l) for l in lines]
 

@@ -11,7 +11,7 @@
 #python -i stacked_classes.py --flat --looseId --ptMin 25 --ptMax 0   --trainingClasses fullClasses --flatSample TTs_Muons_biLSTM_2016
 
 #input training data
-python -i stacked_classes.py --flat --ptMin 5  --ptMax 0   --trainingClasses noTraining --flatSample TTs_Muons_2016_noTraining
+python -i stacked_classes.py --small --flat --ptMin 5  --ptMax 0   --trainingClasses noTraining --flatSample TTs_Muons_2016_noTraining
 #python -i stacked_classes.py --flat --ptMin 10 --ptMax 0   --trainingClasses noTraining --flatSample TTs_Muons_2016_noTraining
 #python -i stacked_classes.py --flat --ptMin 5  --ptMax 25  --trainingClasses noTraining --flatSample TTs_Muons_2016_noTraining
 #python -i stacked_classes.py --flat --ptMin 10 --ptMax 25  --trainingClasses noTraining --flatSample TTs_Muons_2016_noTraining

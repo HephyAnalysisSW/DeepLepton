@@ -20,7 +20,7 @@
 #lepton_heppy_mapper.heppy_sample_names
 
 #small test
-python -i step1_select.py  --small --version v1 --year 2016 --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_DiLepton #SPLIT2
+#python -i step1_select.py  --small --version v1 --year 2016 --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_DiLepton #SPLIT2
 #python -i step1_select.py  --small --version v1 --year 2016 --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_DiLepton_ext #SPLIT2
 #python -i step1_select.py  --small --version v1 --year 2016 --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_SingleLeptonFromTbar #SPLIT2
 #python -i step1_select.py  --small --version v1 --year 2016 --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_SingleLeptonFromTbar_ext #SPLIT2
@@ -31,21 +31,21 @@ python -i step1_select.py  --small --version v1 --year 2016 --flavor ele --logLe
 
 #python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --sample TTJets_DiLepton --nJobs 20 --job 0
 
-##TTJets Dilepton
-#python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_DiLepton #SPLIT20
-#python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_DiLepton_ext #SPLIT20
-##TTJets SingleLepton
-#python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_SingleLeptonFromTbar #SPLIT20
-#python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_SingleLeptonFromTbar_ext #SPLIT20
-#python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_SingleLeptonFromT #SPLIT20
-#python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_SingleLeptonFromT_ext #SPLIT20
-##TTs other
-#python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --ptSelection pt_5_-1 --sample TT_pow #SPLIT20
-#python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --ptSelection pt_5_-1 --sample TTLep_pow #SPLIT20
-#python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --ptSelection pt_5_-1 --sample TTSemiLep_pow #SPLIT20
-#python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --ptSelection pt_5_-1 --sample TT_pow_ext3 #SPLIT20
-#python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets #SPLIT20
-#python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_LO #SPLIT20
+#TTJets Dilepton
+python -i step1_select.py  --version v1 --year 2016  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_DiLepton #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_DiLepton_ext #SPLIT20
+#TTJets SingleLepton
+python -i step1_select.py  --version v1 --year 2016  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_SingleLeptonFromTbar #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_SingleLeptonFromTbar_ext #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_SingleLeptonFromT #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_SingleLeptonFromT_ext #SPLIT20
+#TTs other
+python -i step1_select.py  --version v1 --year 2016  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TT_pow #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTLep_pow #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTSemiLep_pow #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TT_pow_ext3 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_LO #SPLIT20
 
 ##DY
 #python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --sample DY1JetsToLL_M50_LO #SPLIT20

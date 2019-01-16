@@ -274,7 +274,7 @@ for relIsoCut in relIsoCuts:
             #Draw Graphs
             n=len(x)
             graph=ROOT.TGraphErrors(n,x,y_eB,x_err,y_eB_err)
-            gname=(plot["name"]+" bkg eff "+("x "+str(int(factor))+" " if not ptCut["Name"]=="pt10to25" else ""))
+            gname=(plot["name"]+" bkg eff "+("x "+str(int(factor))+" " if not ptCut["Name"]=="pt10to25" else "   "))
             graph.SetName(gname)
             graph.SetTitle(gname)
             #graph.SetLineStyle( 2 )
@@ -298,10 +298,10 @@ for relIsoCut in relIsoCuts:
         mg.GetYaxis().SetTitle('sig, bkg eff')
         if logY==0:
             mg.GetYaxis().SetRangeUser(0.0,1.02)
-        yleg1 = 0.39
-        yleg2 = yleg1 + 0.20
+        yleg1 = 0.37
+        yleg2 = yleg1 + 0.24
         c.SetGrid()
-        c.BuildLegend(0.675,yleg1,0.875,yleg2)
+        c.BuildLegend(0.60,yleg1,0.875,yleg2)
 
         header = [
         #{'text': ROOT.TPaveLabel(.00,0.96,.20,1.0,  "CMS preliminary",                                                                                                                   "nbNDC"), 'font': 30  },

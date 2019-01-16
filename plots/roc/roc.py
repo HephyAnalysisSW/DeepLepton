@@ -175,7 +175,7 @@ for line in header:
 c.SetGrid()
 c.SetLogx()
 #c.BuildLegend(0.695,0.475,0.895,0.595)
-c.BuildLegend(0.70,0.43,0.88,0.57)
+c.BuildLegend(0.70,0.43,0.88,0.55)
 
 if args.flat:
     directory = os.path.join(   plot_directory, "DeepLepton", 

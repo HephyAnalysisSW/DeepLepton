@@ -496,6 +496,16 @@ TTs_Muons_biLSTM_split_simpleClasses_2016 = {
 'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181228-04/TTs_Muon_biLSTM_split_simpleClasses_EvaluationTestDataIsTrainData',
 }
 
+TTs_Muons_selu_2016 = {
+'training_name'     : 'selu',
+'training_date'     : '20190115',
+'sample_name'       : 'TTs_Muons_2016',
+'train_data'        : 'TTs muons',
+'test_data'         : 'TTs muons',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190115/TTs_Muon_selu_EvaluationTestData',
+'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190115/TTs_Muon_selu_EvaluationTestDataIsTrainData',
+}
 
 
 

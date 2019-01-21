@@ -12,5 +12,5 @@ if os.environ['USER'] in ['gmoertl']:
 
 if os.environ['USER'] in ['sschneider']:
     plot_directory   = "/afs/hephy.at/user/s/sschneider/www/"
-    skim_directory   = "/afs/hephy.at/work/s/sschneider/DeepLepton/skims/"
+    skim_directory   = "/afs/hephy.at/data/cms01/DeepLepton/skims/"
     data_directory   = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"

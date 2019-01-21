@@ -130,7 +130,7 @@ pfCand_flavors = pfCand_plot_binning.keys()
 ####################################
 
 loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1&&lep_pfMuonId&&lep_mediumMuonId"
-preselectionString= loose_id if args.looseId else "abs(lep_pdgId)==13&&lep_pt>5" 
+preselectionString= loose_id if args.looseId else "lep_pt>5" 
 
 #define class samples
 if args.trainingClasses in ['fullClasses', 'noTraining']:
@@ -480,11 +480,11 @@ for ecalType in ecalTypes:
             attribute = lambda lepton, sample: lepton.lep_dEtaScTrkIn,
             binning=[50,-1,1],
         ))
-        plots.append(Plot(name=plotname+'eInvMinusPInv',
-            texX = '|1/E-1/p|', texY = 'Number of Events',
-            attribute = lambda lepton, sample: lepton.absEInvMinusPInv,
-            binning=[30,0,0.20],
-        ))
+        #plots.append(Plot(name=plotname+'eInvMinusPInv',
+        #    texX = '|1/E-1/p|', texY = 'Number of Events',
+        #    attribute = lambda lepton, sample: lepton.absEInvMinusPInv,
+        #    binning=[30,0,0.20],
+        #))
         plots.append(Plot(name=plotname+'convVeto',
             texX = 'convVeto', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.lep_convVeto,

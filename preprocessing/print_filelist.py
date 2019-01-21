@@ -28,7 +28,8 @@ for flavour in leptonFlavour:
         for ptSelection in ptSelections:
         #write file path of step3 output in following line
            # filepath = os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016',flavour,ptSelection,sampleSelection)
-            filepath = os.path.join('/afs/hephy.at/work/s/sschneider/DeepLepton/skims/v1_small_simon/step3/2016',flavour,ptSelection,sampleSelection)
+           # filepath = os.path.join('/afs/hephy.at/work/s/sschneider/DeepLepton/skims/v1_small_simon/step3/2016',flavour,ptSelection,sampleSelection)
+            filepath = os.path.join('/afs/hephy.at/data/cms01/DeepLepton/skims/v1/step3/2016',flavour,ptSelection,sampleSelection)
             filelist = os.listdir(filepath)
             #print filepath
             #print filelist
@@ -50,7 +51,7 @@ for flavour in leptonFlavour:
 
             with open(filepath+'/test_'+flavour+'.txt', 'w') as f:
                 for testfile in testfilelist:
-                    #print trainfile
+                    #print testfile
                     f.write("%s\n" % testfile)
 
 

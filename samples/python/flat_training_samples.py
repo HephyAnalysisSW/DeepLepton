@@ -187,6 +187,22 @@ TTs_Muons_2016_noTraining = {
 'flat_txtfile'      : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs/50train_muo.txt',
 }
 
+##bare training samples simon test01
+#TTJets_Electrons_2016_noTraining = {
+#'sample_name'       : 'TTJets_Electrons_2016',
+#'training_date'     : 'noTraining',
+#'flat_directory'    : '/afs/hephy.at/work/s/sschneider/DeepLepton/skims/v1_small_simon/step3/2016/ele/pt_5_-1/TTJets/',
+#'flat_txtfile'      : '/afs/hephy.at/work/s/sschneider/DeepLepton/skims/v1_small_simon/step3/2016/ele/pt_5_-1/TTJets/train_ele.txt',
+#}
+
+#bare training samples simon test02
+TTJets_Electrons_2016_noTraining = {
+'sample_name'       : 'TTJets_Electrons_2016',
+'training_date'     : 'noTraining',
+'flat_directory'    : '/afs/hephy.at/data/cms01/DeepLepton/skims/v1/step3/2016/ele/pt_5_-1/TTJets/',
+'flat_txtfile'      : '/afs/hephy.at/data/cms01/DeepLepton/skims/v1/step3/2016/ele/pt_5_-1/TTJets/train_ele.txt',
+}
+
 #flat test file
 testFile = {
 'training_name'     : 'TTs_Muons_balanced_pt5toInf_20181117',

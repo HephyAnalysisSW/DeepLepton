@@ -17,8 +17,11 @@
 #python -i step3.py --version v6 --year 2016 --flavour muo --ptSelection pt_5_-1   --sampleSelection TTs  #SPLIT54
 #python -i step3.py --version v6 --year 2016 --flavour muo --ptSelection pt_5_-1   --sampleSelection TTs_test  #SPLIT32
 
-#test simon
-python -i step3.py --version v1_small_simon --year 2016 --flavour ele --ptSelection pt_5_-1   --sampleSelection TTJets  #SPLIT137
+#test01 simon
+#python -i step3.py --version v1_small_simon --year 2016 --flavour ele --ptSelection pt_5_-1   --sampleSelection TTJets  #SPLIT137
+
+#test02 simon
+python -i step3.py --version v1 --year 2016 --flavour ele --ptSelection pt_5_-1   --sampleSelection TTJets  #SPLIT137
 
 ##DYvsQCD
 #python -i step3.py --version v6 --year 2016 --flavour muo --ptSelection pt_5_-1   --sampleSelection DYvsQCD  #SPLIT137

@@ -20,7 +20,9 @@
 
 
 #TTJets
-python -i step2_mix.py --version v1_small_simon --year 2016 --flavour ele --ratio balanced --sampleSelection TTJets  --ptSelection pt_5_-1   #SPLIT100
+#python -i step2_mix.py --version v1_small_simon --year 2016 --flavour ele --ratio balanced --sampleSelection TTJets  --ptSelection pt_5_-1   #SPLIT100
+
+python -i step2_mix.py --version v1 --year 2016 --flavour ele --ratio balanced --sampleSelection TTJets  --ptSelection pt_5_-1 #SPLIT100
 
 
 #full version

@@ -23,8 +23,8 @@ argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',           action='store',           default='INFO', nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--small',              action='store_true',                help='Run only on a small subset of the data?', )
 argParser.add_argument('--plot_directory',     action='store',           default='deepLepton')
-argParser.add_argument('--ptMin',              action='store',      type=int,     default=25)
-argParser.add_argument('--ptMax',              action='store',      type=int,     default=0)
+#argParser.add_argument('--ptMin',              action='store',      type=int,     default=25)
+#argParser.add_argument('--ptMax',              action='store',      type=int,     default=0)
 argParser.add_argument('--flat',               action='store_true',                 help='Run on flat ntuple data?', )
 argParser.add_argument('--flatSample',         action='store',           default='TTJets_Muons_balanced_pt5toInf_2016')
 
@@ -57,13 +57,12 @@ if args.small:
 if args.flat:
     
     from DeepLepton.samples.flat_training_samples import *
-    sampleInfo = vars()[args.flatSample]
-    flat_files, predict_files = get_flat_files( sampleInfo['flat_directory'], sampleInfo['predict_directory' if args.testData else 'predict_directory_trainData'], maxN)
-    sample = get_flat_sample( sampleInfo['training_name'], sampleInfo['sample_name'], flat_files, predict_files )
+    flat_sampleInfo = vars()[args.flatSample]
+    flat_files, predict_files = get_flat_files( flat_sampleInfo['flat_directory'], flat_sampleInfo['predict_directory' if args.testData else 'predict_directory_trainData'], maxN)
+    sample = get_flat_sample( flat_sampleInfo['training_name'], flat_sampleInfo['sample_name'], flat_files, predict_files )
 
     # variables to read
-    noTraining = False
-    variables = get_flat_variables(noTraining)
+    variables = get_flat_variables("fullClasses")
 
 else:
     print "FIXME: implement full events first."
@@ -74,9 +73,9 @@ else:
 isTestData = args.testData
 
 leptonFlavour = {'fullName':'Electron' if args.flavour=='ele' else 'Muon', 'name':args.flavour, 'pdgId': 11 if args.flavour=='ele' else 13, 'trainDates': [], 'plotTestData': isTestData}
-leptonFlavour['trainDates'].append({'date': sampleInfo['training_date'],  'plots': [
-                                      {'name': 'LeptonMVA_TTH',       'MVAType': 'MVA_Id', 'var': 'lep_mvaTTH',                   'color':ROOT.kGray,    'lineWidth': 2, 'eS': args.eS_TTV, 'thresholds':[ i/100. for i in range(0,100)]},
-                                      {'name': 'LeptonMVA_TTV',       'MVAType': 'MVA_Id', 'var': 'lep_mvaTTV',                   'color':ROOT.kGray+1,  'lineWidth': 2, 'eS': args.eS_TTV, 'thresholds':[ i/100. for i in range(-100,101)]},
+leptonFlavour['trainDates'].append({'date': flat_sampleInfo['training_date'],  'plots': [
+                                      {'name': 'TTH',       'MVAType': 'MVA_Id', 'var': 'lep_mvaTTH',                   'color':ROOT.kGray,    'lineWidth': 2, 'eS': args.eS_TTV, 'thresholds':[ i/100. for i in range(0,100)]},
+                                      {'name': 'TTV',       'MVAType': 'MVA_Id', 'var': 'lep_mvaTTV',                   'color':ROOT.kGray+1,  'lineWidth': 2, 'eS': args.eS_TTV, 'thresholds':[ i/100. for i in range(-100,101)]},
                                       {'name': 'DeepLepton',          'MVAType': 'DL_Id',  'var': 'prob_lep_isPromptId_Training', 'color':ROOT.kGreen+2, 'lineWidth': 2, 'eS': args.eS_DL, 'thresholds':[ i/100. for i in range(-100,101)]},
                                                                                    ]})
 
@@ -86,7 +85,7 @@ binnedList.update({"pt":       {"varName":"|p_{T}|",                            
 binnedList.update({"low_pt":   {"varName":"|p_{T}|",                                        "Var":"lep_pt",                                             "abs":1, "cuts":[0, 50],       "bins":50}})
 binnedList.update({"high_pt":  {"varName":"|p_{T}|",                                        "Var":"lep_pt",                                             "abs":1, "cuts":[0, 100],      "bins":100}})
 binnedList.update({"eta":      {"varName":"|etaSc|" if args.flavour=='ele' else "|#eta|",   "Var":"lep_etaSc" if args.flavour=='ele' else "lep_eta",    "abs":1, "cuts":[0, 2.5],      "bins":50}})
-binnedList.update({"nTrueInt": {"varName":"nTrueInt",                                       "Var":"nTrueInt",                                           "abs":0, "cuts":[0, 50],       "bins":50}})
+binnedList.update({"nTrueInt": {"varName":"N_{vertex}",                                       "Var":"nTrueInt",                                           "abs":0, "cuts":[0, 50],       "bins":50}})
 
 ###############
 # define cuts #
@@ -96,12 +95,11 @@ binnedList.update({"nTrueInt": {"varName":"nTrueInt",                           
 loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1&&lep_pfMuonId&&lep_mediumMuonId"
 sample.setSelectionString(loose_id)
 
-# pt selection
-kinematic_selection = "lep_pt>{ptMin}".format(ptMin = args.ptMin) if args.ptMax==0 else "lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin, ptMax = args.ptMax)
-kinematic_selection_name = "pt{ptMin}to{ptMax}".format(ptMin = args.ptMin, ptMax = 'Inf' if args.ptMax==0 else args.ptMax)
-
-ptCuts=[]
-ptCuts.append({"Name":"pt{ptMin}to{ptMax}".format(ptMin=args.ptMin, ptMax='Inf' if args.ptMax==0 else args.ptMax),"lower_limit":int(args.ptMin), "upper_limit":float("Inf") if args.ptMax==0 else int(args.ptMax)})
+## pt selection
+#kinematic_selection = "lep_pt>{ptMin}".format(ptMin = args.ptMin) if args.ptMax==0 else "lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin, ptMax = args.ptMax)
+#
+#ptCuts=[]
+#ptCuts.append({"Name":"pt{ptMin}to{ptMax}".format(ptMin=args.ptMin, ptMax='Inf' if args.ptMax==0 else args.ptMax),"lower_limit":int(args.ptMin), "upper_limit":float("Inf") if args.ptMax==0 else int(args.ptMax)})
 
 relIsoCuts = [0.5]
 
@@ -139,6 +137,17 @@ def eS(p, rocdataset):
     #print ntruth, ntruthid
     return 0. if ntruth==0. else  ntruthid/ntruth
 
+def eS_err(p, rocdataset):
+    ntruth=0.
+    ntruthid=0.
+    for data in rocdataset:
+        if data[0]==1:
+            ntruth+=data[2]
+            if data[1]>=p:
+                ntruthid+=data[2]
+    #print ntruth, ntruthid
+    return 0. if ntruth==0. else sqrt(1./ntruth*(ntruthid/ntruth)*(1.-ntruthid/ntruth))
+
 def eB(p, rocdataset):
     ntruth=0.
     ntruthid=0.
@@ -150,15 +159,29 @@ def eB(p, rocdataset):
     #print ntruth, ntruthid
     return 0. if ntruth==0. else ntruthid/ntruth
 
+def eB_err(p, rocdataset):
+    ntruth=0.
+    ntruthid=0.
+    for data in rocdataset:
+        if not data[0]==1:
+            ntruth+=data[2]
+            if data[1]>=p:
+                ntruthid+=data[2]
+    #print ntruth, ntruthid
+    return 0. if ntruth==0. else sqrt(1./ntruth*(ntruthid/ntruth)*(1.-ntruthid/ntruth))
 
 for relIsoCut in relIsoCuts:
 
     for ptCut in ptCuts:    
 
+        kinematic_selection_name = 'pt > '+str(ptCut["lower_limit"])+' GeV' if ptCut["upper_limit"]==float("Inf") else str(ptCut["lower_limit"])+' GeV < pt < '+str(ptCut["upper_limit"])+' GeV'
         colorList=[]
         lineWidthList=[]
         
         #Initialize Mulitgraph
+        gStyle.SetOptTitle(0)
+        #gStyle.SetLegendBorderSize(0)
+        #gStyle.SetFillStyle(4000)
         c=ROOT.TCanvas()
         if logY==1:
             c.SetLogy()
@@ -187,9 +210,12 @@ for relIsoCut in relIsoCuts:
 
             #Draw eS plots
             j=0
-            x    = array('d')
-            y_eS = array('d')
-            y_eB = array('d')
+            x        = array('d')
+            x_err    = array('d')
+            y_eS     = array('d')
+            y_eB     = array('d')
+            y_eS_err = array('d')
+            y_eB_err = array('d')
             
             WP = plot["eS"]/100.
 
@@ -217,17 +243,21 @@ for relIsoCut in relIsoCuts:
                 j += 1
                 if not len(dataset)==0:
                     x.append(j*binWidth)
+                    x_err.append(0.)
                     y_eS.append(eS(maxpval,dataset))
                     y_eB.append(eB(maxpval,dataset)*factor)
-                    print j*binWidth, maxpval, y_eB[-1], y_eS[-1]
+                    y_eS_err.append(eS_err(maxpval,dataset))
+                    y_eB_err.append(eB_err(maxpval,dataset))
+
+                    print j*binWidth, maxpval, y_eB[-1], y_eS[-1], y_eS_err[-1], y_eB_err[-1]
 
             #Draw Graphs
             n=len(x)
-            g.append(ROOT.TGraph(n,x,y_eS))
-            gname=("eS "+plot["name"]+" (for overall eS={sigeff})".format(sigeff=str(WP)))
+            g.append(ROOT.TGraphErrors(n,x,y_eS,x_err,y_eS_err))
+            gname=(plot["name"]+" sig eff ".format(sigeff=str(WP)))
             g[ng].SetName(gname)
             g[ng].SetTitle(gname)
-            g[ng].SetLineColor( 0 )
+            g[ng].SetLineColor( colorList[ng] )
             #g[ng].SetLineWidth(lineWidthList[ng])
             g[ng].SetMarkerColor(colorList[ng])
             g[ng].SetMarkerStyle( 9 ) #
@@ -243,12 +273,12 @@ for relIsoCut in relIsoCuts:
             #Draw eB plots
             #Draw Graphs
             n=len(x)
-            graph=ROOT.TGraph(n,x,y_eB)
-            gname=("eB "+("x "+str(int(factor))+" " if not ptCut["Name"]=="pt10to25" else "")+plot["name"]+" (for plotted eS)")
+            graph=ROOT.TGraphErrors(n,x,y_eB,x_err,y_eB_err)
+            gname=(plot["name"]+" bkg eff "+("x "+str(int(factor))+" " if not ptCut["Name"]=="pt10to25" else "   "))
             graph.SetName(gname)
             graph.SetTitle(gname)
             #graph.SetLineStyle( 2 )
-            graph.SetLineColor( 0 )
+            graph.SetLineColor( colorList[ng] )
             #graph.SetLineWidth(lineWidthList[ng])
             graph.SetMarkerColor(colorList[ng])
             graph.SetMarkerStyle( 4 )
@@ -265,17 +295,18 @@ for relIsoCut in relIsoCuts:
         mg.Draw("AP")
         #mg.SetTitle(leptonFlavour["sample"].texName+(" - TrainData" if isTrainData else " - TestData"))
         mg.GetXaxis().SetTitle(binnedList[args.binned]["varName"])
-        mg.GetYaxis().SetTitle('eS,eB')
+        mg.GetYaxis().SetTitle('sig, bkg eff')
         if logY==0:
             mg.GetYaxis().SetRangeUser(0.0,1.02)
-        yleg1 = 0.35
-        yleg2 = yleg1 + 0.25
-        c.BuildLegend(0.55,yleg1,0.9,yleg2)
+        yleg1 = 0.37
+        yleg2 = yleg1 + 0.24
+        c.SetGrid()
+        c.BuildLegend(0.60,yleg1,0.875,yleg2)
 
         header = [
-        {'text': ROOT.TPaveLabel(.00,0.93,.20,1.0,   "CMS preliminary",                                                                                                                 "nbNDC"), 'font': 30  },
-        {'text': ROOT.TPaveLabel(.20,0.93,1.0,1.0,   "TestData: {sample}, {kin}    Training: {training}".format( sample = sample.texName, kin = ptCut["Name"], training = sample.name), "nbNDC"), 'font': 130 },
-        {'text': ROOT.TPaveLabel(.00,0.91,1.0,0.929, "preselection: {preselect}".format( preselect = loose_id ),                                                                        "nbNDC"), 'font': 130 },
+        #{'text': ROOT.TPaveLabel(.00,0.96,.20,1.0,  "CMS preliminary",                                                                                                                   "nbNDC"), 'font': 30  },
+        {'text': ROOT.TPaveLabel(.00,0.965,1.0,1.0,  "training reference: {trainData}  -  {ref}".format( trainData=flat_sampleInfo['train_data'], ref=flat_sampleInfo['training_name'] ), "nbNDC"), 'font': 130 },
+        {'text': ROOT.TPaveLabel(.00,0.905,1.0,0.960, "{testData} {pt}, loose ID selection".format( testData=flat_sampleInfo['test_data'], pt=kinematic_selection_name ),                 "nbNDC"), 'font': 130 },
                  ]
 
         for line in header:
@@ -285,8 +316,8 @@ for relIsoCut in relIsoCuts:
 
         if args.flat:
             directory = os.path.join(   plot_directory, "DeepLepton",
-                                        sampleInfo['sample_name'],
-                                        sampleInfo['training_date'],
+                                        flat_sampleInfo['sample_name'],
+                                        flat_sampleInfo['training_date'],
                                         'TestData' if args.testData else 'TrainData',
                                         'binnedEfficiencies',
                                         args.binned,

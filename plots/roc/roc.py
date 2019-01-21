@@ -2,6 +2,7 @@
 import ROOT
 import array
 import os
+import math
 from ROOT import gStyle
 
 # Arguments
@@ -43,7 +44,7 @@ event_selection = "(1)"
 if args.flat:
     from DeepLepton.samples.flat_training_samples import *
 
-    nMax = 2 if args.small else -1
+    nMax = 1 if args.small else -1
     
     flat_sampleInfo = vars()[args.flatSample]
     flat_files, predict_files = get_flat_files( flat_sampleInfo['flat_directory'], flat_sampleInfo['predict_directory' if args.testData else 'predict_directory_trainData'])
@@ -89,7 +90,8 @@ loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&
 #loose_id = "abs(lep_pdgId)==13&&lep_miniRelIso<0.5"
 
 # pt selection
-kinematic_selection = "lep_pt>{ptMin}".format(ptMin = args.ptMin) if args.ptMax==0 else "lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin, ptMax = args.ptMax)
+kinematic_selection      = "lep_pt>{ptMin}".format(ptMin = args.ptMin) if args.ptMax==0 else "lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin, ptMax = args.ptMax)
+kinematic_selection_name = 'pt > '+str(args.ptMin)+' GeV' if args.ptMax==0 else str(args.ptMin)+' GeV < pt < '+str(args.ptMax)+' GeV'
 
 # filter LepOther with nan prediction
 filter_LepOther = 'prob_lep_isPromptId_Training<999' if args.flat else 'lep_deepLepton_prompt<999'
@@ -101,7 +103,7 @@ else:
     weightString = '1'
 
 # lepton Ids
-deepLepton = {"name":"deepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/100000. for i in range(0,100000)]}
+deepLepton = {"name":"DeepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/100000. for i in range(0,100000)]}
 mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                                                                  "color":ROOT.kGray+1,  "thresholds":[ i/1000. for i in range(-1000,1001)]}
 mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                                                                  "color":ROOT.kGray,    "thresholds":[ i/1000. for i in range(-1000,1001)]}
 
@@ -139,13 +141,15 @@ for lepton_id in lepton_ids:
     lepton_id["roc"].SetLineColor( lepton_id['color'] )
 
 gStyle.SetOptTitle(0)
+#gStyle.SetLegendBorderSize(0)
+#gStyle.SetFillStyle(4000)
 c = ROOT.TCanvas()
 option = "L"
 same    ="A"
 for lepton_id in lepton_ids:
     #lepton_id["roc"].GetXaxis().SetRangeUser(0.01, 1)
-    lepton_id["roc"].GetXaxis().SetTitle("bkg eff")
-    lepton_id["roc"].GetYaxis().SetTitle("sig eff")
+    lepton_id["roc"].GetXaxis().SetTitle("background efficiency")
+    lepton_id["roc"].GetYaxis().SetTitle("signal efficiency")
     lepton_id["roc"].GetXaxis().SetLimits(0.01, 1)
     lepton_id["roc"].GetHistogram().SetMaximum(1.01)
     lepton_id["roc"].GetHistogram().SetMinimum(0.60)
@@ -158,9 +162,9 @@ for lepton_id in lepton_ids:
     same = "same"
 
 header = [
-            {'text': ROOT.TPaveLabel(.00,0.93,.20,1.0,   "CMS preliminary",                                                                                                                      "nbNDC"), 'font': 30  },
-            {'text': ROOT.TPaveLabel(.20,0.93,1.0,1.0,   "TestData: {sample}, {kin}    Training: {training}".format( sample = sample_name, kin = kinematic_selection, training = training_name), "nbNDC"), 'font': 130 },
-            {'text': ROOT.TPaveLabel(.00,0.91,1.0,0.929, "preselection: {preselect}".format( preselect = loose_id ),                                                                             "nbNDC"), 'font': 130 },
+            #{'text': ROOT.TPaveLabel(.00,0.96,.20,1.0,  "CMS preliminary",                                                                                                                   "nbNDC"), 'font': 30  },
+            {'text': ROOT.TPaveLabel(.00,0.965,1.0,1.0,  "training reference: {trainData}  -  {ref}".format( trainData=flat_sampleInfo['train_data'], ref=flat_sampleInfo['training_name'] ), "nbNDC"), 'font': 130 },
+            {'text': ROOT.TPaveLabel(.00,0.905,1.0,0.960, "{testData} {pt}, loose ID selection".format( testData=flat_sampleInfo['test_data'], pt=kinematic_selection_name ),                 "nbNDC"), 'font': 130 },
          ]
 
 for line in header:
@@ -168,8 +172,10 @@ for line in header:
     line['text'].SetTextFont(line['font'])
     line['text'].Draw()
 
+c.SetGrid()
 c.SetLogx()
-c.BuildLegend(0.6,0.12,0.9,0.22)
+#c.BuildLegend(0.695,0.475,0.895,0.595)
+c.BuildLegend(0.70,0.43,0.88,0.55)
 
 if args.flat:
     directory = os.path.join(   plot_directory, "DeepLepton", 

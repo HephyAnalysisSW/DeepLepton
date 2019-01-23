@@ -497,11 +497,11 @@ for ecalType in ecalTypes:
             attribute = lambda lepton, sample: lepton.lep_dEtaScTrkIn,
             binning=[50,-1,1],
         ))
-        #plots.append(Plot(name=plotname+'eInvMinusPInv',
-        #    texX = '|1/E-1/p|', texY = 'Number of Events',
-        #    attribute = lambda lepton, sample: lepton.absEInvMinusPInv,
-        #    binning=[30,0,0.20],
-        #))
+        plots.append(Plot(name=plotname+'eInvMinusPInv',
+            texX = '|1/E-1/p|', texY = 'Number of Events',
+            attribute = lambda lepton, sample: lepton.absEInvMinusPInv,
+            binning=[30,0,0.20],
+        ))
         plots.append(Plot(name=plotname+'convVeto',
             texX = 'convVeto', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.lep_convVeto,
@@ -510,7 +510,8 @@ for ecalType in ecalTypes:
         plots.append(Plot(name=plotname+'hadronicOverEm',
             texX = 'hadronicOverEm', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.lep_hadronicOverEm,
-            binning=[30,0,0.15],
+        #    binning=[30,0,0.15],
+            binning=[30,0,0.30],    #increased range to the right 
         ))
         plots.append(Plot(name=plotname+'r9',
             texX = 'r9', texY = 'Number of Events',

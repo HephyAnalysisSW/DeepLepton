@@ -48,33 +48,33 @@ python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEB
 python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_LO #SPLIT20
 
 #DY
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample DY1JetsToLL_M50_LO #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample DY2JetsToLL_M50_LO #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample DY3JetsToLL_M50_LO #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample DY4JetsToLL_M50_LO #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample DY1JetsToLL_M50_LO #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample DY2JetsToLL_M50_LO #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample DY3JetsToLL_M50_LO #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample DY4JetsToLL_M50_LO #SPLIT20
 #QCD MuEnriched
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt15to20_Mu5 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt20to30_Mu5 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt30to50_Mu5 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt50to80_Mu5 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt80to120_Mu5 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt80to120_Mu5_ext #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt120to170_Mu5 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt170to300_Mu5 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt170to300_Mu5_ext #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt300to470_Mu5 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt300to470_Mu5_ext #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt300to470_Mu5_ext2 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt470to600_Mu5 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt470to600_Mu5_ext #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt470to600_Mu5_ext2 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt600to800_Mu5 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt600to800_Mu5_ext #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt800to1000_Mu5 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt800to1000_Mu5_ext #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt800to1000_Mu5_ext2 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt1000toInf_Mu5 #SPLIT20
-python -i step1_select.py  --version v6 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt1000toInf_Mu5_ext #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt15to20_Mu5 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt20to30_Mu5 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt30to50_Mu5 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt50to80_Mu5 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt80to120_Mu5 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt80to120_Mu5_ext #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt120to170_Mu5 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt170to300_Mu5 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt170to300_Mu5_ext #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt300to470_Mu5 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt300to470_Mu5_ext #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt300to470_Mu5_ext2 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt470to600_Mu5 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt470to600_Mu5_ext #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt470to600_Mu5_ext2 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt600to800_Mu5 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt600to800_Mu5_ext #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt800to1000_Mu5 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt800to1000_Mu5_ext #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt800to1000_Mu5_ext2 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt1000toInf_Mu5 #SPLIT20
+python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample QCD_Pt1000toInf_Mu5_ext #SPLIT20
 #
 ##QCD
 #python -i step1_select.py  --version v6 --year 2016  --logLevel DEBUG --sample QCD_Pt15to30 #SPLIT20

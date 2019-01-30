@@ -92,8 +92,12 @@ binnedList.update({"nTrueInt": {"varName":"N_{vertex}",                         
 ###############
 
 #preselection
-loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1&&lep_pfMuonId&&lep_mediumMuonId"
-sample.setSelectionString(loose_id)
+if args.flavour=='ele':
+    loose_id = "abs(lep_pdgId)==11&&lep_pt>7&&abs(lep_eta)<2.5&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1&&lep_lostHits<=1"
+    sample.setSelectionString(loose_id)
+else:
+    loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1&&lep_pfMuonId&&lep_mediumMuonId"
+    sample.setSelectionString(loose_id)
 
 ## pt selection
 #kinematic_selection = "lep_pt>{ptMin}".format(ptMin = args.ptMin) if args.ptMax==0 else "lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin, ptMax = args.ptMax)

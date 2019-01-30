@@ -30,3 +30,5 @@ python -i roc.py --flat --ptMin 10 --ptMax 0   --flatSample TTs_Muons_pooling_20
 
 #python -i roc.py --flat --ptMin 5 --ptMax 0  --testData --flatSample testFile --lumi_weight 0
 
+#test for electrons:
+#python -i roc.py --flat --ptMin 5  --ptMax 0   --flatSample TTJets_Electrons_2016_pt5toInf_preliminary --flavour ele  --lumi_weight --testData --small

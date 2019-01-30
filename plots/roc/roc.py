@@ -85,9 +85,17 @@ prompt_selection    = "(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_m
 nonPrompt_selection = "(!(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37))&&(abs(lep_mcMatchAny)==4||abs(lep_mcMatchAny)==5)"
 fake_selection      = "(!(abs(lep_mcMatchId)==6||abs(lep_mcMatchId)==23||abs(lep_mcMatchId)==24||abs(lep_mcMatchId)==25||abs(lep_mcMatchId)==37))&&(!(abs(lep_mcMatchAny)==4||abs(lep_mcMatchAny)==5))"
 
-# lepton preselection
-loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1&&lep_pfMuonId&&lep_mediumMuonId"
+if args.flavour == 'muo': 
+    # lepton preselection
+    loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1&&lep_pfMuonId&&lep_mediumMuonId"
+elif args.flavour == 'ele':
+    loose_id = "abs(lep_pdgId)==11&&lep_pt>7&&abs(lep_eta)<2.5&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1&&lep_lostHits<=1"
+
 #loose_id = "abs(lep_pdgId)==13&&lep_miniRelIso<0.5"
+#prep for ele:
+# in barrel: loose_id = "abs(lep_pdgId)==11&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1
+#&&lep_sigmaIEtaIEta<0.0112&&abs(lep_dEtaInSeed)<0.00377&&lep_hadronicOverEm<#???#&&lep_eInvMinusPInv<0.193&&lep_lostHits<=1&&lep_convVeto==1"
+# loose_id = "abs(lep_etaSc)<=1.479"
 
 # pt selection
 kinematic_selection      = "lep_pt>{ptMin}".format(ptMin = args.ptMin) if args.ptMax==0 else "lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin, ptMax = args.ptMax)
@@ -112,7 +120,6 @@ lepton_ids = [
     mvaTTV,
     deepLepton,
 ]
-
 
 # get signal efficiency
 for lepton_id in lepton_ids:

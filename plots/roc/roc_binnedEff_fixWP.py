@@ -142,15 +142,17 @@ def eS(p, rocdataset):
     return 0. if ntruth==0. else  ntruthid/ntruth
 
 def eS_err(p, rocdataset):
+    Ntruth=0.
     ntruth=0.
     ntruthid=0.
     for data in rocdataset:
         if data[0]==1:
             ntruth+=data[2]
+            Ntruth+=1
             if data[1]>=p:
                 ntruthid+=data[2]
     #print ntruth, ntruthid
-    return 0. if ntruth==0. else sqrt(1./ntruth*(ntruthid/ntruth)*(1.-ntruthid/ntruth))
+    return 0. if ntruth==0. else sqrt(1./Ntruth*(ntruthid/ntruth)*(1.-ntruthid/ntruth))
 
 def eB(p, rocdataset):
     ntruth=0.
@@ -164,15 +166,17 @@ def eB(p, rocdataset):
     return 0. if ntruth==0. else ntruthid/ntruth
 
 def eB_err(p, rocdataset):
+    Ntruth=0.
     ntruth=0.
     ntruthid=0.
     for data in rocdataset:
         if not data[0]==1:
             ntruth+=data[2]
+            Ntruth+=1
             if data[1]>=p:
                 ntruthid+=data[2]
     #print ntruth, ntruthid
-    return 0. if ntruth==0. else sqrt(1./ntruth*(ntruthid/ntruth)*(1.-ntruthid/ntruth))
+    return 0. if ntruth==0. else sqrt(1./Ntruth*(ntruthid/ntruth)*(1.-ntruthid/ntruth))
 
 for relIsoCut in relIsoCuts:
 
@@ -268,7 +272,7 @@ for relIsoCut in relIsoCuts:
             g[ng].SetFillStyle(0)
             g[ng].SetFillColor(0)
             #g[ng].SetMarkerSize(0)
-            g[ng].SetMarkerSize(0.5)
+            g[ng].SetMarkerSize(0.3)
             #g[ng].Draw("C")
             g[ng].Draw("P")
             #nmaxtext.DrawLatex(x[nmax],y[nmax],"mvaId=%1.2f" %p[nmax])
@@ -288,7 +292,7 @@ for relIsoCut in relIsoCuts:
             graph.SetMarkerStyle( 4 )
             graph.SetFillStyle( 0 )
             graph.SetFillColor( 0 )
-            graph.SetMarkerSize( 0.5 )
+            graph.SetMarkerSize( 0.3 )
             graph.Draw("P")
             #nmaxtext.DrawLatex(x[nmax],y[nmax],"mvaId=%1.2f" %p[nmax])
             mg.Add(graph)

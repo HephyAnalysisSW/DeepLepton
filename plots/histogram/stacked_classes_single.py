@@ -500,7 +500,7 @@ for ecalType in ecalTypes:
         plots.append(Plot(name=plotname+'eInvMinusPInv',
             texX = '|1/E-1/p|', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.lep_eInvMinusPInv,        # changed lepton.absEInvMinusPInv to lepton.eInvMinusPInv
-            binning=[30,0,0.20],
+            binning=[30,-0.20,0.20],    # instead of [30,0,0.20]
         ))
     #    plots.append(Plot(name=plotname+'convVeto',
     #        texX = 'convVeto', texY = 'Number of Events',

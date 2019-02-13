@@ -35,10 +35,10 @@
 ### electrons ###
 #################
 
-python -i roc.py --flat --ptMin 7  --ptMax 0   --flatSample TTJets_Electrons_2016_preliminary_noMVA --flavour ele  --lumi_weight --testData
+python -i roc.py --flat --ptMin 7  --ptMax 0   --flatSample TTJets_Electrons_2016_biLSTM_split --flavour ele  --lumi_weight --testData
 
-python -i roc.py --flat --ptMin 7  --ptMax 25   --flatSample TTJets_Electrons_2016_preliminary_noMVA --flavour ele  --lumi_weight --testData
+python -i roc.py --flat --ptMin 7  --ptMax 25   --flatSample TTJets_Electrons_2016_biLSTM_split --flavour ele  --lumi_weight --testData
 
-python -i roc.py --flat --ptMin 25  --ptMax 0   --flatSample TTJets_Electrons_2016_preliminary_noMVA --flavour ele  --lumi_weight --testData
+python -i roc.py --flat --ptMin 25  --ptMax 0   --flatSample TTJets_Electrons_2016_biLSTM_split --flavour ele  --lumi_weight --testData
 
-python -i roc.py --flat --ptMin 12  --ptMax 25   --flatSample TTJets_Electrons_2016_preliminary_noMVA --flavour ele  --lumi_weight --testData
+python -i roc.py --flat --ptMin 12  --ptMax 25   --flatSample TTJets_Electrons_2016_biLSTM_split --flavour ele  --lumi_weight --testData

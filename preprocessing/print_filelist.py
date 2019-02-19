@@ -5,19 +5,21 @@ import os
 import numpy
 
 #leptonFlavour  = ['ele', 'muo']
-leptonFlavour   = ['ele']
+#leptonFlavour   = ['ele']
+leptonFlavour   = ['muo']
 sampleSelections = [
-                    #'DYvsQCD', 
-                    'TTJets',
-                    #'TTs',
-                    #'all',
+                    'DYvsQCD', 
+                    #'TTJets',
+                    'TTs',
+                    'all',
                    ]
 
 ptSelections    = [
-                    'pt_5_-1',
+                    #'pt_5_-1',
                     #'pt_5_15',
                     #'pt_15_25',
                     #'pt_25_-1',
+                    'pt_15_-1',
                   ]
 
 ratioTrain      = 80
@@ -29,7 +31,8 @@ for flavour in leptonFlavour:
         #write file path of step3 output in following line
            # filepath = os.path.join('/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016',flavour,ptSelection,sampleSelection)
            # filepath = os.path.join('/afs/hephy.at/work/s/sschneider/DeepLepton/skims/v1_small_simon/step3/2016',flavour,ptSelection,sampleSelection)
-            filepath = os.path.join('/afs/hephy.at/data/cms01/DeepLepton/skims/v1/step3/2016',flavour,ptSelection,sampleSelection)
+           # filepath = os.path.join('/afs/hephy.at/data/cms01/DeepLepton/skims/v1/step3/2016',flavour,ptSelection,sampleSelection)
+            filepath = os.path.join('/afs/hephy.at/data/cms02/DeepLepton/skims/v1/step3/2016',flavour,ptSelection,sampleSelection)
             filelist = os.listdir(filepath)
             #print filepath
             #print filelist

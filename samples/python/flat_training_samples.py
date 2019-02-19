@@ -198,15 +198,6 @@ TTJets_Electrons_2016_noTraining = {
 'flat_txtfile'      : '/afs/hephy.at/data/cms01/DeepLepton/skims/v1/step3/2016/ele/pt_5_-1/TTJets/train_ele.txt',
 }
 
-#first training TTJets simon
-TTJets_Electrons_2016_preliminary = {
-'training_name'     : 'TTs_Muons_balanced_pt5toInf_20181117',
-'training_date'     : '20181117',
-'sample_name'       : 'testFile',
-'flat_directory'    : '/afs/hephy.at/data/cms01/DeepLepton/skims/v1/step3',
-'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/testfile/flat/step3/EvaluationTestData_TTJets_on_model_TTs_balanced_pt5toInf_20181117',
-'predict_directory_trainData' : '',
-}
 
 #first training TTJets simon
 TTJets_Electrons_2016_preliminary = {  # this name to be passed to roc.py
@@ -217,6 +208,58 @@ TTJets_Electrons_2016_preliminary = {  # this name to be passed to roc.py
 'test_data'         : 'TTJets electrons',  #free
 'flat_directory'    : '/afs/hephy.at/data/cms01/DeepLepton/skims/v1/step3/2016/ele/pt_5_-1/TTJets/',
 'predict_directory'           : '/afs/hephy.at/data/cms01/DeepLepton/results/TTJets_Electron_run03_EvaluationTestData',
+#'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181211-01/TTs_Muon_EvaluationTestDataIsTrainData',
+}
+
+
+#first training TTJets simon as above but without mva result as input for training
+TTJets_Electrons_2016_preliminary_noMVA = {  # this name to be passed to roc.py
+'training_name'     : 'TTJets_Electrons_2016_pt5toInf_preliminary_noMVA',   #free to choose
+'training_date'     : '20190129-01',     #free
+'sample_name'       : 'TTJets_Electrons_2016',     #free
+'train_data'        : 'TTJets electrons',  #free
+'test_data'         : 'TTJets electrons',  #free
+'flat_directory'    : '/afs/hephy.at/data/cms01/DeepLepton/skims/v1/step3/2016/ele/pt_5_-1/TTJets/',
+'predict_directory'           : '/afs/hephy.at/data/cms01/DeepLepton/results/TTJets_Electron_run04_EvaluationTestData',
+#'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181211-01/TTs_Muon_EvaluationTestDataIsTrainData',
+}
+
+
+#run with biLSTM configuration
+TTJets_Electrons_2016_biLSTM = {  # this name to be passed to roc.py
+'training_name'     : 'TTJets_Electrons_2016_pt5toInf_biLSTM',   #free to choose
+'training_date'     : '20190211-01',     #free
+'sample_name'       : 'TTJets_Electrons_2016',     #free
+'train_data'        : 'TTJets electrons',  #free
+'test_data'         : 'TTJets electrons',  #free
+'flat_directory'    : '/afs/hephy.at/data/cms01/DeepLepton/skims/v1/step3/2016/ele/pt_5_-1/TTJets/',
+'predict_directory'           : '/afs/hephy.at/data/cms01/DeepLepton/results/TTJets_Electron_biLSTM_EvaluationTestData',
+#'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181211-01/TTs_Muon_EvaluationTestDataIsTrainData',
+}
+
+
+#run with biLSTM_split configuration
+TTJets_Electrons_2016_biLSTM_split = {  # this name to be passed to roc.py
+'training_name'     : 'TTJets_Electrons_2016_pt5toInf_biLSTM_split',   #free to choose
+'training_date'     : '20190211-02',     #free
+'sample_name'       : 'TTJets_Electrons_2016',     #free
+'train_data'        : 'TTJets electrons',  #free
+'test_data'         : 'TTJets electrons',  #free
+'flat_directory'    : '/afs/hephy.at/data/cms01/DeepLepton/skims/v1/step3/2016/ele/pt_5_-1/TTJets/',
+'predict_directory'           : '/afs/hephy.at/data/cms01/DeepLepton/results/TTJets_Electron_biLSTM_split_EvaluationTestData',
+#'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181211-01/TTs_Muon_EvaluationTestDataIsTrainData',
+}
+
+
+#run with pooling configuration
+TTJets_Electrons_2016_pooling = {  # this name to be passed to roc.py
+'training_name'     : 'TTJets_Electrons_2016_pt5toInf_pooling',   #free to choose
+'training_date'     : '20190212-01_pooling',     #free
+'sample_name'       : 'TTJets_Electrons_2016',     #free
+'train_data'        : 'TTJets electrons',  #free
+'test_data'         : 'TTJets electrons',  #free
+'flat_directory'    : '/afs/hephy.at/data/cms01/DeepLepton/skims/v1/step3/2016/ele/pt_5_-1/TTJets/',
+'predict_directory'           : '/afs/hephy.at/data/cms01/DeepLepton/results/TTJets_Electron_pooling_EvaluationTestData',
 #'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181211-01/TTs_Muon_EvaluationTestDataIsTrainData',
 }
 

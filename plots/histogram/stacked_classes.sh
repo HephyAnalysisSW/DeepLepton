@@ -18,13 +18,10 @@ python -i stacked_classes.py --flat --looseId --ptMin 10 --ptMax 0   --trainingC
 python -i stacked_classes.py --flat --looseId --ptMin 10 --ptMax 25  --trainingClasses fullClasses --flatSample TTs_Muons_biLSTM_splitDense_2016 --testData 
 python -i stacked_classes.py --flat --looseId --ptMin 25 --ptMax 0   --trainingClasses fullClasses --flatSample TTs_Muons_biLSTM_splitDense_2016 --testData 
 
-python -i stacked_classes.py --flat --looseId --ptMin 10 --ptMax 0   --trainingClasses fullClasses --flatSample TTs_Muons_biLSTM_splitDense_selu_2016 --testData 
-python -i stacked_classes.py --flat --looseId --ptMin 10 --ptMax 25  --trainingClasses fullClasses --flatSample TTs_Muons_biLSTM_splitDense_selu_2016 --testData 
-python -i stacked_classes.py --flat --looseId --ptMin 25 --ptMax 0   --trainingClasses fullClasses --flatSample TTs_Muons_biLSTM_splitDense_selu_2016 --testData 
+python -i stacked_classes.py --flat --looseId --ptMin 10 --ptMax 0   --trainingClasses fullClasses --flatSample TTs_Muons_biLSTM_splitDense_elu_2016 --testData 
+python -i stacked_classes.py --flat --looseId --ptMin 10 --ptMax 25  --trainingClasses fullClasses --flatSample TTs_Muons_biLSTM_splitDense_elu_2016 --testData 
+python -i stacked_classes.py --flat --looseId --ptMin 25 --ptMax 0   --trainingClasses fullClasses --flatSample TTs_Muons_biLSTM_splitDense_elu_2016 --testData 
 
-python -i stacked_classes.py --flat --looseId --ptMin 10 --ptMax 0   --trainingClasses fullClasses --flatSample TTs_Muons_endVar_2016 --testData 
-python -i stacked_classes.py --flat --looseId --ptMin 10 --ptMax 25  --trainingClasses fullClasses --flatSample TTs_Muons_endVar_2016 --testData 
-python -i stacked_classes.py --flat --looseId --ptMin 25 --ptMax 0   --trainingClasses fullClasses --flatSample TTs_Muons_endVar_2016 --testData 
 
 #input training data
 #python -i stacked_classes.py --flat --ptMin 5  --ptMax 0   --trainingClasses noTraining --flatSample TTs_Muons_2016_noTraining

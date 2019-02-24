@@ -597,13 +597,16 @@ TTs_Muons_selu_2016 = {
 }
 TTs_Muons_biLSTM_splitDense_2016 = {
 'training_name'     : 'biLSTM, split dense layers',
-'training_date'     : '20190129-02',
+#'training_date'     : '20190129-02',
+'training_date'     : '20190222-01',
 'sample_name'       : 'TTs_Muons_2016',
 'train_data'        : 'TTs muons',
 'test_data'         : 'TTs muons',
 'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
-'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190129-02/TTs_Muon_biLSTM_splitDense_EvaluationTestData',
-'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190129-02/TTs_Muon_biLSTM_splitDense_EvaluationTestDataIsTrainData',
+#'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190129-02/TTs_Muon_biLSTM_splitDense_EvaluationTestData',
+#'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190129-02/TTs_Muon_biLSTM_splitDense_EvaluationTestDataIsTrainData',
+'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190222-01/TTs_Muon_biLSTM_splitDense_EvaluationTestData',
+'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190222-01/TTs_Muon_biLSTM_splitDense_EvaluationTestDataIsTrainData',
 }
 TTs_Muons_biLSTM_splitDense_selu_2016 = {
 'training_name'     : 'biLSTM, split dense layers, selu', 
@@ -624,6 +627,16 @@ TTs_Muons_endVar_2016 = {
 'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
 'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190129-01/TTs_Muon_EvaluationTestData',
 'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190129-01/TTs_Muon_EvaluationTestDataIsTrainData',
+}
+TTs_Muons_biLSTM_splitDense_elu_2016 = {
+'training_name'     : 'biLSTM, split dense layers, elu', 
+'training_date'     : '20190222-02',
+'sample_name'       : 'TTs_Muons_2016',
+'train_data'        : 'TTs muons',
+'test_data'         : 'TTs muons',
+'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+'predict_directory'           : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190222-02/TTs_Muon_biLSTM_splitDense_elu_EvaluationTestData',
+'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20190222-02/TTs_Muon_biLSTM_splitDense_elu_EvaluationTestDataIsTrainData',
 }
 
 

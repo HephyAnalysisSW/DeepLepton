@@ -184,12 +184,12 @@ def get_flat_variables(varSelection):
 #first test training
 TTs_Muons_testTim_2016 = {
 'training_name'     : 'testTim',
-'training_date'     : '20190218',
+'training_date'     : '20190225',
 'sample_name'       : 'TTs_Muons_2016',
 'train_data'        : 'TTs muons',
 'test_data'         : 'TTs muons',
 'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
-'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/work/trainings/20190218_testTim/TTs_Muon_EvaluationTestData',
+'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/20190225_testTim/TTs_Muon_EvaluationTestData',
 'predict_directory_trainData' : '',
 }
 

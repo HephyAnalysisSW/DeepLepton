@@ -31,11 +31,11 @@
 #python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTJets_Electrons_2016_preliminary --flavour ele --lumi_weight --eS_TTV 90 --eS_DL 90 --binned high_pt 
 
 #TESTDATA
-python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTJets_Electrons_2016_biLSTM_split --flavour ele --lumi_weight --eS_TTV 90 --eS_DL 90 --binned high_pt 
-python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTJets_Electrons_2016_biLSTM_split --flavour ele  --lumi_weight --eS_TTV 90 --eS_DL 90 --binned low_pt
-python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTJets_Electrons_2016_biLSTM_split --flavour ele  --lumi_weight --eS_TTV 90 --eS_DL 90 --binned pt
+python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTJets_Electrons_2016_pooling --flavour ele --lumi_weight --eS_TTV 90 --eS_DL 90 --binned high_pt 
+python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTJets_Electrons_2016_pooling --flavour ele  --lumi_weight --eS_TTV 90 --eS_DL 90 --binned low_pt
+python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTJets_Electrons_2016_pooling --flavour ele  --lumi_weight --eS_TTV 90 --eS_DL 90 --binned pt
 
-python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTJets_Electrons_2016_biLSTM_split --flavour ele  --lumi_weight --eS_TTV 90 --eS_DL 90 --binned eta
-python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTJets_Electrons_2016_biLSTM_split --flavour ele  --lumi_weight --eS_TTV 90 --eS_DL 90 --binned nTrueInt
+python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTJets_Electrons_2016_pooling --flavour ele  --lumi_weight --eS_TTV 90 --eS_DL 90 --binned eta
+python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTJets_Electrons_2016_pooling --flavour ele  --lumi_weight --eS_TTV 90 --eS_DL 90 --binned nTrueInt
 
 #TRAINDATA

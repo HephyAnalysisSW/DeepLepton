@@ -14,6 +14,7 @@ argParser.add_argument('--ptMin',              action='store',      type=int,   
 argParser.add_argument('--ptMax',              action='store',      type=int,     default=25)
 argParser.add_argument('--flat',               action='store_true',                 help='Run on flat ntuple data?', )
 argParser.add_argument('--flatSample',         action='store',           default='TTJets_Muons_balanced_pt5toInf_2016')
+argParser.add_argument('--roc',                action='store',  choices=['deepLepton','mvaTTV'],         default='deepLepton')
 
 argParser.add_argument('--year',               action='store', type=int, choices=[2016,2017],   default=2016,   help="Which year?")
 argParser.add_argument('--flavour',            action='store', type=str, choices=['ele','muo'], default='muo',  help="Which Flavour?")
@@ -83,23 +84,33 @@ ptBinning = 5.
 ptBins    = int((args.ptMax-args.ptMin)/ptBinning)
 kinematic_selections = [
                         {"name":                         "pt{ptMin}to{ptMax}".format(ptMin = int(args.ptMin + i*ptBinning), ptMax = int(args.ptMin + (i+1)*ptBinning) if args.ptMin + (i+1)*ptBinning<args.ptMax else args.ptMax), 
+                         "latex":                        "{ptMin}".format(ptMin = int(args.ptMin + i*ptBinning))+" < #font[52]{p}_{T} < "+"{ptMax}".format(ptMax = int(args.ptMin + (i+1)*ptBinning) if args.ptMin + (i+1)*ptBinning<args.ptMax else args.ptMax)+" GeV", 
                          "selectionString": "lep_pt>{ptMin}&&lep_pt<={ptMax}".format(ptMin = args.ptMin + i*ptBinning, ptMax = args.ptMin + (i+1)*ptBinning if args.ptMin + (i+1)*ptBinning<args.ptMax else args.ptMax)}
                          for i in xrange(ptBins)
                        ]
-kinematic_selections.append({"name": "pt25toInf", "selectionString": "lep_pt>25"})
+#kinematic_selections = []
+kinematic_selections.append({"name": "pt25toInf", "latex": "#font[52]{p}_{T} > 25 GeV", "selectionString": "lep_pt>25"})
+
+#plot info
+selection_latex = "loose ID "+("muons" if args.flavour=="muo" else "electrons")
+sampleInfo_latex=("t#bar{t}"+("Jets" if flat_sampleInfo["sample_name"].replace("_"," ").replace(" 2016","")=="TTJets Muons" else "")+" events" if flat_sampleInfo["sample_name"].replace("_"," ").replace(" 2016","")=="TTs Muons" else "DY+QCD events")+" (2016 MC data)"
+training_sampleInfo_latex=("t#bar{t}"+("Jets" if flat_sampleInfo["train_data"]=="TTJets muons" else "")+" events" if flat_sampleInfo["train_data"]=="TTs muons" else "DY+QCD events")+", muons (#font[52]{p}_{T} > 5 GeV)"
+
+
 
 #relative lumi weight
 weightString = 'lumi_scaleFactor1fb' if args.lumi_weight else '1'
 
 # lepton Ids
-deepLepton = {"name":"deepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/10000. for i in range(0,10000)]}
-mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                                                                  "color":ROOT.kGray+1,  "thresholds":[ i/10000. for i in range(-10000,10001)]}
-mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                                                                  "color":ROOT.kGray,    "thresholds":[ i/100. for i in range(-100,101)]}
+deepLepton = {"name":"DeepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kBlack, "thresholds":[ i/10000. for i in range(0,10000)]}
+mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                                                                  "color":ROOT.kBlack, "thresholds":[ i/10000. for i in range(-10000,10001)]}
+mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                                                                  "color":ROOT.kBlack, "thresholds":[ i/100. for i in range(-100,101)]}
 
 lepton_ids = [
     #mvaTTH, 
-    mvaTTV,
-    deepLepton,
+    #mvaTTV,
+    #deepLepton,
+   vars()[args.roc] 
 ]
 
 
@@ -131,13 +142,21 @@ for kinematic_selection in kinematic_selections:
         lepton_id["roc_"+kinematic_selection["name"]].SetLineColor( lepton_id['color'] )
 
 gStyle.SetOptTitle(0)
-c = ROOT.TCanvas()
+c=ROOT.TCanvas()
+c.SetCanvasSize(650,500)
 option   = "P"
 same     = "A"
 marker   = {}
 latex    = {}
+
+##color legend
+#colors  = [1+int((lepton_id["thresholds"][i*200])*50 + 0.5) + 100 for i in xrange(50)]
+#palette = array.array('i', colors)
+#print palette
+#gStyle.SetPalette(50,palette)
+
 for lepton_id in lepton_ids:
-    latexPos = 0.65
+    latexPos = 0.75
     for kinematic_selection in kinematic_selections:
         marker.update({kinematic_selection["name"]+lepton_id["name"]: []})
         latex.update({kinematic_selection["name"]+lepton_id["name"]: []})
@@ -153,7 +172,7 @@ for lepton_id in lepton_ids:
         lepton_id["roc_"+kinematic_selection["name"]].SetMarkerStyle(1)
         lepton_id["roc_"+kinematic_selection["name"]].SetMarkerColor(lepton_id["color"])
         lepton_id["roc_"+kinematic_selection["name"]].SetTitle(lepton_id["name"]+'_'+kinematic_selection["name"])
-        lepton_id["roc_"+kinematic_selection["name"]].Draw(option+same)
+        lepton_id["roc_"+kinematic_selection["name"]].Draw(option+same+"PMC")
         same = "same"
         n=lepton_id["roc_"+kinematic_selection["name"]].GetN()
         x=ROOT.Double(0)
@@ -163,15 +182,15 @@ for lepton_id in lepton_ids:
         for i in xrange(n):
             lepton_id["roc_"+kinematic_selection["name"]].GetPoint(i,x,y)
             #color = 1+int(lepton_id["thresholds"][i]*lepton_id["thresholds"][i]*lepton_id["thresholds"][i]*lepton_id["thresholds"][i]*50 + 0.5) + 50
-            discVal = lepton_id["thresholds"][i] if lepton_id["name"]=="deepLepton" else (lepton_id["thresholds"][i]+1.)/2.
+            discVal = lepton_id["thresholds"][i] if lepton_id["name"]=="DeepLepton" else (lepton_id["thresholds"][i]+1.)/2.
             color = 1+int((discVal**p)*50 + 0.5) + 50
             color = color if color<=99 else 2
             if y>0.60 and x>0.01:
-                marker[kinematic_selection["name"]+lepton_id["name"]].append( ROOT.TMarker(x,y,6 if lepton_id["name"]=="deepLepton" else 1) )
+                marker[kinematic_selection["name"]+lepton_id["name"]].append( ROOT.TMarker(x,y,6 if lepton_id["name"]=="DeepLepton" else 6) )
                 marker[kinematic_selection["name"]+lepton_id["name"]][i].SetMarkerColor(color)
                 marker[kinematic_selection["name"]+lepton_id["name"]][i].Draw()
             if y < latexPos and counter == 0:
-                latex[kinematic_selection["name"]+lepton_id["name"]] = ROOT.TLatex(x,y, kinematic_selection["name"])
+                latex[kinematic_selection["name"]+lepton_id["name"]] = ROOT.TLatex(x,y, kinematic_selection["latex"])
                 latex[kinematic_selection["name"]+lepton_id["name"]].SetTextSize(0.020)
                 latex[kinematic_selection["name"]+lepton_id["name"]].SetTextFont(42)
                 latex[kinematic_selection["name"]+lepton_id["name"]].SetTextAlign(21)
@@ -179,33 +198,58 @@ for lepton_id in lepton_ids:
                 latex[kinematic_selection["name"]+lepton_id["name"]].Draw()
                 counter += 1
                 latexPos += 0.05
-header = [
-            {'text': ROOT.TPaveLabel(.00,0.93,.20,1.0,   "CMS preliminary",                                                                                                                      "nbNDC"), 'font': 30  },
-            {'text': ROOT.TPaveLabel(.20,0.93,1.0,1.0,   "TestData: {sample}, pt{ptMin}to{ptMax}    Training: {training}".format( sample = sample_name, ptMin = args.ptMin, ptMax = args.ptMax, training = training_name), "nbNDC"), 'font': 130 },
-            {'text': ROOT.TPaveLabel(.00,0.91,1.0,0.929, "preselection: {preselect}".format( preselect = loose_id ),                                                                             "nbNDC"), 'font': 130 },
-         ]
 
-for line in header:
-    line['text'].SetFillColor(gStyle.GetTitleFillColor())
-    line['text'].SetTextFont(line['font'])
-    line['text'].Draw()
-
+c.SetGrid()
 c.SetLogx()
-#color legend
+
 leg = ROOT.TLegend(0.8,0.12,1.0,0.80)
 leg.SetHeader("color legend")
 leg.SetNColumns(2)
 m=[]
 for i in xrange(50):
     m.append( ROOT.TMarker(1.,1.,7) )
-    color = 1+int((lepton_id["thresholds"][i*200]**p)*50 + 0.5) + 50
+    color = 1+int((lepton_id["thresholds"][i*200]**p)*50 + 0.5) + (50 if lepton_id["name"]=="DeepLepton" else 100)
     color = color if color<=99 else 2
     m[i].SetMarkerColor(color)
     m[i].Draw
-    legTxt = "x > {xVal}".format(xVal=lepton_id["thresholds"][i*200])
+    legTxt = "x > {xVal}".format(xVal=lepton_id["thresholds"][i*(200 if lepton_id["name"]=="DeepLepton" else 400)])
     leg.AddEntry(m[i], legTxt, "p")
 leg.Draw()
 #c.BuildLegend(0.6,0.12,0.9,0.22)
+
+def drawObjects():
+    tex = ROOT.TLatex()
+    tex.SetNDC()
+
+    tex.SetTextSize(0.04)
+    tex.SetTextFont(42)
+    tex.SetTextAlign(11)
+    line = (0.10, 0.96, "CMS #font[52]{Private Simulation}")
+    tex.DrawLatex(*line)
+
+    tex.SetTextSize(0.04)
+    tex.SetTextFont(62)
+    tex.SetTextAlign(13)
+    line = (0.12, 0.875, selection_latex)
+    tex.DrawLatex(*line)
+    line = (0.12, 0.835, lepton_id["name"])
+    tex.DrawLatex(*line)
+
+    tex.SetTextSize(0.04)
+    tex.SetTextFont(42)
+    tex.SetTextAlign(31)
+    line = (0.92, 0.96, sampleInfo_latex)
+    tex.DrawLatex(*line)
+
+    tex.SetTextSize(0.03)
+    tex.SetTextFont(42)
+    tex.SetTextAlign(11)
+    line = (0.10, 0.92, "training info: {trainData}  -  {ref}".format( trainData=training_sampleInfo_latex, ref=flat_sampleInfo['training_name'] ) if args.roc=="deepLepton" else "")
+    tex.DrawLatex(*line)
+
+    return line
+
+dummyline=drawObjects()
 
 if args.flat:
     directory = os.path.join(   plot_directory, "DeepLepton", 

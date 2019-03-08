@@ -66,10 +66,10 @@ if args.year == 2017:
     #SingleEleMu_data    = SingleEleMu_Run2017
 else:
     data_directory           = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"  
-    postProcessing_directory = "deepLepton_v6/singlelep" 
+    postProcessing_directory = "deepLepton_v7/singlelep" 
     from DeepLepton.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
     data_directory           = "/afs/hephy.at/data/rschoefbeck01/cmgTuples/"  
-    postProcessing_directory = "deepLepton_v6/singlelep" 
+    postProcessing_directory = "deepLepton_v7/singlelep" 
     from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
 
     DoubleMuon_data     = vars()['DoubleMuon_'+args.data]

@@ -268,6 +268,18 @@ TTJets_Electrons_2016_biLSTM_split = {  # this name to be passed to roc.py
 }
 
 
+#run with biLSTM_splitDense_elu configuration
+TTJets_Electrons_2016_biLSTM_splitDense_elu = {  # this name to be passed to roc.py
+'training_name'     : 'TTJets_Electrons_2016_pt5toInf_biLSTM_splitDense_elu',   #free to choose
+'training_date'     : '20190303-01_biLSTM_splitDense_elu',     #free
+'sample_name'       : 'TTJets_Electrons_2016',     #free
+'train_data'        : 'TTJets electrons',  #free
+'test_data'         : 'TTJets electrons',  #free
+'flat_directory'    : '/afs/hephy.at/data/cms01/DeepLepton/skims/v1/step3/2016/ele/pt_5_-1/TTJets/',
+'predict_directory'           : '/afs/hephy.at/data/cms01/DeepLepton/results/TTJets_Electron_biLSTM_splitDense_elu_EvaluationTestData',
+#'predict_directory_trainData' : '/afs/hephy.at/data/gmoertl01/DeepLepton/trainings/muons/20181211-01/TTs_Muon_EvaluationTestDataIsTrainData',
+}
+
 #run with pooling configuration
 TTJets_Electrons_2016_pooling = {  # this name to be passed to roc.py
 'training_name'     : 'TTJets_Electrons_2016_pt5toInf_pooling',   #free to choose

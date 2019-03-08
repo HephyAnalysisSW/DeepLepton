@@ -98,13 +98,13 @@ ch.Add(sample.files[0])
 postfix = '' if options.nJobs==1 else "_%i" % options.job
 
 for leptonClass in leptonClasses:
+    sample_name = sample.name if options.nJobs==1 else '_'.join(sample.name.split('_')[:-1])
     output_filename = os.path.join( output_directory, 
                     leptonFlavor['name'], 
                     leptonClass['name'], 
                     'pt_%i_%i' % pt_threshold,
-                    sample.name,
-                    'lepton%s.root'%postfix )
-
+                    sample_name,
+                    'lepton%s.root' % postfix )
     dirname = os.path.dirname( output_filename )
     if not os.path.exists( dirname ):
         os.makedirs( dirname )

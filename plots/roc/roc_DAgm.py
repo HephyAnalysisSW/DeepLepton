@@ -155,7 +155,7 @@ else:
     addcolor=1
 # lepton Ids
 deepLepton           = {"name":"DeepLepton "+args.name, "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+addcolor, "thresholds":[ i/100000. for i in range(0,100000)]}
-initial_deepLepton   = {"name":"DeepLepton initial",    "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen, "thresholds":[ i/100000. for i in range(0,100000)]}
+initial_deepLepton   = {"name":"DeepLepton initial ",    "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen, "thresholds":[ i/100000. for i in range(0,100000)]}
 final_deepLepton     = {"name":"DeepLepton final ",     "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/100000. for i in range(0,100000)]}
 mvaTTV               = {"name":"TTV",                   "var":"lep_mvaTTV",                                                                  "color":ROOT.kGray+1,  "thresholds":[ i/1000. for i in range(-1000,1001)]}
 mvaTTH               = {"name":"TTH",                   "var":"lep_mvaTTH",                                                                  "color":ROOT.kGray,    "thresholds":[ i/1000. for i in range(-1000,1001)]}

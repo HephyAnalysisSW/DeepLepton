@@ -195,6 +195,7 @@ for relIsoCut in relIsoCuts:
         #gStyle.SetLegendBorderSize(0)
         #gStyle.SetFillStyle(4000)
         c=ROOT.TCanvas()
+        c.SetCanvasSize(650,500)
         if logY==1:
             c.SetLogy()
         mg=ROOT.TMultiGraph()

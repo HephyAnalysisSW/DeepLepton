@@ -67,6 +67,18 @@ QCD_2016 = [
 'QCD_Pt1000toInf_Mu5_ext',
 ]
 
+TTJets_2017 = [
+'TTJets',
+'TTJets_SingleLeptonFromT',
+'TTLep_pow',
+'TTSemi_pow',
+'TTHad_pow',
+'TTLep_pow_TuneDown',
+'TTLep_pow_TuneUp',
+'TTLep_pow_hdampDown',
+'TTLep_pow_hdampUp'
+]
+
 #parser
 def get_parser():
     ''' Argument parser for post-processing module.
@@ -131,6 +143,12 @@ if options.year == 2016:
         samplePrompt    = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+DY_2016,  "Prompt")
         sampleNonPrompt = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+QCD_2016, "NonPrompt")
         sampleFake      = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+QCD_2016, "Fake")
+elif options.year == 2017:
+    if options.sampleSelection == "TTJets":
+        samplePrompt    = getInput( TTJets_2017, "Prompt")
+        sampleNonPrompt = getInput( TTJets_2017, "NonPrompt")
+        sampleFake      = getInput( TTJets_2017, "Fake")
+
 
 if options.small:
     for s in [ samplePrompt, sampleNonPrompt, sampleFake ]: 
@@ -171,8 +189,13 @@ n_file           = 0
 
 outputDir = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 
-if not os.path.exists( outputDir ):
-    os.makedirs( outputDir )
+try:
+    os.makedirs(outputDir)
+except OSError as err:
+    pass
+
+#if not os.path.exists( outputDir ):
+#    os.makedirs( outputDir )
 outputPath = os.path.join( outputDir, 'modulo_'+str(options.job)+'_trainfile_' )
 
 while (prompt['counter']<prompt["Entries"] and nonPrompt['counter']<nonPrompt["Entries"] and fake['counter']<fake["Entries"]):

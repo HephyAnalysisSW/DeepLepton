@@ -188,8 +188,10 @@ TTs_Muons_testTim_2016 = {
 'sample_name'       : 'TTs_Muons_2016',
 'train_data'        : 'TTs muons',
 'test_data'         : 'TTs muons',
-'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
-'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/20190225_testTim/TTs_Muon_EvaluationTestData',
+#'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+'flat_directory'    : '/afs/hephy.at/data/cms03/DeepLepton/skims/v1/step3/2017/muo/pt_5_-1/TTJets',
+#'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/20190225_testTim/TTs_Muon_EvaluationTestData',
+'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/muo_2017_small/TTs_Muon_EvaluationTestData',
 'predict_directory_trainData' : '',
 }
 

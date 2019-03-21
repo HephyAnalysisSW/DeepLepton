@@ -123,8 +123,11 @@ classList = ['Prompt', 'NonPrompt', 'Fake',]
 inputPath    = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 outputPath   = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step3", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 
-if not os.path.exists( outputPath ):
-    os.makedirs( outputPath )
+try:
+    os.makedirs(outputPath)
+except OSError as err:
+    pass
+
 
 #get file list
 sample = Sample.fromDirectory( "sample", inputPath, treeName = "tree" )

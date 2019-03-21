@@ -46,10 +46,13 @@ if options.year == 2016:
     module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2'
     MCgeneration = "Summer16"
     from DeepLepton.samples.heppy_dpm_samples import lepton_2016_heppy_mapper as lepton_heppy_mapper
-else:
-    module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD'
+elif options.year == 2017:
+    module_ = 'CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD' 
     MCgeneration = "Fall17"
     from DeepLepton.samples.heppy_dpm_samples import lepton_2017_heppy_mapper as lepton_heppy_mapper
+else:
+    raise NotImplementedError
+
 try:
     heppy_sample = getattr(importlib.import_module( module_ ), options.sample)
 except:
@@ -106,8 +109,10 @@ for leptonClass in leptonClasses:
                     sample_name,
                     'lepton%s.root' % postfix )
     dirname = os.path.dirname( output_filename )
-    if not os.path.exists( dirname ):
-        os.makedirs( dirname )
+    try:
+        os.makedirs(dirname)
+    except OSError as err:
+        pass
 
     outputFile     = ROOT.TFile(output_filename, 'recreate')
     outputFileTree = ch.CloneTree(0,"")

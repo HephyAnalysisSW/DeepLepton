@@ -173,6 +173,13 @@ mc_dpm_directories = robert_lepton2016_v4
 from CMGTools.RootTools.samples.samples_13TeV_RunIISummer16MiniAODv2 import mcSamples as heppy_mc_Moriond_samples
 lepton_2016_heppy_mapper = heppy_mapper( heppy_mc_Moriond_samples, mc_dpm_directories, lepton_2016_cache_file, multithreading=multithreading, path_substrings = ["lepton2016_v3"])
 
+# Fall17 MC for Deeplepton training
+lepton_2017_cache_file = '/afs/hephy.at/data/cms03/TopEFT/dpm_sample_caches/94X_MC_Fall17_2017_lepton2017.pkl' 
+tim_lepton_2017 = ['/dpm/oeaw.ac.at/home/cms/store/user/tbruckle/cmgTuples/lepton/']
+mc_dpm_directories = tim_lepton_2017
+from CMGTools.RootTools.samples.samples_13TeV_RunIIFall17MiniAOD import mcSamples as heppy_mc_samples
+lepton_2017_heppy_mapper = heppy_mapper( heppy_mc_samples, mc_dpm_directories, lepton_2017_cache_file, multithreading=multithreading)
+
 # Summer16 MC fullevents for Deeplepton
 lepton_2016_cache_file = '/afs/hephy.at/data/rschoefbeck01/TopEFT/dpm_sample_caches/80X_MC_Summer16_2016_lepton2016_v3_full_events_v4.pkl' 
 robert_2016_1l_full_events = ['/dpm/oeaw.ac.at/home/cms/store/user/schoef/cmgTuples/full_events']

@@ -24,15 +24,16 @@
 
 #python -i step2_mix.py --version v1 --year 2016 --flavour ele --ratio balanced --sampleSelection TTJets  --ptSelection pt_5_-1 #SPLIT100
 
-
+#python -i step2_mix.py --version v1 --year 2017 --flavour muo --ratio balanced --sampleSelection TTJets --ptSelectionStep1 pt_5_-1 --ptSelection pt_5_-1 #SPLIT180
+python -i step2_mix.py --version v1 --year 2017 --flavour ele --ratio balanced --ptSelectionStep1 pt_5_-1 --ptSelection pt_5_-1 --sampleSelection TTJets #SPLIT360
 #full version
 
 #DYvsQCD
-python -i step2_mix.py --version v4 --year 2016 --flavour muo --ratio balanced --ptSelectionStep1 pt_15_-1 --sampleSelection DYvsQCD --ptSelection pt_15_-1 #SPLIT100
+#python -i step2_mix.py --version v4 --year 2016 --flavour muo --ratio balanced --ptSelectionStep1 pt_15_-1 --sampleSelection DYvsQCD --ptSelection pt_15_-1 #SPLIT100
 
 ##TTs
 #python -i step2_mix.py --version v1 --year 2016 --flavour muo --ratio balanced --ptSelectionStep1 pt_15_-1 --sampleSelection TTs  --ptSelection pt_15_-1   #SPLIT100
 
 #all
-python -i step2_mix.py --version v1 --year 2016 --flavour muo --ratio balanced --ptSelectionStep1 pt_15_-1 --sampleSelection all  --ptSelection pt_15_-1   #SPLIT200
+#python -i step2_mix.py --version v1 --year 2016 --flavour muo --ratio balanced --ptSelectionStep1 pt_15_-1 --sampleSelection all  --ptSelection pt_15_-1   #SPLIT200
 

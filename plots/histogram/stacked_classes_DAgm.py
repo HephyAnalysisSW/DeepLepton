@@ -277,7 +277,7 @@ for ecalType in ecalTypes:
     plots.append(Plot(name=plotname+'eta',
         texX = '#eta', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_eta,
-        binning=[60,-3.2,3.2],
+        binning=[50,-2.5,2.5],
     ))
     plots.append(Plot(name=plotname+'phi',
         texX = '#phi', texY = 'Number of Events',
@@ -295,7 +295,7 @@ for ecalType in ecalTypes:
         binning=[50,0,10],
     ))
     plots.append(Plot(name=plotname+'relIso03',
-        texX = 'relIso03', texY = 'Number of Events',
+        texX = 'I_{rel.}(#DeltaR<0.3)', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_relIso03,
         binning=[90,0,0.5],
     ))
@@ -303,6 +303,16 @@ for ecalType in ecalTypes:
         texX = 'relIso04', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_relIso04,
         binning=[90,0,1.2],
+    ))
+    plots.append(Plot(name=plotname+'miniRelIsoNeutral',
+        texX = 'mini I_{rel.} neutral', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.lep_miniRelIsoNeutral,
+        binning=[90,0,0.5],
+    ))
+    plots.append(Plot(name=plotname+'miniRelIsoCharged',
+        texX = 'mini I_{rel.} charged', texY = 'Number of Events',
+        attribute = lambda lepton, sample: lepton.lep_miniRelIsoCharged,
+        binning=[90,0,0.5],
     ))
     plots.append(Plot(name=plotname+'miniRelIso',
         texX = 'miniRelIso', texY = 'Number of Events',
@@ -338,7 +348,7 @@ for ecalType in ecalTypes:
     plots.append(Plot(name=plotname+'innerTrackValidHitFraction',
         texX = 'inner track valid hit fraction', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_innerTrackValidHitFraction,
-        binning=[50,0.9,1.0],
+        binning=[25,0.9,1.0],
     ))
     plots.append(Plot(name=plotname+'jetDR',
         texX = 'jet #DeltaR', texY = 'Number of Events',
@@ -366,12 +376,12 @@ for ecalType in ecalTypes:
         binning=[50,0,0.04],
     ))
     plots.append(Plot(name=plotname+'d3DwrtPV',
-        texX = 'd3D wrt. PV', texY = 'Number of Events',
+        texX = 'd_{3D} w.r.t. PV', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_ip3d,
         binning=[50,0,0.1],
     ))
     plots.append(Plot(name=plotname+'significanceD3DwrtPV',
-        texX = 'd3D wrt. PV significance', texY = 'Number of Events',
+        texX = 'significance d_{3D} w.r.t. PV', texY = 'Number of Events',
         attribute = lambda lepton, sample: lepton.lep_sip3d,
         binning=[100,0,40],
     ))
@@ -568,6 +578,11 @@ for ecalType in ecalTypes:
             texX = 'track kinks', texY = 'Number of Events',
             attribute = lambda lepton, sample: lepton.lep_trkKink,
             binning=[100,0,200],
+        ))
+        plots.append(Plot(name=plotname+'nStations',
+            texX = 'N_{stations}', texY = 'Number of Events',
+            attribute = lambda lepton, sample: lepton.lep_nStations,
+            binning=[6,0,5],
         ))
     #other Variables
     plots.append(Plot(name=plotname+'mcMatchId',

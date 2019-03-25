@@ -151,6 +151,7 @@ def get_flat_variables(varSelection):
     "lep_glbTrackProbability/F",
     "lep_caloCompatibility/F",
     "lep_trkKink/F",
+    "lep_nStations/I",
     #other Variables
     "lep_pdgId/I",
     "lep_mcMatchPdgId/I",

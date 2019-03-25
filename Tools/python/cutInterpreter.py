@@ -99,5 +99,6 @@ class cutInterpreter:
         #return  "&&".join( map( cutInterpreter.translate_cut_to_string, cuts ) )
 
 if __name__ == "__main__":
-    print cutInterpreter.cutString("lepSel-njet3p-btag1p-Zpt100")
+    #print cutInterpreter.cutString("lepSel-njet3p-btag1p-Zpt100")
+    print cutInterpreter.cutString("lepSel-njet3p-btag1p-met0To100")
     print cutInterpreter.cutList("lepSel-njet3p-btag1p-ZptTo100")

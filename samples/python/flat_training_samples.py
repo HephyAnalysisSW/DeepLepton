@@ -178,21 +178,39 @@ def get_flat_variables(varSelection):
     return flat_variables
 
 ##################
-### Tims Tests ###
+###### 2017 ######
 ##################
 
-#first test training
-TTs_Muons_testTim_2016 = {
-'training_name'     : 'testTim',
-'training_date'     : '20190225',
-'sample_name'       : 'TTs_Muons_2016',
+#2017 Muons
+TTs_Muons_Tim_2017 = {
+'training_name'     : '2017_Muons',
+'training_date'     : '20190322',
+'sample_name'       : 'TTs_Muons_2017',
 'train_data'        : 'TTs muons',
 'test_data'         : 'TTs muons',
-#'flat_directory'    : '/afs/hephy.at/data/gmoertl01/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
-'flat_directory'    : '/afs/hephy.at/data/cms03/DeepLepton/skims/v1/step3/2017/muo/pt_5_-1/TTJets',
-#'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/20190225_testTim/TTs_Muon_EvaluationTestData',
+'flat_directory'    : '/afs/hephy.at/data/cms03/tbrueckler/DeepLepton/skims/v1/step3/2017/muo/pt_5_-1/TTJets',
 'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/muo_2017_small/TTs_Muon_EvaluationTestData',
 'predict_directory_trainData' : '',
+}
+
+#2017 Electrons
+TTs_Electrons_Tim_2017 = {
+'training_name'     : '2017_Electrons',
+'training_date'     : '20190325',
+'sample_name'       : 'TTs_Electrons_2017',
+'train_data'        : 'TTs electrons',
+'test_data'         : 'TTs electrons',
+'flat_directory'    : '/afs/hephy.at/data/cms03/tbrueckler/DeepLepton/skims/v1/step3/2017/ele/pt_5_-1/TTJets',
+'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/ele_2017_small/TTs_Electrons_EvaluationTestData',
+'predict_directory_trainData' : '',
+}
+
+#noTraining:
+TTs_Muons_2017_noTraining = {
+'sample_name'       : 'TTs_Muons_2017',
+'training_date'     : 'noTraining',
+'flat_directory'    : '/afs/hephy.at/data/cms03/tbrueckler/DeepLepton/skims/v1/step3/2017/muo/pt_5_-1/TTJets',
+'flat_txtfile'      : '/afs/hephy.at/data/cms03/tbrueckler/DeepLepton/skims/v1/step3/2017/muo/pt_5_-1/TTJets/train_muo_2017.txt',
 }
 
 

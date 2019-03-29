@@ -40,6 +40,16 @@
 #python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample TTJets_SingleLeptonFromTbar_ext #SPLIT20
 #python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample TTJets_SingleLeptonFromT #SPLIT20
 #python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample TTJets_SingleLeptonFromT_ext #SPLIT20
+
+#TTJets Dilepton
+python -i step1_select.py  --small --version v2 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample TTJets_DiLepton #SPLIT5
+python -i step1_select.py  --small --version v2 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample TTJets_DiLepton_ext #SPLIT5
+#TTJets SingleLepton
+python -i step1_select.py  --small --version v2 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample TTJets_SingleLeptonFromTbar #SPLIT5
+python -i step1_select.py  --small --version v2 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample TTJets_SingleLeptonFromTbar_ext #SPLIT5
+python -i step1_select.py  --small --version v2 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample TTJets_SingleLeptonFromT #SPLIT5
+python -i step1_select.py  --small --version v2 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample TTJets_SingleLeptonFromT_ext #SPLIT5
+
 ##TTs other
 #python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample TT_pow #SPLIT20
 #python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample TTLep_pow #SPLIT20
@@ -48,16 +58,16 @@
 #python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample TTJets #SPLIT20
 #python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample TTJets_LO #SPLIT20
 
-# 2017 TTJets
-python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets #SPLIT20
-python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_SingleLeptonFromT #SPLIT20
-python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTLep_pow #SPLIT20
-python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTHad_pow #SPLIT20
-python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTSemi_pow #SPLIT20
-python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTLep_pow_TuneDown #SPLIT20
-python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTLep_pow_TuneUp #SPLIT20
-python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTLep_pow_hdampDown #SPLIT20
-python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTLep_pow_hdampUp #SPLIT20
+## 2017 TTs
+#python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets #SPLIT20
+#python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTJets_SingleLeptonFromT #SPLIT20
+#python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTLep_pow #SPLIT20
+#python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTHad_pow #SPLIT20
+#python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTSemi_pow #SPLIT20
+#python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTLep_pow_TuneDown #SPLIT20
+#python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTLep_pow_TuneUp #SPLIT20
+#python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTLep_pow_hdampDown #SPLIT20
+#python -i step1_select.py  --version v1 --year 2017  --flavor ele --logLevel DEBUG --ptSelection pt_5_-1 --sample TTLep_pow_hdampUp #SPLIT20
 
 ##DY
 #python -i step1_select.py  --version v1 --year 2016  --flavor muo --logLevel DEBUG --ptSelection pt_15_-1 --sample DY1JetsToLL_M50_LO #SPLIT20

@@ -21,7 +21,8 @@ def get_parser():
     argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
 
     argParser.add_argument('--logLevel',        action='store',  nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'], default='INFO', help="Log level for logging")
-    argParser.add_argument('--version',         action='store',             type=str, required = True, help="Version for output directory")
+    argParser.add_argument('--version',         action='store',             type=str, required = True, help="Version for input directory")
+    argParser.add_argument('--output_version',  action='store',             type=str, required = True, help="Version for output directory")
     argParser.add_argument('--year',            action='store',             type=int, choices=[2016,2017],                      required = True, help="Which year?")
     argParser.add_argument('--flavour',         action='store',             type=str, choices=['ele','muo'],                    required = True, help="Which Flavour?")
     argParser.add_argument('--ptSelection',     action='store',             type=str,  default = "pt_15_-1", help="Which pt selection?")
@@ -116,18 +117,19 @@ pfCandIdList = [
                 'SV',
                ]
 
+#vetoNanSelection = "&&".join(["(!TMath::IsNaN(%s))"%var for var in varList('SV')])
+
 #class list
 classList = ['Prompt', 'NonPrompt', 'Fake',]
 
 #define paths
 inputPath    = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
-outputPath   = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step3", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
+outputPath   = os.path.join( skim_directory, options.version+'_'+options.output_version + ("_small" if options.small else ""), "step3", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 
 try:
     os.makedirs(outputPath)
 except OSError as err:
     pass
-
 
 #get file list
 sample = Sample.fromDirectory( "sample", inputPath, treeName = "tree" )
@@ -174,7 +176,22 @@ for inputFile in inputFileList:
             varName = name+('[nSV' if pfCandId=='SV' else '[npfCand_'+pfCandId)+']/F'
             vars()[name] = array('f', np.tile(0.0, 100)) #important: maximum length of pf cands per pf cand flavour per lepton
             oFileTree.Branch(name , vars()[name], varName )
-            
+            if pfCandVar in ['SV_maxD3dTracks', 'SV_secD3dTracks']:  # used to produce NaN-free data
+                name = pfCandVar+'_ptSorted_patch'
+                varName = name+'[nSV]/F'
+                vars()[name] = array('f', np.tile(0.0, 100))
+                oFileTree.Branch(name , vars()[name], varName )
+            if pfCandVar in ['pfCand_charged_dzAssociatedPV', 'pfCand_charged_dz_pf']:  # used to produce Inf-free data
+                name = pfCandVar+'_ptRelSorted_patch'
+                varName = name+'[nSV]/F'
+                vars()[name] = array('f', np.tile(0.0, 100))
+                oFileTree.Branch(name , vars()[name], varName )
+                       
+    #iFileTree.Draw(">>eList", vetoNanSelection)
+    #eList = ROOT.gDirectory.Get("eList")
+    #nGoodEntries = eList.GetN()
+    #if nGoodEntries!=nEntries:
+    #    logger.warning( "Removing events with Nans: Reduce from %i to %i", nEntries, nGoodEntries )
 
     #loop over all entries
     #for i in xrange(200):
@@ -207,9 +224,48 @@ for inputFile in inputFileList:
                 #fill pTRel sorted vars()[name] in branches
                 k=0
                 for instance in ptRelData:
-                    vars()[name][k]=pfVar.GetValue(instance[1])
+                    
+                    value = pfVar.GetValue(instance[1])
+
+                    if pfCandVar in ['SV_maxD3dTracks', 'SV_secD3dTracks']:    #remove NaNs by substituting with -1
+                        if ROOT.TMath.IsNaN(value): vars()[name+'_patch'][k] = -1
+                        else:                       vars()[name+'_patch'][k] = value
+                    if pfCandVar in ['pfCand_dzAssociatedPV', 'pfCand_dz_pf']:    #remove Infs by substituting with -1
+                        if isinf(value): vars()[name+'_patch'][k] = -1
+                        else:            vars()[name+'_patch'][k] = value
+                          
+                    vars()[name][k]=value
                     k +=1
+
                 #print vars()[name]
+
+            #for pfCandVar in pfCandVarList:
+            #    name = pfCandVar+('_ptSorted' if pfCandId=='SV' else '_ptRelSorted')
+            #    pfVar = oFileTree.GetLeaf(pfCandVar)
+
+            #    #fill pTRel sorted vars()[name] in branches
+            #    k=0
+            #    for instance in ptRelData:
+            #        value = pfVar.GetValue(instance[1])
+            #        vars()[name][k]=value
+            #        k +=1
+            #    #print vars()[name]
+
+            #for pfCandVar in ['SV_maxD3dTracks', 'SV_secD3dTracks']:
+            #    name = pfCandVar+'_ptSorted_patch'
+            #    pfVar = oFileTree.GetLeaf(pfCandVar)
+
+            #    #fill pTRel sorted vars()[name] in branches
+            #    k=0
+            #    for instance in ptRelData:
+            #        value = pfVar.GetValue(instance[1])
+            #        if ROOT.TMath.IsNaN(value): #print "Found Nan", value, pfCandVar
+            #            vars()[name][k]=-1
+            #            k +=1
+            #        else: 
+            #            vars()[name][k]=value
+            #            k +=1
+
 
         #fill training lepton classes (tau exception)
         for leptonClass in classList:

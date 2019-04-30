@@ -183,26 +183,26 @@ def get_flat_variables(varSelection):
 ##################
 
 #2017 Muons
-TTs_Muons_Tim_2017 = {
-'training_name'     : '2017_Muons',
-'training_date'     : '20190322',
+TTs_Muons_2017 = {
+'training_name'     : '2017_Muons_morepf',
+'training_date'     : '20190429',
 'sample_name'       : 'TTs_Muons_2017',
 'train_data'        : 'TTs muons',
 'test_data'         : 'TTs muons',
-'flat_directory'    : '/afs/hephy.at/data/cms03/tbrueckler/DeepLepton/skims/v1/step3/2017/muo/pt_5_-1/TTJets',
-'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/muo_2017_small/TTs_Muon_EvaluationTestData',
+'flat_directory'    : '/afs/hephy.at/data/cms03/tbrueckler/DeepLepton/skims/v1_v4/step3/2017/muo/pt_5_-1/TTJets',
+'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/muon_2017_morepf/TTs_Muon_biLSTM_splitDense_elu_EvaluationTestData',
 'predict_directory_trainData' : '',
 }
 
 #2017 Electrons
-TTs_Electrons_Tim_2017 = {
+TTs_Electrons_2017 = {
 'training_name'     : '2017_Electrons',
-'training_date'     : '20190325',
+'training_date'     : '20190416',
 'sample_name'       : 'TTs_Electrons_2017',
 'train_data'        : 'TTs electrons',
 'test_data'         : 'TTs electrons',
-'flat_directory'    : '/afs/hephy.at/data/cms03/tbrueckler/DeepLepton/skims/v1/step3/2017/ele/pt_5_-1/TTJets',
-'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/ele_2017_small/TTs_Electrons_EvaluationTestData',
+'flat_directory'    : '/afs/hephy.at/data/cms03/tbrueckler/DeepLepton/skims/v1_v4/step3/2017/ele/pt_5_-1/TTJets',
+'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/ele_2017/TTJets_Electron_biLSTM_splitDense_elu_EvaluationTestData',
 'predict_directory_trainData' : '',
 }
 
@@ -214,7 +214,31 @@ TTs_Muons_2017_noTraining = {
 'flat_txtfile'      : '/afs/hephy.at/data/cms03/tbrueckler/DeepLepton/skims/v1/step3/2017/muo/pt_5_-1/TTJets/train_muo_2017.txt',
 }
 
+##################
+#### 2016 Tim ####
+##################
 
+TTs_Muons_2016_Tim = {
+'training_name'     : '2016_Muons',
+'training_date'     : '20190416',
+'sample_name'       : 'TTs_Muons_2016',
+'train_data'        : 'TTs muons',
+'test_data'         : 'TTs muons',
+'flat_directory'    : '/afs/hephy.at/data/cms03/tbrueckler/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/muon_2016/TTs_Muon_biLSTM_splitDense_elu_EvaluationTestData',
+'predict_directory_trainData' : '',
+}
+
+TTs_Electrons_2016_Tim = {
+'training_name'     : '2016_Electrons',
+'training_date'     : '20190416',
+'sample_name'       : 'TTs_Electrons_2016',
+'train_data'        : 'TTs electrons',
+'test_data'         : 'TTs electrons',
+'flat_directory'    : '/afs/hephy.at/data/cms03/tbrueckler/DeepLepton/skims/v1/step3/2016/ele/pt_5_-1/TTJets',
+'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/ele_2016/TTJets_Electron_biLSTM_split_EvaluationTestData',
+'predict_directory_trainData' : '',
+}
 
 ##########################
 ### training electrons ###

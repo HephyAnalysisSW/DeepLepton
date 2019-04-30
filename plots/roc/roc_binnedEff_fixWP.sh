@@ -5,6 +5,30 @@
 #export X509_USER_PROXY=~/private/.proxy
 #submitBatch.py --dpm launch_deepLepton_plots.sh
 
+####################
+## electrons 2017 ##
+####################
+
+#TESTDATA
+python -i roc_binnedEff_fixWP.py --flat --testData --flavour ele --flatSample TTs_Electrons_2017 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned high_pt
+python -i roc_binnedEff_fixWP.py --flat --testData --flavour ele --flatSample TTs_Electrons_2017 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned low_pt
+python -i roc_binnedEff_fixWP.py --flat --testData --flavour ele --flatSample TTs_Electrons_2017 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned pt
+
+python -i roc_binnedEff_fixWP.py --flat --testData --flavour ele --flatSample TTs_Electrons_2017 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned eta
+python -i roc_binnedEff_fixWP.py --flat --testData --flavour ele --flatSample TTs_Electrons_2017 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned nTrueInt
+
+##################
+### muons 2017 ###
+##################
+
+#TESTDATA
+#python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_2017 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned high_pt
+#python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_2017 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned low_pt
+#python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_2017 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned pt
+#
+#python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_2017 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned eta
+#python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_2017 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned nTrueInt
+
 #######
 #muons#
 #######
@@ -12,12 +36,12 @@
 #python -i roc_binnedEff_fixWP.py --flat --small --testData --flatSample TTs_Muons_biLSTM_split_2016 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned eta
 
 #TESTDATA
-python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_biLSTM_splitDense_elu_2016 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned high_pt
-python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_biLSTM_splitDense_elu_2016 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned low_pt
-python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_biLSTM_splitDense_elu_2016 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned pt
-
-python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_biLSTM_splitDense_elu_2016 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned eta
-python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_biLSTM_splitDense_elu_2016 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned nTrueInt
+#python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_biLSTM_splitDense_elu_2016 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned high_pt
+#python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_biLSTM_splitDense_elu_2016 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned low_pt
+#python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_biLSTM_splitDense_elu_2016 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned pt
+#
+#python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_biLSTM_splitDense_elu_2016 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned eta
+#python -i roc_binnedEff_fixWP.py --flat --testData --flatSample TTs_Muons_biLSTM_splitDense_elu_2016 --lumi_weight --eS_TTV 90 --eS_DL 90 --binned nTrueInt
 
 #TRAINDATA
 

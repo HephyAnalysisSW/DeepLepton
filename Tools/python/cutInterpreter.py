@@ -1,6 +1,7 @@
 ''' Class to interpret string based cuts
 '''
 
+from math import sqrt, cos, sin, pi, cosh
 import logging
 logger = logging.getLogger(__name__)
 
@@ -11,6 +12,12 @@ mIsoWP = { "VT":5, "T":4, "M":3 , "L":2 , "VL":1, 0:"None" }
 
 special_cuts = {
     "lepSel":            "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20",
+    "dilepSel":          "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20",
+    "dilepSelOS":        "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]*lep_pdgId[1]<0)",  #&&abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==13", 
+    "dilepSelSFSS":      "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]==lep_pdgId[1])",
+    "dilepSelSFOS":      "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]==-lep_pdgId[1])",
+    "dilepZmass":        "nlep==2&&(sqrt(2*lep_pt[0]*lep_pt[1]*( cosh(lep_eta[0]-lep_eta[1]) - cos(lep_phi[0]-lep_phi[1])))<(91.19+15.))&&(sqrt(2*lep_pt[0]*lep_pt[1]*( cosh(lep_eta[0]-lep_eta[1]) - cos(lep_phi[0]-lep_phi[1])))>(91.19-15.))",   
+    #"tim":               "(nlep>=1)&&(lep_pt[1]<20)&&(met>280)",
   }
 
 continous_variables = [ ("metSig", "metSig"), ("met", "met_pt"), ]

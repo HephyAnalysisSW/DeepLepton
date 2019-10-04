@@ -25,7 +25,8 @@ for (run, version) in [('B','_v2'),('C',''),('D',''),('E',''),('F',''),('G',''),
     dirs["DoubleMuon_Run2016"       + run + version ] = ["DoubleMuon_"        + runTag ]
     dirs["SingleElectron_Run2016"   + run + version ] = ["SingleElectron_"    + runTag ]
     dirs["SingleMuon_Run2016"       + run + version ] = ["SingleMuon_"        + runTag ]
-    dirs["MuonEG_Run2016"           + run + version ] = ["MuonEG_"            + runTag ]
+    dirs["MuonEG_Run2016"           + run + version ] = ["MuonEG_"            + runTag ] 
+    dirs["MET_Run2016"              + run + version ] = ["MET_"               + runTag ]
     #dirs["SingleElectron_Run2016"   + run + version ] = ["SingleElectron_"    + runTag + "_Trig_e"]
     #dirs["SingleMuon_Run2016"       + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu"]
     #dirs["SingleEleMu_Run2016"      + run + version ] = ["SingleMuon_"        + runTag + "_Trig_mu", "SingleElectron_"        + runTag + "_Trig_e_for_mu"]
@@ -42,6 +43,10 @@ for pd in ['DoubleMuon',]:
     merge(pd, 'Run2016BCDEFG', ['Run2016BCD', 'Run2016E', 'Run2016F', 'Run2016G'])
     merge(pd, 'Run2016',       ['Run2016BCDEFG', 'Run2016H'])
 
+for pd in ['MET',]:
+    merge(pd, 'Run2016',    ['Run2016B_v2', 'Run2016C', 'Run2016D', 'Run2016E', 'Run2016F', 'Run2016G', 'Run2016H'])
+
+
 for key in dirs:
     dirs[key] = [ os.path.join( data_directory, postProcessing_directory, dir) for dir in dirs[key]]
 
@@ -52,16 +57,18 @@ def getSample(pd, runName, lumi):
     return sample
 
 #DoubleEG_Run2016                = getSample('DoubleEG',         'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
-DoubleMuon_Run2016              = getSample('DoubleMuon',       'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
-DoubleMuon_Run2016BCD           = getSample('DoubleMuon',       'Run2016BCD',    (5.744+2.573+4.248)*1000)
-DoubleMuon_Run2016EF            = getSample('DoubleMuon',       'Run2016EF',     (4.009+3.101)*1000)
-DoubleMuon_Run2016GH            = getSample('DoubleMuon',       'Run2016GH',     (7.540+8.329+0.210)*1000)
+#DoubleMuon_Run2016              = getSample('DoubleMuon',       'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
+#DoubleMuon_Run2016BCD           = getSample('DoubleMuon',       'Run2016BCD',    (5.744+2.573+4.248)*1000)
+#DoubleMuon_Run2016EF            = getSample('DoubleMuon',       'Run2016EF',     (4.009+3.101)*1000)
+#DoubleMuon_Run2016GH            = getSample('DoubleMuon',       'Run2016GH',     (7.540+8.329+0.210)*1000)
 #SingleElectron_Run2016          = getSample('SingleElectron',   'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
 #SingleMuon_Run2016              = getSample('SingleMuon',       'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
 #MuonEG_Run2016                  = getSample('MuonEG',           'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000)
+MET_Run2016                      = getSample('MET',              'Run2016',       (5.744+2.573+4.248+4.009+3.101+7.540+8.329+0.210)*1000) 
 
 allSamples_Data25ns = []
-allSamples_Data25ns += [DoubleMuon_Run2016]
+allSamples_Data25ns += [MET_Run2016]
+#allSamples_Data25ns += [DoubleMuon_Run2016]
 #allSamples_Data25ns += [SingleMuon_Run2016, SingleElectron_Run2016, MuonEG_Run2016, DoubleEG_Run2016, DoubleMuon_Run2016]
 
 for s in allSamples_Data25ns:

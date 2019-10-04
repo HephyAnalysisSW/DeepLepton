@@ -17,8 +17,11 @@ special_cuts = {
     "dilepSelSFSS":      "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]==lep_pdgId[1])",
     "dilepSelSFOS":      "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]==-lep_pdgId[1])",
     "dilepZmass":        "nlep==2&&(sqrt(2*lep_pt[0]*lep_pt[1]*( cosh(lep_eta[0]-lep_eta[1]) - cos(lep_phi[0]-lep_phi[1])))<(91.19+15.))&&(sqrt(2*lep_pt[0]*lep_pt[1]*( cosh(lep_eta[0]-lep_eta[1]) - cos(lep_phi[0]-lep_phi[1])))>(91.19-15.))",   
-    #"tim":               "(nlep>=1)&&(lep_pt[1]<20)&&(met>280)",
-  }
+    "lep_CR_tt2l":       "nlep==2&&Sum$(abs(lep_pdgId)==13&&lep_pt>5&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&lep_relIso03*lep_pt<5)||lep_relIso03<0.1) )) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&lep_relIso03*lep_pt<5)||lep_relIso03<0.1) )) == 2"   ,
+    "jet_CR_tt2l":       "(Sum$(jet_pt>25&&jet_eta<2.4 ))>=1&&Sum$(jet_btagCSV&&jet_pt>40)>=1"   , 
+    "met_CR_tt2l":       "met>200"   , 
+    "ht_met":            "ht>100&&0.6<met/ht<1.4"   ,
+    }
 
 continous_variables = [ ("metSig", "metSig"), ("met", "met_pt"), ]
 discrete_variables  = [ ("njet", "nJetSelected"), ("btag", "nBTag") , ("nlep","nlep") ]

@@ -78,7 +78,7 @@ def getGenPartsAll(c, collection="genPartAll", genVars=genVars):
 
 #https://twiki.cern.ch/twiki/bin/viewauth/CMS/SUSLeptonSF
 
-lepton_selections = ['loose', 'FO_SS', 'FO_1l', 'FO_2l', 'FO_3l', 'FO_4l', 'tight_SS', 'tight_2l', 'tight_1l', 'tight_3l', 'tight_4l']
+lepton_selections = ['loose', 'FO_SS', 'FO_1l', 'FO_2l', 'FO_3l', 'FO_4l', 'tight_SS', 'tight_2l', 'tight_1l', 'tight_3l', 'tight_4l', 'soft', 'ControlRegion_DY', 'ControlRegion_tt2l']
 
 # muons 
 def muonSelector( lepton_selection, year):
@@ -220,6 +220,37 @@ def muonSelector( lepton_selection, year):
                 and l["mvaTTV"] >= mva_threshold_SS\
                 and l["muonInnerTrkRelErr"] <= 0.2             # assume this is the correct branch
 
+    elif lepton_selection == 'soft':
+        def func(l):
+            return \
+                    l["pt"]>=5\
+                and l["pt"]<=30\
+                and abs(l["pdgId"])==13\
+                and abs(l["eta"])<2.4\
+                and l["relIso03"]<0.5 \
+                and l["relIso03"]*l["pt"]<5.0\
+                and l["sip3d"]<2.0\
+                and l["ip3d"]<0.01    
+
+#    elif lepton_selection == 'ControlRegion_DY':
+#        def func(l):
+#            return \
+#                l["pt"]>=5\
+#                and abs(l["pdgId"])==13\
+#                and abs(l["eta"])<2.5\
+#                and ((l["relIso03"]<0.5 and l["relIso03"]*l["pt"]<5.0) or (l["relIso03"]<0.1))\
+#                and l["sip3d"]<2.5\
+#                and l["ip3d"]<0.0175
+#
+#    elif lepton_selection == 'ControlRegion_tt2l':
+#        def func(l):
+#            return \
+#                l["pt"]>=5\
+#                and abs(l["pdgId"])==13\
+#                and abs(l["eta"])<2.5\
+#                and ((l["relIso03"]<0.5 and l["relIso03"]*l["pt"]<5.0) or (l["relIso03"]<0.1))\
+#                and l["sip3d"]<2.0\
+#                and l["ip3d"]<0.01
     return func
 
 # electrons 
@@ -379,11 +410,42 @@ def eleSelector( lepton_selection, year ):
                 and l["chargeConsistency"]\
                 and l["convVeto"]\
                 and l["lostHits"] == 0
+    
+    elif lepton_selection == 'soft':
+        def func(l):
+            return \
+                l["pt"]>=5\
+                and l["pt"]<=30\
+                and abs(l["pdgId"])==11\
+                and abs(l["eta"])<2.5\
+                and l["relIso03"]<0.5 \
+                and l["relIso03"]*l["pt"]<5.0\
+                and l["sip3d"]<2.0\
+                and l["ip3d"]<0.01
 
+#    elif lepton_selection == 'ControlRegion_DY':
+#        def func(l):
+#            return \
+#                l["pt"]>=5\
+#                and abs(l["pdgId"])==11\
+#                and abs(l["eta"])<2.5\
+#                and ((l["relIso03"]<0.5 and l["relIso03"]*l["pt"]<5.0) or (l["relIso03"]<0.1))\
+#                and l["sip3d"]<2.5\
+#                and l["ip3d"]<0.0175
+#
+#    elif lepton_selection == 'ControlRegion_tt2l':
+#        def func(l):
+#            return \
+#                l["pt"]>=5\
+#                and abs(l["pdgId"])==11\
+#                and abs(l["eta"])<2.5\
+#                and ((l["relIso03"]<0.5 and l["relIso03"]*l["pt"]<5.0) or (l["relIso03"]<0.1))\
+#                and l["sip3d"]<2.0\
+#                and l["ip3d"]<0.01
 
     return func
 
-lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,tightCharge/I,miniRelIso/F,relIso03/F,relIso04/F,sip3d/F,mediumMuonId/I,pfMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F,mvaTTH/F,matchedTrgObj1Mu/F,matchedTrgObj1El/F,muonInnerTrkRelErr/F,chargeConsistency/I,jetBTagDeepCSV/F,mvaTTV/F,mvaTTH/F'
+lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,tightCharge/I,miniRelIso/F,relIso03/F,relIso04/F,ip3d/F,sip3d/F,mediumMuonId/I,pfMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F,mvaTTH/F,matchedTrgObj1Mu/F,matchedTrgObj1El/F,muonInnerTrkRelErr/F,chargeConsistency/I,jetBTagDeepCSV/F,mvaTTV/F,mvaTTH/F'
 lepton_branches_mc   = lepton_branches_data + ',mcMatchId/I,mcMatchAny/I,mcPt/F'
 
 leptonVars = [s.split('/')[0] for s in lepton_branches_mc.split(',')] 

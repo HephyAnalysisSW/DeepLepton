@@ -229,6 +229,16 @@ TTs_Muons_2016_Tim = {
 'predict_directory_trainData' : '',
 }
 
+TTs_Muons_morepf_2016_Tim = {
+'training_name'     : '2016_Muons',
+'training_date'     : '20190624',
+'sample_name'       : 'TTs_Muons_2016',
+'train_data'        : 'TTs muons',
+'test_data'         : 'TTs muons',
+'flat_directory'    : '/afs/hephy.at/data/cms03/tbrueckler/DeepLepton/skims/v6/step3/2016/muo/pt_5_-1/TTs',
+'predict_directory'           : '/afs/hephy.at/data/cms03/tbrueckler/trainings/muon_2016_morepf/TTs_Muon_biLSTM_splitDense_elu_EvaluationTestData',
+'predict_directory_trainData' : '',
+}
 TTs_Electrons_2016_Tim = {
 'training_name'     : '2016_Electrons',
 'training_date'     : '20190416',

@@ -21,6 +21,9 @@ special_cuts = {
     "jet_CR_tt2l":       "(Sum$(jet_pt>25&&jet_eta<2.4 ))>=1&&Sum$(jet_btagCSV&&jet_pt>40)>=1"   , 
     "met_CR_tt2l":       "met>200"   , 
     "ht_met":            "ht>100&&0.6<met/ht<1.4"   ,
+    "genZtoTau":         "genZ_daughter_flavor==15",
+    "lep_CR_DY":         "nlep==2&&(Sum$(abs(lep_pdgId)==13&&lep_pt>5&&( abs(lep_eta)<2.4&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&lep_relIso03*lep_pt<5)||lep_relIso03<0.1) )&&( lep_pt[1]>20||lep_ip3d>0.01||lep_sip3d>2  ) ) +  Sum$(abs(lep_pdgId)==11&&lep_pt>5&&( abs(lep_eta)<2.5&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&lep_relIso03*lep_pt<5)||lep_relIso03<0.1)&&( lep_pt[1]>20||lep_ip3d>0.01||lep_sip3d>2  ) )) == 2)"
+
     }
 
 continous_variables = [ ("metSig", "metSig"), ("met", "met_pt"), ]

@@ -15,7 +15,7 @@ from DeepLepton.Tools.user            import plot_directory
 from DeepLepton.Tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
 from DeepLepton.Tools.objectSelection import getFilterCut, isAnalysisJet, isBJet, getAllLeptons, leptonVars, eleSelector, muonSelector, lepton_branches_data, lepton_branches_mc
 from DeepLepton.Tools.cutInterpreter  import cutInterpreter
-
+from DeepLepton.Tools.triggerSelector_deepLepton_analysis import triggerSelector
 #
 # Arguments
 # 
@@ -29,7 +29,7 @@ argParser.add_argument('--small',                                   action='stor
 argParser.add_argument('--plot_directory',     action='store',      default='DeepLepton')
 argParser.add_argument('--sampleSelection',    action='store',      choices=['DY','TT'], default='TT'  )
 argParser.add_argument('--data',               action='store',      type=str, default='Run2016'  )
-argParser.add_argument('--selection',          action='store',      default='lep_CR_tt2l-jet_CR_tt2l' )   #default='dilepZmass-dilepSelSFOS-njet2p-btag0p' ) #default = 'dilepSelOS-njet2p-btag2p', )  #default='dilepSel-njet2p-btag1p' )        default='dilepSel-njet2p-btag2p' )   default='njet2p-btag2p-met300')
+argParser.add_argument('--selection',          action='store',      default='lep_CR_tt2l-jet_CR_tt2l-met200' )   #'lep_CR_DY-met200' )        #'lep_CR_tt2l-jet_CR_tt2l-met200' )   #default='dilepZmass-dilepSelSFOS-njet2p-btag0p' ) #default = 'dilepSelOS-njet2p-btag2p', )  #default='dilepSel-njet2p-btag1p' )        default='dilepSel-njet2p-btag2p' )   default='njet2p-btag2p-met300')
 argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "SMS"], help="Add signal to plot")
 #argParser.add_argument('--leptonpreselection', action='store',      default='Sum$(lep_pt>10&&abs(lep_pdgId)==13)>=1')
 argParser.add_argument('--leptonpreselection', action='store',      default='1')#default='(Sum$(abs(lep_pdgId)==11)+Sum$(abs(lep_pdgId)==13))>=2')
@@ -112,10 +112,12 @@ if args.year == 2017:
     raise NotImplementedError
 elif args.year == 2016:
     data_directory = '/afs/hephy.at/data/cms03/DeepLepton/results/'
-    postProcessing_directory = "deepLepton_v5/dilep_small/" 
+    #postProcessing_directory = "deepLepton_v5/dilep_small/"    # small 
+    postProcessing_directory = "deepLepton_v5/dilep/" 
     from DeepLepton.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
     data_directory = '/afs/hephy.at/data/cms03/DeepLepton/results/'
-    postProcessing_directory = "deepLepton_v5/dilep_small/" 
+    #postProcessing_directory = "deepLepton_v5/dilep_small/" 
+    postProcessing_directory = "deepLepton_v5/dilep/" 
     from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *    
     
     MET_data     = vars()['MET_'+args.data]
@@ -125,7 +127,8 @@ if args.year == 2017:
     raise NotImplementedError 
     mc             = [ ]
 elif args.year == 2016:
-    mc             = [ DY, TTJets_DiLepton, VV, TTJets_SingleLepton, WJets,]
+    mc             = [ TTJets_DiLepton, DY, VV,]
+    #mc             = [ DY, TTJets_DiLepton, VV, TTJets_SingleLepton, WJets,]
     #mc             = [ DY, TTJets_DiLepton, TTJets_SingleLepton,]
 
 for sample in mc: sample.style = styles.fillStyle(sample.color)
@@ -156,10 +159,10 @@ sequence = []
 
 def getJets( event, sample ):
     jetVars              = ['eta','pt','phi','btagCSV','id', 'btagDeepCSV']
-    event.jets           = filter( lambda j:j['pt']>30 and j['id'], [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))] )
-
-    event.jets   = filter( isAnalysisJet, event.jets )
+    event.jets           = filter( isAnalysisJet, filter( lambda j:j['pt']>30 and j['id'], [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))] ) )
+    #event.jets   = filter( isAnalysisJet, event.jets )
     event.b_jets = filter( lambda j: isAnalysisJet(j) and isBJet(j), event.jets )
+
 
 sequence.append( getJets ) 
 
@@ -167,65 +170,75 @@ sequence.append( getJets )
 #soft_ele_selector = eleSelector('ControlRegion_tt2l', args.year)  
 
 def make_analysisVariables( event, sample ):
-    leptons = getAllLeptons( event, leptonVars , collection = "lep")
+    all_leptons = getAllLeptons( event, leptonVars , collection = "lep")
     #soft_muons = filter( lambda l: abs(l['pdgId']) == 13 and soft_mu_selector(l), all_leptons ) 
     #soft_electrons = filter( lambda l: abs(l['pdgId']) == 11 and soft_ele_selector(l), all_leptons )
     #leptons = soft_muons + soft_electrons
    # leptons = all_leptons
     #print(type(soft_muons), type(soft_electrons), type(leptons)) 
-    event.nlep_selected = len(leptons)   
+    event.nlep_selected = len(all_leptons)   
     
     #print("selected leptons: ", leptons)
         
-    if event.nlep_selected == 2:
+    #if event.nlep_selected == 2:
         #leptons = sorted(leptons.items(), key = lambda l:(l[1], l[0]))        
-        leptons = sorted(leptons, key = lambda lep: -lep['pt'])         
-        lep1, lep2 = leptons 
-           
-        event.leadingLep_pt = lep1['pt']        
+    all_leptons = sorted(all_leptons, key = lambda lep: -lep['pt'])         
+    lep_1, lep_2 = all_leptons 
+       
+    event.leadingLep_pt = lep_1['pt']        
  
-        l1 = ROOT.TLorentzVector()
-        l1.SetPtEtaPhiM(lep1['pt'], lep1['eta'], lep1['phi'], 0 )
-        l2 = ROOT.TLorentzVector()
-        l2.SetPtEtaPhiM(lep2['pt'], lep2['eta'], lep2['phi'], 0 )
-        ll = l1 + l2
+    l_1 = ROOT.TLorentzVector()
+    l_1.SetPtEtaPhiM(lep_1['pt'], lep_1['eta'], lep_1['phi'], 0 )
+    l_2 = ROOT.TLorentzVector()
+    l_2.SetPtEtaPhiM(lep_2['pt'], lep_2['eta'], lep_2['phi'], 0 )
+    ll = l_1 + l_2
  
-        event.ptll = ll.Pt() 
-        event.mll = ll.M()         
-        
-        mt1 = sqrt( 2*lep1["pt"]*event.met_pt*( 1 - cos( lep1['phi'] - event.met_phi ) )) 
-        mt2 = sqrt( 2*lep2["pt"]*event.met_pt*( 1 - cos( lep2['phi'] - event.met_phi ) )) 
-        event.mt_min = min(mt1, mt2)
+    event.ptll = ll.Pt() 
+    event.mll = ll.M()         
+    
+    mt1 = sqrt( 2*lep_1["pt"]*event.met_pt*( 1 - cos( lep_1['phi'] - event.met_phi ) )) 
+    mt2 = sqrt( 2*lep_2["pt"]*event.met_pt*( 1 - cos( lep_2['phi'] - event.met_phi ) )) 
+    event.mt_min = min(mt1, mt2)
 
-        tau1 = ROOT.TLorentzVector() 
-        tau1.SetPtEtaPhiM(lep1['pt']*(1+cos(event.met_phi-lep1['phi'])/(lep1['pt'])), lep1['eta'], lep1['phi'], 1.77682 )    
-        tau2 = ROOT.TLorentzVector() 
-        tau2.SetPtEtaPhiM(lep2['pt']*(1+cos(event.met_phi-lep2['phi'])/(lep2['pt'])), lep2['eta'], lep2['phi'], 1.77682 )  
-        tautau = tau1 + tau2
-        event.mtautau = tautau.M() 
+    #tau1 = ROOT.TLorentzVector() 
+    #tau1.SetPtEtaPhiM(lep_1['pt']*(1+cos(event.met_phi-lep_1['phi'])/(lep_1['pt'])), lep_1['eta'], lep_1['phi'], 1.77682 )    
+    #tau2 = ROOT.TLorentzVector() 
+    #tau2.SetPtEtaPhiM(lep_2['pt']*(1+cos(event.met_phi-lep_2['phi'])/(lep_2['pt'])), lep_2['eta'], lep_2['phi'], 1.77682 )  
+    #tautau = tau1 + tau2
+    #event.mtautau = tautau.M() 
 
-        vec = ROOT.TVector2( event.met_pt * cos(event.met_phi), event.met_pt * sin(event.met_phi) )
-        for lep in leptons:
-            if abs(lep['pdgId']) == 13:
-                vec += ROOT.TVector2( lep['pt'] * cos(lep['phi']), lep['pt'] * sin(lep['phi']) )
-        event.met_musubtracted = vec.Mod()
-            
+    v1 = event.met_pt * sin( event.met_phi - lep_2["phi"]  ) / ( lep_1["pt"] * sin( lep_1["phi"] - lep_2["phi"] ) )
+    v2 = event.met_pt * sin( lep_1["phi"] - event.met_phi  ) / ( lep_2["pt"] * sin( lep_1["phi"] - lep_2["phi"] ) )
+    v1 += 1
+    v2 += 1
+    #print(v1, v2)
+    tau_1 = ROOT.TLorentzVector()
+    tau_2 = ROOT.TLorentzVector() 
+    tau_1.SetPtEtaPhiM( lep_1['pt']*v1, lep_1['eta'], lep_1['phi'], 1.77682 )
+    tau_2.SetPtEtaPhiM( lep_2['pt']*v2, lep_2['eta'], lep_2['phi'], 1.77682 ) 
+    tautau = tau_1 + tau_2
+    event.mtautau = tautau.M() 
+
+    vec = ROOT.TVector2( event.met_pt * cos(event.met_phi), event.met_pt * sin(event.met_phi) )
+    for lep in all_leptons:
+        if abs(lep['pdgId']) == 13:
+            vec += ROOT.TVector2( lep['pt'] * cos(lep['phi']), lep['pt'] * sin(lep['phi']) )
+    event.met_musubtracted = vec.Mod()
+
         #print('ht: ', event.ht)
         #print('deepLep_prompt: ', event.lep_deepLepton_prompt)
         
-    else:
-        print('not two lep', event.nlep_selected)
-        event.ptll = float('nan') 
-        event.mll = float('nan') 
-        event.mt_min = float('nan')
-        event.mtautau = float('nan')
-        event.met_musubtracted = float('nan')
-        event.leadingLep_pt = float('nan')
+    #else:
+    #    print('not two lep', event.nlep_selected)
+    #    event.ptll = float('nan') 
+    #    event.mll = float('nan') 
+    #    event.mt_min = float('nan')
+    #    event.mtautau = float('nan')
+    #    event.met_musubtracted = float('nan')
+    #    event.leadingLep_pt = float('nan')
     
-    #event.weight *= event.nlep_selected == 2
     #event.weight *= (0. < event.mtautau < 160.) 
-    event.weight *= (event.mt_min < 70.)
-    #event.weight *= event.b_jets >= 1    
+    #event.weight *= (event.mt_min < 70.)
 
 sequence.append( make_analysisVariables )
 
@@ -301,18 +314,18 @@ read_variables.append( VectorTreeVariable.fromString('DL_pfCand_muon[pt/F,eta/F,
 read_variables.append( VectorTreeVariable.fromString('DL_SV[pt/F,eta/F,phi/F,chi2/F,ndof/F,dxy/F,edxy/F,ip3d/F,eip3d/F,sip3d/F,cosTheta/F,jetPt/F,jetEta/F,jetDR/F,maxDxyTracks/F,secDxyTracks/F,maxD3dTracks/F,secD3dTracks/F,selectedLeptons_mask/I]', nMax=200 )) # default nMax is 100
 read_variables.extend( map( TreeVariable.fromString, ["nDL_pfCand_neutral/I", "nDL_pfCand_charged/I", "nDL_pfCand_photon/I", "nDL_pfCand_electron/I", "nDL_pfCand_muon/I", "nDL_SV/I"]) )
 
-#PF Candidates flavors and binning
-pfCand_plot_binning = {
-                'neutral'  : {'mult': [21,0,20],'sumPt': [25,0,25]  },
-                'charged'  : {'mult': [71,0,70],'sumPt': [50,0,100] },
-                'photon'   : {'mult': [41,0,40],'sumPt': [50,0,50]  },
-                'electron' : {'mult': [21,0,20],'sumPt': [25,0,25]  },
-                'muon'     : {'mult': [21,0,20],'sumPt': [25,0,25]  },
-             }
-pfCand_flavors = pfCand_plot_binning.keys()
-SV_plot_binning = {
-                'sv'       : {'mult': [6,0,5],'sumPt': [25,0,30]    },
-             }
+##PF Candidates flavors and binning
+#pfCand_plot_binning = {
+#                'neutral'  : {'mult': [21,0,20],'sumPt': [25,0,25]  },
+#                'charged'  : {'mult': [71,0,70],'sumPt': [50,0,100] },
+#                'photon'   : {'mult': [41,0,40],'sumPt': [50,0,50]  },
+#                'electron' : {'mult': [21,0,20],'sumPt': [25,0,25]  },
+#                'muon'     : {'mult': [21,0,20],'sumPt': [25,0,25]  },
+#             }
+#pfCand_flavors = pfCand_plot_binning.keys()
+#SV_plot_binning = {
+#                'sv'       : {'mult': [6,0,5],'sumPt': [25,0,30]    },
+#             }
 
 
 #from TopEFT.Tools.DeepLeptonReader import evaluator
@@ -373,9 +386,17 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
 
 def drawPlots(plots, dataMCScale):
   for log in [False, True]:
-    plot_directory_ = os.path.join(plot_directory, 'analysisPlots', args.plot_directory, ("log" if log else "lin"), args.selection+"_test")
+    plot_directory_ = os.path.join(plot_directory, 'analysisPlots', args.plot_directory, ("log" if log else "lin"), args.selection+"wTrigger")
     for plot in plots:
+      #print(plot.histos)
+      #print(l for l in plot.histos)
+      #print(l[0] for l in plot.histos)
       if not max(l[0].GetMaximum() for l in plot.histos): 
+     
+      #print( i for i in (l for l in plot.histos)  ) 
+      #if not any([i.GetMaximum() for i in (l[:] for l in plot.histos)]):     #      [k for k in [l for l in plot.histos]])]): 
+      #if not any([i.GetMaximum() for i in [l for l in plot.histos]]): 
+      #if not max(k.GetMaximum() for k in [i for i in [l for l in plot.histos]]): 
         logger.warning( "Empty plot! Do nothing" )
         continue # Empty plot
         
@@ -384,8 +405,8 @@ def drawPlots(plots, dataMCScale):
 	    ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
 	    logX = False, logY = log, sorting = True,
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
-	    scaling = {0:1},
-	    legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
+	    scaling = {0:1} if not args.noData else {},
+        legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
 	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ),
         copyIndexPHP = True
       )
@@ -407,14 +428,17 @@ if args.noData: lumi_scale = 35.9
 weight_ = lambda event, sample: event.weight
 
 for sample in mc + signals:
-  sample.scale          = lumi_scale
-  sample.read_variables = ["reweightPU36fb/F", "reweightBTagDeepCSV_SF/F", "nlep/I",  "lep[%s]"%(lepton_branches_mc) ]
-  sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightPU36fb*(1 if args.small else args.reduceMC)
-  #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
-  #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
-  sample.setSelectionString([getFilterCut(isData=False, year=args.year), cutInterpreter.cutString(args.selection) , args.leptonpreselection])
-  if args.reduceMC!=1:
-    sample.reduceFiles( factor = args.reduceMC )
+    sample.scale          = lumi_scale
+    sample.read_variables = ["reweightPU36fb/F", "reweightBTagDeepCSV_SF/F", "nlep/I",  "lep[%s]"%(lepton_branches_mc) ]
+    sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightPU36fb*(1 if args.small else args.reduceMC)
+  
+    tr = triggerSelector(args.year) 
+    #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
+    #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
+  
+    sample.setSelectionString([getFilterCut(isData=False, year=args.year), cutInterpreter.cutString(args.selection) , args.leptonpreselection, tr.getSelection("MET")])
+    if args.reduceMC!=1:
+        sample.reduceFiles( factor = args.reduceMC )
 
 if not args.noData:
   stack = Stack(mc, data_sample)
@@ -432,63 +456,41 @@ Plot.setDefaults(stack = stack, weight = staticmethod( weight_ ), selectionStrin
 
 plots = []
 
-#plots.append(Plot(
-#  name = 'nVtxs', texX = 'vertex multiplicity', texY = 'Number of Events',
-#  attribute = TreeVariable.fromString( "nVert/I" ),
-#  binning=[50,0,50],
-#))
 
 plots.append(Plot(
-    texX = 'E_{T}^{miss} (GeV)', texY = 'Number of Events / 20 GeV',
+    texX = 'E_{T}^{miss} (GeV)', texY = 'Number of Events / 30 GeV',
     attribute = TreeVariable.fromString( "met_pt/F" ),
-    binning=[400/20,0,400],
+    binning=[450/30,0,450],
 ))
 
-#plots.append(Plot(
-#    texX = '#phi(E_{T}^{miss})', texY = 'Number of Events / 20 GeV',
-#    attribute = TreeVariable.fromString( "met_phi/F" ),
-#    binning=[10,-pi,pi],
-#))
-#
-#plots.append(Plot(
-#  texX = 'N_{jets}', texY = 'Number of Events',
-#  attribute = TreeVariable.fromString( "nJetSelected/I" ),
-#  binning=[5,2.5,7.5],
-#))
-#
-#plots.append(Plot(
-#  texX = 'p_{T}(leading jet) (GeV)', texY = 'Number of Events / 30 GeV',
-#  name = 'jet1_pt', attribute = lambda event, sample: event.jets[0]['pt'] if len(event.jets)>0 else float('nan'),
-#  binning=[600/30,0,600],
-#))
-#
-#plots.append(Plot(
-#  texX = 'p_{T}(2nd leading jet) (GeV)', texY = 'Number of Events / 30 GeV',
-#  name = 'jet2_pt', attribute = lambda event, sample: event.jets[1]['pt'] if len(event.jets)>1 else float('nan'),
-#  binning=[600/30,0,600],
-#))
-
 plots.append(Plot(
-  texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 10 GeV',
+  texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'leadingLep_pt', attribute = lambda event, sample: event.leadingLep_pt,
-  binning=[600/60,0,600],
+  binning=[150/5,0,150],
 ))
 
 plots.append(Plot(
   texX = 'm_{ll} (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'mll', attribute = lambda event, sample: event.mll,
-  binning=[200/5,0,200],
+  binning=[50/5,0,50],
 ))
 
-plots.append(Plot(
-  texX = 'm_{\\tau\\tau} (GeV)', texY = 'Number of Events / 5 GeV',
-  name = 'mtautau', attribute = lambda event, sample: event.mtautau,
-  binning=[200/5,0,200],
-))
+#plots.append(Plot(
+#  texX = 'm_{\\tau\\tau} (GeV)', texY = 'Number of Events / 5 GeV',
+#  name = 'mtautau', attribute = lambda event, sample: event.mtautau,
+#  binning=[200/5,0,200],
+#))
+
+#plots.append(Plot(
+#  texX = 'deepLepton_prompt', texY = 'Number of Events / 5 GeV',
+#  name = 'deep Lepton prompt', attribute = lambda event, sample: event.lep_deepLepton_prompt,
+#  #attribute = TreeVariable.fromString( "lep_deepLepton_prompt/F" ), 
+#  binning=[20,0,1],
+#))
 
 plots.append(Plot(
-  texX = 'deepLepton_prompt', texY = 'Number of Events / 5 GeV',
-  name = 'deep Lepton prompt', attribute = lambda event, sample: event.lep_deepLepton_prompt,
+  texX = 'H_{T} (GeV)', texY = 'Number of Events / 5 GeV',
+  name = 'ht', attribute = TreeVariable.fromString( "ht/F"  ),
   #attribute = TreeVariable.fromString( "lep_deepLepton_prompt/F" ), 
   binning=[20,0,1],
 ))

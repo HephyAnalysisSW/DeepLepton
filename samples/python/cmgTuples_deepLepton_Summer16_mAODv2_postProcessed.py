@@ -29,8 +29,7 @@ dirs = {}
 # full:
 dirs['TTJets_DiLepton']     = ["TTJets_DiLepton_comb"]
 dirs['VV']                  = ["VVTo2L2Nu_comb"]
-dirs['DY']                  = ["DYJetsToLL_M50_HT70to100" ,"DYJetsToLL_M50_HT100to200_comb", "DYJetsToLL_M50_HT200to400_comb", "DYJetsToLL_M50_HT400to600_comb", "DYJetsToLL_M50_HT600to800", "DYJetsToLL_M50_HT800to1200", 
-                             "DYJetsToLL_M50_HT1200to2500", "DYJetsToLL_M50_HT2500toInf", "DYJetsToLL_M5to50_HT100to200_comb", "DYJetsToLL_M5to50_HT200to400_comb", "DYJetsToLL_M5to50_HT400to600_comb", "DYJetsToLL_M5to50_HT600toInf_comb"]
+dirs['DY']                  = ["DYJetsToLL_M50_HT70to100" ,"DYJetsToLL_M50_HT100to200_comb", "DYJetsToLL_M50_HT200to400_comb", "DYJetsToLL_M50_HT400to600_comb", "DYJetsToLL_M50_HT600to800", "DYJetsToLL_M50_HT800to1200", "DYJetsToLL_M50_HT1200to2500", "DYJetsToLL_M50_HT2500toInf", "DYJetsToLL_M5to50_HT100to200_comb", "DYJetsToLL_M5to50_HT200to400_comb", "DYJetsToLL_M5to50_HT400to600_comb", "DYJetsToLL_M5to50_HT600toInf_comb"]
 #dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromT_comb", "TTJets_SingleLeptonFromTbar_comb"]
 #dirs['SMS_T2tt']            = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p1"]
 #dirs['WJets'] = ["WJetsToLNu_HT70to100", "WJetsToLNu_HT100to200_comb", "WJetsToLNu_HT200to400_comb", "WJetsToLNu_HT400to600_comb", "WJetsToLNu_HT600to800_comb", "WJetsToLNu_HT800to1200_comb", "WJetsToLNu_HT1200to2500_comb", "WJetsToLNu_HT2500toInf_comb"]

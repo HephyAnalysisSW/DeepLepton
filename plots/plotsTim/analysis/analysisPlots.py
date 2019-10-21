@@ -29,7 +29,7 @@ argParser.add_argument('--small',                                   action='stor
 argParser.add_argument('--plot_directory',     action='store',      default='DeepLepton')
 argParser.add_argument('--sampleSelection',    action='store',      choices=['DY','TT'], default='TT'  )
 argParser.add_argument('--data',               action='store',      type=str, default='Run2016'  )
-argParser.add_argument('--selection',          action='store',      default='lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS' )   #'lep_CR_DY-dilepOS-met200' )   #'lep_CR_tt2l-jet_CR_tt2l-met200' )   #default='dilepZmass-dilepSelSFOS-njet2p-btag0p' ) #default = 'dilepSelOS-njet2p-btag2p', )  #default='dilepSel-njet2p-btag1p' )        default='dilepSel-njet2p-btag2p' )   default='njet2p-btag2p-met300')
+argParser.add_argument('--selection',          action='store',      default='lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-ht_met' )   #'lep_CR_DY-dilepOS-met200' )   #'lep_CR_tt2l-jet_CR_tt2l-met200' )   #default='dilepZmass-dilepSelSFOS-njet2p-btag0p' ) #default = 'dilepSelOS-njet2p-btag2p', )  #default='dilepSel-njet2p-btag1p' )        default='dilepSel-njet2p-btag2p' )   default='njet2p-btag2p-met300')
 argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "SMS"], help="Add signal to plot")
 #argParser.add_argument('--leptonpreselection', action='store',      default='Sum$(lep_pt>10&&abs(lep_pdgId)==13)>=1')
 argParser.add_argument('--leptonpreselection', action='store',      default='1')#default='(Sum$(abs(lep_pdgId)==11)+Sum$(abs(lep_pdgId)==13))>=2')
@@ -238,10 +238,11 @@ def make_analysisVariables( event, sample ):
     event.met_musubtracted = vec.Mod()
 
     
-    event.weight *= (event.mll < 50)*(event.mll > 4)*(9>event.mll>10.5)
+    event.weight *= (event.mll < 50)*(event.mll > 4)*(event.mll<9 or event.mll>10.5)
+    #if not (event.mll<9 or event.mll>10.5): event.weight = 0.
     event.ptll *= (event.ptll > 3)
-    #event.weight *= (0 > event.mtautau > 160) 
-    #event.weight *= (event.met_musubtracted > 125) 
+    event.weight *= (0 > event.mtautau or 160 < event.mtautau) 
+    event.weight *= (event.met_musubtracted > 125) 
     
     #event.weight *= (0. < event.mtautau < 160.) 
     #event.weight *= (event.mt_min < 70.)
@@ -351,7 +352,8 @@ def drawPlots(plots, dataMCScale):
 	    ratio = {'yRange':(0.1,1.9)} if not args.noData else None,
 	    logX = False, logY = log, sorting = True,
 	    yRange = (0.03, "auto") if log else (0.001, "auto"),
-	    scaling = {0:1} if not args.noData else {},
+	    #scaling = {0:1} if not args.noData else {},
+        scaling = {}, 
         legend = [ (0.15,0.9-0.03*sum(map(len, plot.histos)),0.9,0.9), 2],
 	    drawObjects = drawObjects( not args.noData, dataMCScale , lumi_scale ),
         copyIndexPHP = True
@@ -381,7 +383,7 @@ for sample in mc + signals:
     tr = triggerSelector(args.year) 
     #sample.read_variables = ['reweightTopPt/F','reweightDilepTriggerBackup/F','reweightLeptonSF/F','reweightBTag_SF/F','reweightPU36fb/F', 'nTrueInt/F', 'reweightLeptonTrackingSF/F']
     #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
-    print("Trigger selection: ", tr.getSelection("MET")) 
+    #print("Trigger selection: ", tr.getSelection("MET")) 
     sample.setSelectionString([getFilterCut(isData=False, year=args.year), cutInterpreter.cutString(args.selection) , args.leptonpreselection, tr.getSelection("MET")])
     if args.reduceMC!=1:
         sample.reduceFiles( factor = args.reduceMC )

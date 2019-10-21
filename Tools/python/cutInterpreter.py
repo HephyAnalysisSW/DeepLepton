@@ -12,17 +12,17 @@ mIsoWP = { "VT":5, "T":4, "M":3 , "L":2 , "VL":1, 0:"None" }
 
 special_cuts = {
     "lepSel":            "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20",
-    "dilepOS":           "nlep>=2&&(lep_pdgId[0]*lep_pdgId[1])>0",
+    "dilepOS":           "nlep>=2&&(lep_pdgId[0]*lep_pdgId[1])<0",
     "dilepSel":          "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20",
     "dilepSelOS":        "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]*lep_pdgId[1]<0)",  #&&abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==13", 
     "dilepSelSFSS":      "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]==lep_pdgId[1])",
     "dilepSelSFOS":      "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]==-lep_pdgId[1])",
-    "dilepZmass":        "nlep==2&&(sqrt(2*lep_pt[0]*lep_pt[1]*( cosh(lep_eta[0]-lep_eta[1]) - cos(lep_phi[0]-lep_phi[1])))<(91.19+15.))&&(sqrt(2*lep_pt[0]*lep_pt[1]*( cosh(lep_eta[0]-lep_eta[1]) - cos(lep_phi[0]-lep_phi[1])))>(91.19-15.))",   
-    "lep_CR_tt2l":       "Sum$(abs(lep_pdgId)==13&&lep_pt>5&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&lep_relIso03*lep_pt<5)||lep_relIso03<0.1) )) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&lep_relIso03*lep_pt<5)||lep_relIso03<0.1) )) == 2"   ,
+    #"dilepZmass":        "nlep==2&&(sqrt(2*lep_pt[0]*lep_pt[1]*( cosh(lep_eta[0]-lep_eta[1]) - cos(lep_phi[0]-lep_phi[1])))<(91.19+15.))&&(sqrt(2*lep_pt[0]*lep_pt[1]*( cosh(lep_eta[0]-lep_eta[1]) - cos(lep_phi[0]-lep_phi[1])))>(91.19-15.))",   
+    "lep_CR_tt2l":       "(Sum$(abs(lep_pdgId)==13&&lep_pt>5&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) )) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) ))) == 2"   ,
     
-    "jet_CR_tt2l":       "Sum$(jet_btagCSV>0.8&&jet_pt>40&&jet_eta<2.4)>=1"   , 
+    "jet_CR_tt2l":       "Sum$(jet_btagDeepCSV>0.6321&&jet_pt>40&&jet_eta<2.4)>=1"   , 
     #"met_CR_tt2l":       "met>200"   , 
-    "ht_met":            "ht>100&&0.6<met/ht<1.4"   ,
+    "ht_met":            "ht>100&&0.6<(met_pt/ht)&&(met_pt/ht)<1.4"   ,
     "genZtoTau":         "genZ_daughter_flavor==15",
     
     "lep_CR_DY":         "((Sum$(abs(lep_pdgId)==13&&lep_pt>5&&( abs(lep_eta)<2.4&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&lep_relIso03*lep_pt<5)||lep_relIso03<0.1) ) )==2) || (Sum$(abs(lep_pdgId)==11&&lep_pt>5&&( abs(lep_eta)<2.5&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&lep_relIso03*lep_pt<5)||lep_relIso03<0.1) ))==2))        ",     #&& ( lep_pt[0]>20||lep_ip3d>0.01||lep_sip3d>2  )"

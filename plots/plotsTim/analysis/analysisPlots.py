@@ -29,7 +29,7 @@ argParser.add_argument('--small',                                   action='stor
 argParser.add_argument('--plot_directory',     action='store',      default='DeepLepton')
 argParser.add_argument('--sampleSelection',    action='store',      choices=['DY','TT'], default='TT'  )
 argParser.add_argument('--data',               action='store',      type=str, default='Run2016'  )
-argParser.add_argument('--selection',          action='store',      default='lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-ht_met' )   #'lep_CR_DY-dilepOS-met200' )   #'lep_CR_tt2l-jet_CR_tt2l-met200' )   #default='dilepZmass-dilepSelSFOS-njet2p-btag0p' ) #default = 'dilepSelOS-njet2p-btag2p', )  #default='dilepSel-njet2p-btag1p' )        default='dilepSel-njet2p-btag2p' )   default='njet2p-btag2p-met300')
+argParser.add_argument('--selection',          action='store',      default='lep_CR_tt2l-jet_CR_tt2l-lower_met-dilepOSmumu-ht_met' )  #'lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-ht_met' )   #'lep_CR_DY-dilepOS-met200' )   #'lep_CR_tt2l-jet_CR_tt2l-met200' )   #default='dilepZmass-dilepSelSFOS-njet2p-btag0p' ) #default = 'dilepSelOS-njet2p-btag2p', )  #default='dilepSel-njet2p-btag1p' )        default='dilepSel-njet2p-btag2p' )   default='njet2p-btag2p-met300')
 argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "SMS"], help="Add signal to plot")
 #argParser.add_argument('--leptonpreselection', action='store',      default='Sum$(lep_pt>10&&abs(lep_pdgId)==13)>=1')
 argParser.add_argument('--leptonpreselection', action='store',      default='1')#default='(Sum$(abs(lep_pdgId)==11)+Sum$(abs(lep_pdgId)==13))>=2')
@@ -408,19 +408,19 @@ plots = []
 plots.append(Plot(
     texX = 'E_{T}^{miss} (GeV)', texY = 'Number of Events / 30 GeV',
     attribute = TreeVariable.fromString( "met_pt/F" ),
-    binning=[450/30,20,470],
+    binning=[450/25,0,450],
 ))
 
 plots.append(Plot(
   texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'leadingLep_pt', attribute = lambda event, sample: event.leadingLep_pt,
-  binning=[150/5,0,150],
+  binning=[25,0,150],
 ))
 
 plots.append(Plot(
   texX = 'm_{ll} (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'mll', attribute = lambda event, sample: event.mll,
-  binning=[50/5,0,50],
+  binning=[10,4,50],
 ))
 
 #plots.append(Plot(

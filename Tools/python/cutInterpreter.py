@@ -11,24 +11,31 @@ bJetSelectionM  = "nBTag"
 mIsoWP = { "VT":5, "T":4, "M":3 , "L":2 , "VL":1, 0:"None" }
 
 special_cuts = {
-    "lepSel":            "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20",
+    #"lepSel":            "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20",
     "dilepOS":           "nlep>=2&&(lep_pdgId[0]*lep_pdgId[1])<0",
-    "dilepSel":          "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20",
-    "dilepSelOS":        "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]*lep_pdgId[1]<0)",  #&&abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==13", 
-    "dilepSelSFSS":      "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]==lep_pdgId[1])",
-    "dilepSelSFOS":      "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]==-lep_pdgId[1])",
+    "dilepOSmumu":       "nlep>=2&&(lep_pdgId[0]==-lep_pdgId[1])&&abs(lep_pdgId[0])==13",
+    #"dilepSel":          "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20",
+    #"dilepSelOS":        "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]*lep_pdgId[1]<0)",  #&&abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==13", 
+    #"dilepSelSFSS":      "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]==lep_pdgId[1])",
+    #"dilepSelSFOS":      "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]==-lep_pdgId[1])",
     #"dilepZmass":        "nlep==2&&(sqrt(2*lep_pt[0]*lep_pt[1]*( cosh(lep_eta[0]-lep_eta[1]) - cos(lep_phi[0]-lep_phi[1])))<(91.19+15.))&&(sqrt(2*lep_pt[0]*lep_pt[1]*( cosh(lep_eta[0]-lep_eta[1]) - cos(lep_phi[0]-lep_phi[1])))>(91.19-15.))",   
+    
     "lep_CR_tt2l":       "(Sum$(abs(lep_pdgId)==13&&lep_pt>5&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) )) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) ))) == 2"   ,
     
     "jet_CR_tt2l":       "Sum$(jet_btagDeepCSV>0.6321&&jet_pt>40&&jet_eta<2.4)>=1"   , 
-    #"met_CR_tt2l":       "met>200"   , 
+    
+    "lep_CR_DY":         "((Sum$(abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1)  )==2) || (Sum$(abs(lep_pdgId)==11&&lep_pt>5&&abs(lep_eta)<2.5&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) )==2)) "   ,#&& Sum$( lep_pt>20||lep_ip3d>0.01||lep_sip3d>2  )>=1"   , 
+    "jet_CR_DY":         "Sum$(jet_pt>25&&jet_eta<2.4)>=1&&Sum$(jet_pt>25&&jet_btagDeepCSV>0.12217)==0"  ,   #"Sum$(jet_pt>25&&jet_eta<2.4)>=1&&nBTag==0"   , 
+   
     "ht_met":            "ht>100&&0.6<(met_pt/ht)&&(met_pt/ht)<1.4"   ,
-    "genZtoTau":         "genZ_daughter_flavor==15",
-    
-    "lep_CR_DY":         "((Sum$(abs(lep_pdgId)==13&&lep_pt>5&&( abs(lep_eta)<2.4&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&lep_relIso03*lep_pt<5)||lep_relIso03<0.1) ) )==2) || (Sum$(abs(lep_pdgId)==11&&lep_pt>5&&( abs(lep_eta)<2.5&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&lep_relIso03*lep_pt<5)||lep_relIso03<0.1) ))==2))        ",     #&& ( lep_pt[0]>20||lep_ip3d>0.01||lep_sip3d>2  )"
-    
-    #"CR_DY_met":         "met_pt<100",
-    }
+    "lower_met":         "met_pt>125&&met_pt<200"   ,
+
+
+    "lep_SR":            "(Sum$(abs(lep_pdgId)==13&&lep_pt>5&&lep_pt<30( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 )) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&lep_pt<30&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 ))) == 2"   ,
+    "jet_SR":            "Sum$(jet_pt>25&&jet_eta<2.4)>=1&&Sum$(jet_pt>25&&jet_btagDeepCSV>0.2217)==0"  , 
+
+    #"genZtoTau":         "genZ_daughter_flavor==15",
+ }
 
 continous_variables = [ ("metSig", "metSig"), ("met", "met_pt"), ]
 discrete_variables  = [ ("njet", "nJetSelected"), ("btag", "nBTag") , ("nlep","nlep") ]

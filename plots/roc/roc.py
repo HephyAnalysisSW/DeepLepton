@@ -22,6 +22,7 @@ argParser.add_argument('--year',               action='store', type=int, choices
 argParser.add_argument('--flavour',            action='store', type=str, choices=['ele','muo'], default='muo',  help="Which Flavour?")
 argParser.add_argument('--testData',           action='store_true',   help="plot test or train data?")
 argParser.add_argument('--lumi_weight',        action='store_true',   help="apply lumi weight?")
+argParser.add_argument('--cut_wp',             action='store_true',   help="add WP of standard cut selection")
 #argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
 args = argParser.parse_args()
 
@@ -178,6 +179,8 @@ for line in header:
     line['text'].SetFillColor(gStyle.GetTitleFillColor())
     line['text'].SetTextFont(line['font'])
     line['text'].Draw()
+
+#c.SetPoint(1, )
 
 c.SetGrid()
 c.SetLogx()

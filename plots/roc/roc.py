@@ -22,7 +22,7 @@ argParser.add_argument('--year',               action='store', type=int, choices
 argParser.add_argument('--flavour',            action='store', type=str, choices=['ele','muo'], default='muo',  help="Which Flavour?")
 argParser.add_argument('--testData',           action='store_true',   help="plot test or train data?")
 argParser.add_argument('--lumi_weight',        action='store_true',   help="apply lumi weight?")
-argParser.add_argument('--cut_wp',             action='store_true',   help="add WP of standard cut selection")
+argParser.add_argument('--wp',                 action='store_true',   help="add WP of standard cut selection")
 #argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
 args = argParser.parse_args()
 
@@ -118,8 +118,8 @@ mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                          
 
 lepton_ids = [
     mvaTTH, 
-#    mvaTTV,
-#    deepLepton,
+    mvaTTV,
+    deepLepton,
 ]
 
 # get signal efficiency
@@ -148,13 +148,13 @@ for lepton_id in lepton_ids:
     lepton_id["roc"]      = ROOT.TGraph(len(lepton_id["bkg_eff" ]), array.array('d', lepton_id["bkg_eff" ]), array.array('d', lepton_id["sig_eff" ]))
     lepton_id["roc"].SetLineColor( lepton_id['color'] )
 
+#n = 1
+#wp_x, wp_y = array.array( 'd' ), array.array( 'd' )
+#wp_x.append(0.206)
+#wp_y.append(0.734)
+#
+#wp = ROOT.TGraph( n, wp_x, wp_y )
 
-n = 1
-x, y = array.array( 'd' ), array.array( 'd' )
-x.append(0.206)
-y.append(0.734)
-
-wp = ROOT.TGraph( n, x, y )
 
 gStyle.SetOptTitle(0)
 #gStyle.SetLegendBorderSize(0)
@@ -179,30 +179,40 @@ for lepton_id in lepton_ids:
     same = "same"
 
 
-#_____________________________________________________
-
-
-wp.GetXaxis().SetTitle("background efficiency")
-wp.GetYaxis().SetTitle("signal efficiency")
-wp.GetXaxis().SetLimits(0.01, 1)
-wp.GetHistogram().SetMaximum(1.01)
-wp.GetHistogram().SetMinimum(0.60)
-wp.SetLineWidth(2)
-wp.SetFillStyle(0)
-wp.SetFillColor(0)
-wp.SetMarkerColor(lepton_id["color"])
-wp.SetTitle(lepton_id["name"])
-wp.Draw('APsame')
-
-
-#wp.SetLineWidth(4)
-#wp.SetLineColor(2)
-#wp.SetMarkerColor(4)
-#wp.SetMarkerStyle( 21 )
-#wp.SetTitle('Analysis-WP')
-#wp.Draw('APsame')
-
-#_____________________________________________________
+if args.wp:
+    analysis_selection = "lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5" 
+    
+    P_selection     = "&&".join([prompt_selection, kinematic_selection, loose_id, filter_LepOther])
+    TP_selection    = "&&".join([prompt_selection, kinematic_selection, loose_id, filter_LepOther, analysis_selection])
+    N_selection     = "&&".join(["(!("+prompt_selection+"))", kinematic_selection, loose_id, filter_LepOther])
+    FP_selection    = "&&".join(["(!("+prompt_selection+"))", kinematic_selection, loose_id, filter_LepOther, analysis_selection])
+    
+    P_yield = sig_sample.getYieldFromDraw( selectionString = P_selection, weightString = weightString)
+    TP_yield = sig_sample.getYieldFromDraw( selectionString = TP_selection, weightString = weightString)
+    N_yield = sig_sample.getYieldFromDraw( selectionString = N_selection, weightString = weightString)
+    FP_yield = sig_sample.getYieldFromDraw( selectionString = FP_selection, weightString = weightString)
+    
+    TPR = TP_yield['val']/P_yield['val']
+    FPR = FP_yield['val']/N_yield['val']
+    
+    n=1
+    wp_x, wp_y = array.array( 'd' ), array.array( 'd' )
+    wp_x.append(FPR)
+    wp_y.append(TPR)
+    wp = ROOT.TGraph( n, wp_x, wp_y )
+    
+    wp.GetXaxis().SetTitle("background efficiency")
+    wp.GetYaxis().SetTitle("signal efficiency")
+    wp.GetXaxis().SetLimits(0.01, 1)
+    wp.GetHistogram().SetMaximum(1.01)
+    wp.GetHistogram().SetMinimum(0.60)
+    wp.SetFillStyle(0)
+    wp.SetFillColor(0)
+    wp.SetMarkerColor(46)
+    wp.SetMarkerStyle( 20 )
+    wp.SetTitle('Analysis-WP')
+    wp.Draw('Psame')
+    
 
 
 header = [

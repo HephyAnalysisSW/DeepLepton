@@ -29,7 +29,7 @@ argParser.add_argument('--small',                                   action='stor
 argParser.add_argument('--plot_directory',     action='store',      default='DeepLepton')
 argParser.add_argument('--sampleSelection',    action='store',      choices=['DY','TT'], default='TT'  )
 argParser.add_argument('--data',               action='store',      type=str, default='Run2016'  )
-argParser.add_argument('--selection',          action='store',      default='lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-ht_met' )#'lep_CR_tt2l-jet_CR_tt2l-lower_met-dilepOSmumu-ht_met' )   #'lep_CR_DY-dilepOS-met200' )   #'lep_CR_tt2l-jet_CR_tt2l-met200' )   #default='dilepZmass-dilepSelSFOS-njet2p-btag0p' ) #default = 'dilepSelOS-njet2p-btag2p', )  #default='dilepSel-njet2p-btag1p' )        default='dilepSel-njet2p-btag2p' )   default='njet2p-btag2p-met300')
+argParser.add_argument('--selection',          action='store',      default='lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-ht_met-filters' )#'lep_CR_tt2l-jet_CR_tt2l-lower_met-dilepOSmumu-ht_met-filters' )#'lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-ht_met-filters' )  #'lep_CR_DY-dilepOS-met200' )   #'lep_CR_tt2l-jet_CR_tt2l-met200' )   #default='dilepZmass-dilepSelSFOS-njet2p-btag0p' ) #default = 'dilepSelOS-njet2p-btag2p', )  #default='dilepSel-njet2p-btag1p' )        default='dilepSel-njet2p-btag2p' )   default='njet2p-btag2p-met300')
 argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "SMS"], help="Add signal to plot")
 #argParser.add_argument('--leptonpreselection', action='store',      default='Sum$(lep_pt>10&&abs(lep_pdgId)==13)>=1')
 argParser.add_argument('--leptonpreselection', action='store',      default='1')#default='(Sum$(abs(lep_pdgId)==11)+Sum$(abs(lep_pdgId)==13))>=2')
@@ -164,11 +164,13 @@ sequence = []
 
 def getJets( event, sample ):
     jetVars              = ['eta','pt','phi','btagCSV','id', 'btagDeepCSV']
-    event.jets           = filter( isAnalysisJet, filter( lambda j:j['pt']>30 and j['id'], [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))] ) )
+    event.jets           = filter( isAnalysisJet, filter( lambda j:j['pt']>25 and j['id'], [getObjDict(event, 'jet_', jetVars, i) for i in range(int(getVarValue(event, 'njet')))] ) )
     #event.jets   = filter( isAnalysisJet, event.jets )
     event.b_jets = filter( lambda j: isAnalysisJet(j) and isBJet(j), event.jets )
     
     event.ht25 = sum([jet['pt'] for jet in event.jets]) 
+    event.weight *= (event.ht25>100)
+    event.weight = event.weight*((event.met_pt/event.ht25)>0.6)*((event.met_pt/event.ht25)<1.4) if event.ht25!=0. else 0.
 
 sequence.append( getJets ) 
 
@@ -192,14 +194,14 @@ def make_analysisVariables( event, sample ):
     
     event.leadingLep_pt = all_leptons[0]['pt'] if len(all_leptons) >= 1 else float('nan')
     
-    if event.nlep_selected == 2:
+    if event.nlep_selected == 2 and selected_lep[0]['pdgId']*selected_lep[1]['pdgId']<0 :
         #leptons = sorted(leptons.items(), key = lambda l:(l[1], l[0]))        
         #all_leptons = sorted(all_leptons, key = lambda lep: -lep['pt'])         
         selected_lep = sorted(selected_lep, key = lambda lep: -lep['pt'])         
         #lep_1, lep_2 = all_leptons[:1] 
         lep_1, lep_2 = selected_lep 
            
-        #event.leadingLep_pt = lep_1['pt']        
+        event.leadingLep_pt = lep_1['pt']        
  
         l_1 = ROOT.TLorentzVector()
         l_1.SetPtEtaPhiM(lep_1['pt'], lep_1['eta'], lep_1['phi'], 0 )
@@ -231,6 +233,7 @@ def make_analysisVariables( event, sample ):
         event.mll =  float('nan')
         event.mt_min = float('nan')
         event.mtautau = float('nan')
+        event.leadingLep_pt = float('nan')
     #print ROOT.gDirectory.GetList().ls()
     
     vec = ROOT.TVector2( event.met_pt * cos(event.met_phi), event.met_pt * sin(event.met_phi) )
@@ -335,7 +338,7 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
 
 def drawPlots(plots, dataMCScale):
   for log in [False, True]:
-    plot_directory_ = os.path.join(plot_directory, 'analysisPlots', args.plot_directory, ("log" if log else "lin"), args.selection+"wTrigger")
+    plot_directory_ = os.path.join(plot_directory, 'analysisPlots2', args.plot_directory, ("log" if log else "lin"), args.selection+"wTrigger")
     for plot in plots:
       #print(plot.histos)
       #print(l for l in plot.histos)

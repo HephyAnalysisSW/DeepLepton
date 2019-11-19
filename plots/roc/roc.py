@@ -118,8 +118,8 @@ mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                          
 
 lepton_ids = [
     mvaTTH, 
-    mvaTTV,
-    deepLepton,
+#    mvaTTV,
+#    deepLepton,
 ]
 
 # get signal efficiency
@@ -148,6 +148,14 @@ for lepton_id in lepton_ids:
     lepton_id["roc"]      = ROOT.TGraph(len(lepton_id["bkg_eff" ]), array.array('d', lepton_id["bkg_eff" ]), array.array('d', lepton_id["sig_eff" ]))
     lepton_id["roc"].SetLineColor( lepton_id['color'] )
 
+
+n = 1
+x, y = array.array( 'd' ), array.array( 'd' )
+x.append(0.206)
+y.append(0.734)
+
+wp = ROOT.TGraph( n, x, y )
+
 gStyle.SetOptTitle(0)
 #gStyle.SetLegendBorderSize(0)
 #gStyle.SetFillStyle(4000)
@@ -161,6 +169,7 @@ for lepton_id in lepton_ids:
     lepton_id["roc"].GetXaxis().SetLimits(0.01, 1)
     lepton_id["roc"].GetHistogram().SetMaximum(1.01)
     lepton_id["roc"].GetHistogram().SetMinimum(0.60)
+    #lepton_id["roc"].GetHistogram().SetMinimum(0.0)
     lepton_id["roc"].SetLineWidth(2)
     lepton_id["roc"].SetFillStyle(0)
     lepton_id["roc"].SetFillColor(0)
@@ -168,6 +177,33 @@ for lepton_id in lepton_ids:
     lepton_id["roc"].SetTitle(lepton_id["name"])
     lepton_id["roc"].Draw(option+same)
     same = "same"
+
+
+#_____________________________________________________
+
+
+wp.GetXaxis().SetTitle("background efficiency")
+wp.GetYaxis().SetTitle("signal efficiency")
+wp.GetXaxis().SetLimits(0.01, 1)
+wp.GetHistogram().SetMaximum(1.01)
+wp.GetHistogram().SetMinimum(0.60)
+wp.SetLineWidth(2)
+wp.SetFillStyle(0)
+wp.SetFillColor(0)
+wp.SetMarkerColor(lepton_id["color"])
+wp.SetTitle(lepton_id["name"])
+wp.Draw('APsame')
+
+
+#wp.SetLineWidth(4)
+#wp.SetLineColor(2)
+#wp.SetMarkerColor(4)
+#wp.SetMarkerStyle( 21 )
+#wp.SetTitle('Analysis-WP')
+#wp.Draw('APsame')
+
+#_____________________________________________________
+
 
 header = [
             #{'text': ROOT.TPaveLabel(.00,0.96,.20,1.0,  "CMS preliminary",                                                                                                                   "nbNDC"), 'font': 30  },

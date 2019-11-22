@@ -20,10 +20,10 @@ special_cuts = {
     #"dilepSelSFOS":      "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]==-lep_pdgId[1])",
     #"dilepZmass":        "nlep==2&&(sqrt(2*lep_pt[0]*lep_pt[1]*( cosh(lep_eta[0]-lep_eta[1]) - cos(lep_phi[0]-lep_phi[1])))<(91.19+15.))&&(sqrt(2*lep_pt[0]*lep_pt[1]*( cosh(lep_eta[0]-lep_eta[1]) - cos(lep_phi[0]-lep_phi[1])))>(91.19-15.))",   
     
-    "lep_CR_tt2l":       "(Sum$(abs(lep_pdgId)==13&&lep_pt>5&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) )) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) ))) == 2"   ,
+    "lep_CR_tt2l":       "((Sum$(abs(lep_pdgId)==13&&lep_pt>5&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) ))) + (Sum$(abs(lep_pdgId)==11&&lep_pt>5&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) )))) == 2"   ,
     
-    #"jet_CR_tt2l":       "Sum$(jet_btagDeepCSV>0.6321&&jet_pt>40&&abs(jet_eta)<2.4)>=1"   , 
-    "jet_CR_tt2l":       "Sum$(jet_btagDeepCSV>0.2217&&jet_pt>40&&abs(jet_eta)<2.4)>=1"   , 
+    "jet_CR_tt2l":       "Sum$(jet_btagDeepCSV>0.6321&&jet_pt>40&&abs(jet_eta)<2.4)>=1"   , 
+    #"jet_CR_tt2l":       "Sum$(jet_btagDeepCSV>0.2217&&jet_pt>40&&abs(jet_eta)<2.4)>=1"   , 
     
     #"lep_CR_DY":         "((Sum$(abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1)  )==2) || (Sum$(abs(lep_pdgId)==11&&lep_pt>5&&abs(lep_eta)<2.5&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) )==2)) "   ,#&& Sum$( lep_pt>20||lep_ip3d>0.01||lep_sip3d>2  )>=1"   , 
     "lep_CR_DY_all":     "(Sum$(abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1)) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&abs(lep_eta)<2.5&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) ))==2 "   ,#&& Sum$( lep_pt>20||lep_ip3d>0.01||lep_sip3d>2  )>=1"   , 
@@ -38,7 +38,7 @@ special_cuts = {
     "med_met":           "met_pt>200&&met_pt<300"   ,
 
 
-    "lep_SR_all":            "(Sum$(abs(lep_pdgId)==13&&lep_pt>5&&lep_pt<30&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 )) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&lep_pt<30&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 ))) == 2"   ,
+    "lep_SR_all":            "(Sum$(abs(lep_pdgId)==13&&lep_pt>3.5&&lep_pt<30&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 )) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&lep_pt<30&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 ))) == 2"   ,
     "lep_SR_mumu_ee":            "(Sum$(abs(lep_pdgId)==13&&lep_pt>5&&lep_pt<30&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 )) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&lep_pt<30&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 ))) == 2"   ,
     "lep_SR_mu":            "(Sum$(abs(lep_pdgId)==13&&lep_pt>5&&lep_pt<30&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 ))) == 2"   ,
     "jet_SR":            "Sum$(jet_pt>25&&jet_eta<2.4)>=1&&Sum$(jet_pt>25&&jet_btagDeepCSV>0.2217)==0"  , 

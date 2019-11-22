@@ -248,7 +248,7 @@ def muonSelector( lepton_selection, year):
                 l["pt"]>=5\
                 and abs(l["pdgId"])==13\
                 and abs(l["eta"])<2.4\
-                and ((l["relIso03"]<0.5 and (l["relIso03"]*l["pt"])<5.0) or (l["relIso03"]<0.1))\
+                and ((l["relIso03"]<0.5 and (abs(l["relIso03"]*l["pt"]))<5.0) or (l["relIso03"]<0.1))\
                 and l["sip3d"]<2.0\
                 and l["ip3d"]<0.01
 
@@ -451,7 +451,7 @@ def eleSelector( lepton_selection, year ):
                 l["pt"]>=5\
                 and abs(l["pdgId"])==11\
                 and abs(l["eta"])<2.5\
-                and ((l["relIso03"]<0.5 and (l["relIso03"]*l["pt"])<5.0) or (l["relIso03"]<0.1))\
+                and ((l["relIso03"]<0.5 and (abs(l["relIso03"]*l["pt"]))<5.0) or (l["relIso03"]<0.1))\
                 and l["sip3d"]<2.0\
                 and l["ip3d"]<0.01
 

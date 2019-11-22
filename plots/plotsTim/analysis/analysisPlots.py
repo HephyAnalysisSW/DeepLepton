@@ -235,7 +235,7 @@ def make_analysisVariables( event, sample ):
         event.mtautau = float('nan')
         event.leadingLep_pt = float('nan')
     #print ROOT.gDirectory.GetList().ls()
-    
+ 
     vec = ROOT.TVector2( event.met_pt * cos(event.met_phi), event.met_pt * sin(event.met_phi) )
     for lep in all_leptons:
         if abs(lep['pdgId']) == 13:
@@ -243,12 +243,12 @@ def make_analysisVariables( event, sample ):
     event.met_musubtracted = vec.Mod()
 
     
-    event.weight *= (event.mll < 50)*(event.mll > 4)*(event.mll<9 or event.mll>10.5)
+    event.weight *= (event.mll < 50.)*(event.mll > 4.)*(event.mll<9. or event.mll>10.5)
     #if not (event.mll<9 or event.mll>10.5): event.weight = 0.
-    event.ptll *= (event.ptll > 3)
-    event.weight *= (0 > event.mtautau or 160 < event.mtautau) 
-    event.weight *= (event.met_musubtracted > 125) 
-    
+    event.ptll *= (event.ptll > 3.)
+    event.weight *= (0 > event.mtautau or 160. < event.mtautau) 
+    event.weight *= (event.met_musubtracted > 125.) 
+    #event.weight *= 0.9 
     #event.weight *= (0. < event.mtautau < 160.) 
     #event.weight *= (event.mt_min < 70.)
     #print(event.mll)

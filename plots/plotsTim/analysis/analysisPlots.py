@@ -29,7 +29,7 @@ argParser.add_argument('--small',                                   action='stor
 argParser.add_argument('--plot_directory',     action='store',      default='DeepLepton')
 argParser.add_argument('--sampleSelection',    action='store',      choices=['DY','TT'], default='TT'  )
 argParser.add_argument('--data',               action='store',      type=str, default='Run2016'  )
-argParser.add_argument('--selection',          action='store',      default='lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-ht_met-filters' )#'lep_CR_tt2l-jet_CR_tt2l-lower_met-dilepOSmumu-ht_met-filters' )#'lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-ht_met-filters' )  #'lep_CR_DY-dilepOS-met200' )   #'lep_CR_tt2l-jet_CR_tt2l-met200' )   #default='dilepZmass-dilepSelSFOS-njet2p-btag0p' ) #default = 'dilepSelOS-njet2p-btag2p', )  #default='dilepSel-njet2p-btag1p' )        default='dilepSel-njet2p-btag2p' )   default='njet2p-btag2p-met300')
+argParser.add_argument('--selection',          action='store',      default='lep_CR_tt2l-jet_CR_tt2l-lower_met-dilepOS-ht_met-filters' )#'lep_CR_tt2l-jet_CR_tt2l-lower_met-dilepOSmumu-ht_met-filters' )#'lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-ht_met-filters' )  #'lep_CR_DY-dilepOS-met200' )   #'lep_CR_tt2l-jet_CR_tt2l-met200' )   #default='dilepZmass-dilepSelSFOS-njet2p-btag0p' ) #default = 'dilepSelOS-njet2p-btag2p', )  #default='dilepSel-njet2p-btag1p' )        default='dilepSel-njet2p-btag2p' )   default='njet2p-btag2p-met300')
 argParser.add_argument('--signal',             action='store',      default=None,            nargs='?', choices=[None, "SMS"], help="Add signal to plot")
 #argParser.add_argument('--leptonpreselection', action='store',      default='Sum$(lep_pt>10&&abs(lep_pdgId)==13)>=1')
 argParser.add_argument('--leptonpreselection', action='store',      default='1')#default='(Sum$(abs(lep_pdgId)==11)+Sum$(abs(lep_pdgId)==13))>=2')
@@ -194,7 +194,8 @@ def make_analysisVariables( event, sample ):
     
     event.leadingLep_pt = all_leptons[0]['pt'] if len(all_leptons) >= 1 else float('nan')
     
-    if event.nlep_selected == 2 and selected_lep[0]['pdgId']*selected_lep[1]['pdgId']<0 :
+    #if event.nlep_selected == 2 and selected_lep[0]['pdgId']*selected_lep[1]['pdgId']<0 :  #higher
+    if event.nlep_selected == 2 and selected_lep[0]['pdgId']==-selected_lep[1]['pdgId'] :   #lower
         #leptons = sorted(leptons.items(), key = lambda l:(l[1], l[0]))        
         #all_leptons = sorted(all_leptons, key = lambda lep: -lep['pt'])         
         selected_lep = sorted(selected_lep, key = lambda lep: -lep['pt'])         
@@ -234,6 +235,7 @@ def make_analysisVariables( event, sample ):
         event.mt_min = float('nan')
         event.mtautau = float('nan')
         event.leadingLep_pt = float('nan')
+        event.weight = 0.
     #print ROOT.gDirectory.GetList().ls()
  
     vec = ROOT.TVector2( event.met_pt * cos(event.met_phi), event.met_pt * sin(event.met_phi) )
@@ -243,7 +245,9 @@ def make_analysisVariables( event, sample ):
     event.met_musubtracted = vec.Mod()
 
     
-    event.weight *= (event.mll < 50.)*(event.mll > 4.)*(event.mll<9. or event.mll>10.5)
+    event.weight *= (event.mll < 50.)*(event.mll > 4.)
+    if selected_lep[0]['pdgId']==-selected_lep[1]['pdgId']: 
+        event.weight *= (event.mll<9. or event.mll>10.5)
     #if not (event.mll<9 or event.mll>10.5): event.weight = 0.
     event.ptll *= (event.ptll > 3.)
     event.weight *= (0 > event.mtautau or 160. < event.mtautau) 

@@ -14,6 +14,7 @@ special_cuts = {
     #"lepSel":            "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20",
     "dilepOS":           "nlep>=2&&(lep_pdgId[0]*lep_pdgId[1])<0",
     "dilepOSmumu":       "nlep>=2&&(lep_pdgId[0]==-lep_pdgId[1])&&abs(lep_pdgId[0])==13",
+    "dilepOSmumuDY":     "nlep>=2&&(lep_pdgId[0]==-lep_pdgId[1])&&abs(lep_pdgId[0])==13&&(lep_pt[0]>20||(lep_ip3d[0]>0.1&&lep_ip3d[1]>0.1)||(lep_sip3d[0]>2&&lep_sip3d[1]>2))",
     #"dilepSel":          "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20",
     #"dilepSelOS":        "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]*lep_pdgId[1]<0)",  #&&abs(lep_pdgId[0])==13&&abs(lep_pdgId[1])==13", 
     #"dilepSelSFSS":      "nlep==2&&lep_pt[0]>40&&lep_pt[1]>20&&(lep_pdgId[0]==lep_pdgId[1])",
@@ -22,7 +23,7 @@ special_cuts = {
     
     "lep_CR_tt2l":       "((Sum$(abs(lep_pdgId)==13&&lep_pt>5&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) ))) + (Sum$(abs(lep_pdgId)==11&&lep_pt>5&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) )))) == 2"   ,
     
-    "jet_CR_tt2l":       "Sum$(jet_btagDeepCSV>0.6321&&jet_pt>40&&abs(jet_eta)<2.4)>=1"   , 
+    "jet_CR_tt2l":       "Sum$(jet_btagDeepCSV>0.6321&&jet_pt>40&&abs(jet_eta)<2.4)>=1&&Sum$(jet_btagDeepCSV>0.6321&&abs(jet_eta)<2.4)<3"   , 
     #"jet_CR_tt2l":       "Sum$(jet_btagDeepCSV>0.2217&&jet_pt>40&&abs(jet_eta)<2.4)>=1"   , 
     
     #"lep_CR_DY":         "((Sum$(abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1)  )==2) || (Sum$(abs(lep_pdgId)==11&&lep_pt>5&&abs(lep_eta)<2.5&&lep_ip3d<0.0175&&lep_sip3d<2.5&&((lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5)||lep_relIso03<0.1) )==2)) "   ,#&& Sum$( lep_pt>20||lep_ip3d>0.01||lep_sip3d>2  )>=1"   , 

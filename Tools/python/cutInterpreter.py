@@ -40,12 +40,12 @@ special_cuts = {
 
 
     "lep_SR_all":            "(Sum$(abs(lep_pdgId)==13&&lep_pt>3.5&&lep_pt<30&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 )) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&lep_pt<30&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 ))) == 2"   ,
-    "lep_SR_mumu_ee":            "(Sum$(abs(lep_pdgId)==13&&lep_pt>5&&lep_pt<30&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 )) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&lep_pt<30&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 ))) == 2"   ,
+    "lep_SR_mumu_ee":            "(Sum$(abs(lep_pdgId)==13&&lep_pt>3.5&&lep_pt<30&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 )) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&lep_pt<30&&( abs(lep_eta)<2.5&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 ))) == 2"   ,
     "lep_SR_mu":            "(Sum$(abs(lep_pdgId)==13&&lep_pt>5&&lep_pt<30&&( abs(lep_eta)<2.4&&lep_ip3d<0.01&&lep_sip3d<2&&lep_relIso03<0.5&&(lep_relIso03*lep_pt)<5 ))) == 2"   ,
     "jet_SR":            "Sum$(jet_pt>25&&jet_eta<2.4)>=1&&Sum$(jet_pt>25&&jet_btagDeepCSV>0.2217)==0"  , 
 
     #"T2tt_350_20":       "Sum$(genPartAll_pdgId==1000006&&genPartAll_mass==350)>=1&&Sum$(genPartAll_pdgId==-1000006&&genPartAll_mass==350)>=1&&Sum$(genPartAll_pdgId==1000022&&genPartAll_mass==330)>=2",
-    "T2tt_350_20":        "Sum$(genPartAll_pdgId==1000006 && genPartAll_mass==350)>=1 && Sum$(genPartAll_pdgId==1000022 && genPartAll_mass==330)>=1" ,
+    "T2tt_350_20":        "Sum$(abs(genPartAll_pdgId)==1000006 && genPartAll_mass==350)>=1 && Sum$(abs(genPartAll_pdgId)==1000022 && genPartAll_mass==330)>=1" ,
     #"T2tt_350_20":        "Sum$(abs(genPartAll_pdgId)==13&&abs(genPartAll_grandmotherId)==1000006)>=2 && Sum$(abs(genPartAll_pdgId)==1000006&&genPartAll_mass==350)>=2 && Sum$(abs(genPartAll_pdgId)==1000022&&genPartAll_mass==330)>=2" ,
    
     "filters":            "Flag_goodVertices==1&&Flag_HBHENoiseFilter==1&&Flag_HBHENoiseIsoFilter==1&&Flag_eeBadScFilter==1&&Flag_EcalDeadCellTriggerPrimitiveFilter==1&&Flag_globalTightHalo2016Filter==1&&Flag_badMuonSummer2016==1&&Flag_badChargedHadronSummer2016==1" , 

@@ -9,7 +9,7 @@ ROOT.gROOT.SetBatch(True)
 import itertools
 import copy
 
-from math                         import sqrt, cos, sin, pi, cosh
+from math                         import sqrt, cos, sin, pi, cosh, log, exp
 from RootTools.core.standard      import *
 from DeepLepton.Tools.user            import plot_directory
 from DeepLepton.Tools.helpers         import deltaR, deltaPhi, getObjDict, getVarValue
@@ -50,7 +50,13 @@ if args.year == 2017:                 args.plot_directory += "_Run2017"
 if args.noData:                       args.plot_directory += "_noData"
 args.plot_directory = os.path.join( args.plot_directory, args.data+'_reducedMC'+str(args.reduceMC) )
 
-selection_dict = {"low_tt2l":"lep_CR_tt2l-jet_CR_tt2l-lower_met-dilepOS-filters", "high_tt2l":"lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-filters", "low_DY": "lep_CR_DY_mumu-jet_CR_DY-dilepOSmumuDY-lower_met-filters", "high_DY":"lep_CR_DY_all-jet_CR_DY-dilepOS-met200-filters", "low_sig":"lep_SR_mu-jet_SR-lower_met-filters", "med_sig":"lep_SR_all-jet_SR-med_met-filters", "high_sig":"lep_SR_all-jet_SR-met300-filters" } 
+selection_dict = {"low_tt2l":"lep_CR_tt2l-jet_CR_tt2l-lower_met-dilepOS-filters", 
+                "high_tt2l":"lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-filters", 
+                "low_DY": "lep_CR_DY_mumu-jet_CR_DY-dilepOSmumuDY-lower_met-filters", 
+                "high_DY":"lep_CR_DY_all-jet_CR_DY-dilepOS-met200-filters", 
+                "low_sig":"lep_SR_mu-jet_SR-lower_met-filters", 
+                "med_sig":"lep_SR_all-jet_SR-med_met-filters", 
+                "high_sig":"lep_SR_all-jet_SR-met300-filters" } 
 args.selection = selection_dict[args.region]
 print(args.selection)
 
@@ -108,11 +114,10 @@ if args.year == 2017:
     raise NotImplementedError 
     mc             = [ ]
 elif args.year == 2016:
-    #mc              = [ TTJets_DiLepton, DY, VV,]
-    #mc             = [ DY, TTJets_DiLepton, VV,]
-    mc             = [ DY, TTJets_DiLepton, VV, TTJets_SingleLepton, WJets,]
-    #mc             = [ DY, TTJets_DiLepton, TTJets_SingleLepton,]
-
+    if "sig" in args.region:
+        mc             = [ DY, TTJets_DiLepton, VV, TTJets_SingleLepton, WJets,]
+    else:
+        mc             = [ DY, TTJets_DiLepton, VV,]
 for sample in mc: sample.style = styles.fillStyle(sample.color)
 
 
@@ -213,13 +218,28 @@ def make_analysisVariables( event, sample ):
         v2 = event.met_pt * sin( lep_1["phi"] - event.met_phi  ) / ( lep_2["pt"] * sin( lep_1["phi"] - lep_2["phi"] ) )
         v1 += 1
         v2 += 1
+        #print("v1: ", v1)
+        #print("v2: ", v2)
+        #angle1 = pi if v1<0. else 0.
+        #angle2 = pi if v2<0. else 0.
+                             
+       
         tau_1 = ROOT.TLorentzVector()
         tau_2 = ROOT.TLorentzVector() 
-        tau_1.SetPtEtaPhiM( lep_1['pt']*v1, lep_1['eta'], lep_1['phi'], 1.77682 )
-        tau_2.SetPtEtaPhiM( lep_2['pt']*v2, lep_2['eta'], lep_2['phi'], 1.77682 ) 
+        
+        if v1<0:
+            tau_1.SetPtEtaPhiM( lep_1['pt']*abs(v1), -lep_1['eta'], lep_1['phi']+pi, 1.77682 )
+        else:
+            tau_1.SetPtEtaPhiM( lep_1['pt']*abs(v1), lep_1['eta'], lep_1['phi'], 1.77682 )
+        if v2<0:
+            tau_2.SetPtEtaPhiM( lep_2['pt']*abs(v2), -lep_2['eta'], lep_2['phi']+pi, 1.77682 ) 
+        else:
+            tau_2.SetPtEtaPhiM( lep_2['pt']*abs(v2), lep_2['eta'], lep_2['phi'], 1.77682 ) 
         tautau = tau_1 + tau_2
         event.mtautau = tautau.M() 
-
+        if v1<0 or v2<0:
+            event.mtautau *= -1
+        #print(event.mtautau)
     else:
         event.ptll = float('nan')
         event.mll =  float('nan')
@@ -242,13 +262,17 @@ def make_analysisVariables( event, sample ):
         event.weight *= (event.mll<9. or event.mll>10.5)
     event.ptll *= (event.ptll > 3.)
     
-    event.weight *= (event.met_musubtracted > 125.) 
     
     if args.region=="low_DY" or args.region=="high_DY":
-       event.weight *= (mt1 < 70.)*(mt2 < 70.)
-       event.weight *= (0. < event.mtautau < 160.)
+        event.weight *= (mt1 < 70.)*(mt2 < 70.)
+        event.weight *= (0. < event.mtautau < 160.)
+        if args.region=="high_DY":
+            event.weight *= (event.met_musubtracted > 125.)
     else:
-       event.weight *= (0 > event.mtautau or 160. < event.mtautau) 
+        event.weight *= (0 > event.mtautau or 160. < event.mtautau) 
+        #event.weight *= (160. < event.mtautau) 
+        event.weight *= (0 > event.mtautau or 160. < event.mtautau) 
+        event.weight *= (event.met_musubtracted > 125.) 
     
 
 sequence.append( make_analysisVariables )
@@ -376,6 +400,8 @@ if not args.noData:
     data_sample.style          = styles.errorStyle(ROOT.kBlack)
     lumi_scale                 = data_sample.lumi/1000
     data_sample.read_variables = ["nlep/I",  "lep[%s]"%(lepton_branches_data) ]
+
+#print('lumi scale: ', lumi_scale)
 
 if args.noData: lumi_scale = 35.9
 weight_ = lambda event, sample: event.weight

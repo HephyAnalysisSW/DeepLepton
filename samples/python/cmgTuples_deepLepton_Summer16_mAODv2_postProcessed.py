@@ -28,7 +28,7 @@ dirs = {}
 
 # full:
 dirs['TTJets_DiLepton']     = ["TTJets_DiLepton_comb"]
-dirs['VV']                  = ["VVTo2L2Nu_comb"]
+dirs['VV']                  = ["VVTo2L2Nu_comb", "ZZTo4L", "ZZTo2L2Q"]
 dirs['DY']                  = ["DYJetsToLL_M50_HT70to100" ,"DYJetsToLL_M50_HT100to200_comb", "DYJetsToLL_M50_HT200to400_comb", "DYJetsToLL_M50_HT400to600_comb", "DYJetsToLL_M50_HT600to800", "DYJetsToLL_M50_HT800to1200", "DYJetsToLL_M50_HT1200to2500", "DYJetsToLL_M50_HT2500toInf", "DYJetsToLL_M5to50_HT100to200_comb", "DYJetsToLL_M5to50_HT200to400_comb", "DYJetsToLL_M5to50_HT400to600_comb", "DYJetsToLL_M5to50_HT600toInf_comb"]
 dirs['SMS_T2tt']            = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p1"]
 dirs['SMS_T2tt_lowerpt']    = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p135pt"]

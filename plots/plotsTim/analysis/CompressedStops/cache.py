@@ -155,6 +155,7 @@ signal_jes_uncertainty         = {}
 signal_electronId_uncertainty  = {}
 signal_muonId_uncertainty      = {}
 
+
 signal_SM_rate                  = {}
 signal_coeffList                = {}
 
@@ -165,7 +166,7 @@ background_jes_uncertainty        = {}
 background_electronId_uncertainty = {}
 background_muonId_uncertainty     = {}
 
-nonPromptObservation              = {}
+inonPromptObservation              = {}
 
 #SMsigmaC = getHiggsWeight( 0 )
 

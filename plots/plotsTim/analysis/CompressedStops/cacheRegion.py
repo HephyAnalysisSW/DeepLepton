@@ -37,12 +37,13 @@ argParser.add_argument('--selection',          action='store',     default='lepS
 argParser.add_argument('--small',              action='store_true', default=False, help='Run only on a small subset of the data?')
 argParser.add_argument('--region',             action='store',)
 argParser.add_argument('--sample',             action='store',      default='DY', choices = ["DY", "TTJets_DiLepton", "WJets", "VV", "TTJets_SingleLepton", "SMS", "Data"])
-argParser.add_argument('--year',               action='store',      default=2016, choices = [2016, 2017])
-argParser.add_argument('--lumi',               action='store',      default=35.9)
+argParser.add_argument('--year',               action='store',      default=2016)
+argParser.add_argument('--lumi',               action='store',      default="35.9")
 
 args = argParser.parse_args()
-
-region = regions[args.region]
+args.year = int(args.year)
+region = regions[int(args.region)]
+lumi_scale = args.lumi
 
 if args.year == 2017:
     raise NotImplementedError
@@ -77,8 +78,9 @@ if args.small:
     eventScale = 1./sample.normalization
     sample.addWeightString(eventScale)
 
-sample_rate  = sample.getYieldFromDraw( selectionString=region.cutString(), weightString=1. )['val']
-limitCache.add(key=args.sample+str(region), sample_rate)
+sample_rate  = sample.getYieldFromDraw( selectionString=region.cutString(), weightString=None )['val']
+limitCache.add(key=(str(args.sample)+'_'+str(region)), data=sample_rate)
+
 
 
 

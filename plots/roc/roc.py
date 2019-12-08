@@ -112,13 +112,13 @@ else:
     weightString = '1'
 
 # lepton Ids
-deepLepton = {"name":"DeepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/100000. for i in range(0,100000)]}
+deepLepton = {"name":"DeepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/1000. for i in range(0,1000)]}
 mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                                                                  "color":ROOT.kGray+1,  "thresholds":[ i/1000. for i in range(-1000,1001)]}
 mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                                                                  "color":ROOT.kGray,    "thresholds":[ i/1000. for i in range(-1000,1001)]}
 
 lepton_ids = [
-    mvaTTH, 
-    mvaTTV,
+    #mvaTTH, 
+    #mvaTTV,
     deepLepton,
 ]
 
@@ -130,8 +130,7 @@ for lepton_id in lepton_ids:
     ref                    = sig_sample.getYieldFromDraw( selectionString = selectionString, weightString = weightString) 
     lepton_id["sig_h_eff"] = sig_sample.get1DHistoFromDraw(     lepton_id["var"], lepton_id["thresholds"], selectionString = selectionString, weightString = weightString, binningIsExplicit = True )
     lepton_id["sig_h_eff"].Scale( 1./ref['val'])
-
-
+    
     selectionString = "&&".join( [ kinematic_selection, loose_id,  "(!("+prompt_selection+"))", filter_LepOther ] )
     print selectionString
     ref                    = bkg_sample.getYieldFromDraw( selectionString = selectionString, weightString = weightString )
@@ -147,6 +146,12 @@ for lepton_id in lepton_ids:
 
     lepton_id["roc"]      = ROOT.TGraph(len(lepton_id["bkg_eff" ]), array.array('d', lepton_id["bkg_eff" ]), array.array('d', lepton_id["sig_eff" ]))
     lepton_id["roc"].SetLineColor( lepton_id['color'] )
+
+    #look at DL thresholds and signal efficiency and background rejection
+    if lepton_id == deepLepton:
+        for i in range(len(lepton_id["sig_h_eff"])):
+            print("sig_eff: ", lepton_id["sig_eff"][i], "bkg_rej: ", lepton_id["bkg_eff"][i], "DL threshold: " ,lepton_id["thresholds"][i])
+
 
 #n = 1
 #wp_x, wp_y = array.array( 'd' ), array.array( 'd' )

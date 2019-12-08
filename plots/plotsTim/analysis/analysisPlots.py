@@ -360,7 +360,7 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
 
 def drawPlots(plots, dataMCScale):
   for log in [False, True]:
-    plot_directory_ = os.path.join(plot_directory, 'analysisPlots2', args.plot_directory, ("log" if log else "lin"), args.selection+"wTrigger")
+    plot_directory_ = os.path.join(plot_directory, 'analysisPlots3', args.plot_directory, ("log" if log else "lin"), args.selection+"_")
     for plot in plots:
       #print(plot.histos)
       #print(l for l in plot.histos)
@@ -393,9 +393,15 @@ yields     = {}
 allPlots   = {}
 
 tr = triggerSelector(args.year) 
+if 'low' in args.region: 
+    triggerSelection = tr.getSelection("MET")
+else:
+    triggerSelection = tr.getSelection("MET_high")
+
+print(triggerSelection)
 
 if not args.noData:
-    data_sample.setSelectionString([getFilterCut(isData=True, year=args.year), cutInterpreter.cutString(args.selection) , tr.getSelection("MET")])
+    data_sample.setSelectionString([getFilterCut(isData=True, year=args.year), cutInterpreter.cutString(args.selection) , triggerSelection])
     data_sample.name           = "data"
     data_sample.style          = styles.errorStyle(ROOT.kBlack)
     lumi_scale                 = data_sample.lumi/1000
@@ -415,8 +421,8 @@ for sample in mc + signals:
     #sample.weight         = lambda event, sample: event.reweightTopPt*event.reweightBTag_SF*event.reweightLeptonSF*event.reweightDilepTriggerBackup*event.reweightPU36fb*event.reweightLeptonTrackingSF
     #print("Trigger selection: ", tr.getSelection("MET")) 
     if sample in mc:
-        sample.setSelectionString([getFilterCut(isData=False, year=args.year), cutInterpreter.cutString(args.selection), tr.getSelection("MET")])# , args.leptonpreselection])
-        #sample.setSelectionString([getFilterCut(isData=False, year=args.year), cutInterpreter.cutString(args.selection), cutInterpreter.cutString('T2tt_350_20')])# , args.leptonpreselection])
+        
+        sample.setSelectionString([getFilterCut(isData=False, year=args.year), cutInterpreter.cutString(args.selection), triggerSelection])# , args.leptonpreselection])
     elif sample in signals:
         signal_normalization = 1234.35/lumi_scale
         sample.weight         = lambda event, sample: signal_normalization*event.reweightBTagDeepCSV_SF*event.reweightPU36fb*(1 if args.small else args.reduceMC)

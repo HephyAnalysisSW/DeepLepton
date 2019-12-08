@@ -35,8 +35,8 @@ class triggerSelector:
         self.MuonEG         = "(%s)"%"||".join(self.em + self.eem + self.emm)
         self.SingleMuon     = "(%s)"%"||".join(self.m)
         self.SingleElectron = "(%s)"%"||".join(self.e)
-        self.MET             = "(%s)"%"||".join(self.highMET + self.doublemulowMET)
-
+        self.MET            = "(%s)"%"||".join(self.highMET + self.doublemulowMET)
+        self.MET_high       = "(%s)"%"||".join(self.highMET)
         # define an arbitrary hierarchy
         #self.PDHierarchy = [ "DoubleMuon", "DoubleEG", "MuonEG", "SingleMuon", "SingleElectron" ]
         self.PDHierarchy = [ "MET" ]
@@ -50,6 +50,10 @@ class triggerSelector:
         if PD == "MC":
             #return "(%s)"%"||".join([self.DoubleMuon, self.DoubleEG, self.MuonEG, self.SingleMuon, self.SingleElectron])
             return "(%s)"%"||".join([self.MET])
+        elif PD == "MET":
+            return "(%s)"%"||".join([self.MET])
+        elif PD == "MET_high":
+            return "(%s)"%"||".join([self.MET_high])
         else:
             for x in reversed(self.PDHierarchy):
                 if found:

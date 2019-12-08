@@ -26,6 +26,7 @@ logger_rt = logger_rt.get_logger('INFO', logFile = None)
 
 from DeepLepton.Tools.user  import plot_directory, cache_directory
 from DeepLepton.Tools.cutInterpreter    import cutInterpreter
+from DeepLepton.Tools.triggerSelector_deepLepton_analysis import triggerSelector
 
 from regions import regions
  
@@ -33,7 +34,7 @@ from regions import regions
 import argparse
 
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--selection',          action='store',     default='lepSel3-onZ-njet3p-nbjet1p-Zpt0', help="Specify cut.")
+argParser.add_argument('--selection',          action='store',     default='', help="Specify cut.")
 argParser.add_argument('--small',              action='store_true', default=False, help='Run only on a small subset of the data?')
 argParser.add_argument('--region',             action='store',)
 argParser.add_argument('--sample',             action='store',      default='DY', choices = ["DY", "TTJets_DiLepton", "WJets", "VV", "TTJets_SingleLepton", "SMS", "Data"])
@@ -68,21 +69,28 @@ if not os.path.exists( baseDir ): os.makedirs( baseDir )
 cacheFileName   = os.path.join( baseDir, "estimates" )
 limitCache      = MergingDirDB( cacheFileName )
 
-selectionString      = cutInterpreter.cutString(args.selection)
-sample.setSelectionString( selectionString )
+tr = triggerSelector(args.year)
+if 'low_met' in str(region):
+    triggerSelection = tr.getSelection("MET")
+else:
+    triggerSelection = tr.getSelection("MET_high")
+
+
+selectionString      = cutInterpreter.cutString(args.selection, )
+print(selectionString)
+sample.setSelectionString( selectionString+"-dilepOS", triggerSelection )
 sample.setWeightString(lumi_scale)
 
 if args.small:
-    sample.normalization=1.
+    #sample.normalization=1.
     sample.reduceFiles( factor=10 )
-    eventScale = 1./sample.normalization
-    sample.addWeightString(eventScale)
+    #eventScale = 1./sample.normalization
+    #sample.addWeightString(eventScale)
 
 sample_rate  = sample.getYieldFromDraw( selectionString=region.cutString(), weightString=None )['val']
 limitCache.add(key=(str(args.sample)+'_'+str(region)), data=sample_rate)
 
-
-
+print(str(args.sample)+'_'+str(region), sample_rate)
 
 
 

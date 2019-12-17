@@ -11,7 +11,7 @@
 #python -i roc.py  --flat --ptMin 10  --ptMax 25 --flavour ele --flatSample TTs_Electrons_2016_Tim --lumi_weight --testData
 #python -i roc.py  --flat --ptMin 25  --ptMax 0  --flavour ele --flatSample TTs_Electrons_2016_Tim --lumi_weight --testData
 #python -i roc.py  --flat --ptMin 10  --ptMax 0  --flavour ele --flatSample TTs_Electrons_2016_Tim --lumi_weight --testData
-python -i roc.py  --flat --ptMin 5  --ptMax 30  --flavour ele --flatSample TTs_Electrons_2016_Tim --lumi_weight --testData --wp
+python -i roc.py  --flat --ptMin 5  --ptMax 30  --flavour ele --flatSample TTs_Electrons_2016_Tim --lumi_weight --testData --wp --fairComp
 
 #python -i roc.py  --flat --ptMin 5  --ptMax 10   --flatSample TTs_Muons_morepf_2016_Tim --lumi_weight --testData
 #python -i roc.py  --flat --ptMin 5  --ptMax 0    --flatSample TTs_Muons_morepf_2016_Tim --lumi_weight --testData
@@ -20,7 +20,7 @@ python -i roc.py  --flat --ptMin 5  --ptMax 30  --flavour ele --flatSample TTs_E
 #python -i roc.py  --flat --ptMin 10  --ptMax 25  --flatSample TTs_Muons_morepf_2016_Tim --lumi_weight --testData
 #python -i roc.py  --flat --ptMin 25  --ptMax 0   --flatSample TTs_Muons_morepf_2016_Tim --lumi_weight --testData
 #python -i roc.py  --flat --ptMin 10  --ptMax 0   --flatSample TTs_Muons_morepf_2016_Tim --lumi_weight --testData
-#python -i roc.py  --flat --ptMin 5  --ptMax 30   --flatSample TTs_Muons_morepf_2016_Tim --lumi_weight --testData --wp
+python -i roc.py  --flat --ptMin 5  --ptMax 30   --flatSample TTs_Muons_morepf_2016_Tim --lumi_weight --testData --wp --fairComp
 
 #python -i roc.py  --flat --ptMin 5  --ptMax 10  --flavour ele --flatSample TTs_Electrons_2017 --lumi_weight --testData
 #python -i roc.py  --flat --ptMin 5  --ptMax 15  --flavour ele --flatSample TTs_Electrons_2017 --lumi_weight --testData

@@ -255,7 +255,7 @@ def muonSelector( lepton_selection, year):
     elif lepton_selection == 'SR_T2tt':
         def func(l):
             return \
-                l["pt"]>=5\
+                l["pt"]>=3.5\
                 and l["pt"]<=30\
                 and abs(l["pdgId"])==13\
                 and abs(l["eta"])<2.4\

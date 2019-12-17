@@ -23,6 +23,7 @@ argParser.add_argument('--flavour',            action='store', type=str, choices
 argParser.add_argument('--testData',           action='store_true',   help="plot test or train data?")
 argParser.add_argument('--lumi_weight',        action='store_true',   help="apply lumi weight?")
 argParser.add_argument('--wp',                 action='store_true',   help="add WP of standard cut selection")
+argParser.add_argument('--fairComp',           action='store_true',   help="fair comparison between analysis and DL")
 #argParser.add_argument('--selection',          action='store',      default='dilepOS-njet3p-btag1p-onZ')
 args = argParser.parse_args()
 
@@ -92,6 +93,14 @@ if args.flavour == 'muo':
 elif args.flavour == 'ele':
     loose_id = "abs(lep_pdgId)==11&&lep_pt>7&&abs(lep_eta)<2.5&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1&&lep_lostHits<=1"
 
+if args.fairComp:
+    if args.flavour == 'muo':
+        # lepton preselection
+        loose_id = "abs(lep_pdgId)==13&&lep_pt>5&&abs(lep_eta)<2.4"
+    elif args.flavour == 'ele':
+        loose_id = "abs(lep_pdgId)==11&&lep_pt>5&&abs(lep_eta)<2.5"
+
+
 #loose_id = "abs(lep_pdgId)==13&&lep_miniRelIso<0.5"
 #prep for ele:
 # in barrel: loose_id = "abs(lep_pdgId)==11&&lep_pt>5&&abs(lep_eta)<2.4&&lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dxy)<0.05&&abs(lep_dz)<0.1
@@ -112,13 +121,13 @@ else:
     weightString = '1'
 
 # lepton Ids
-deepLepton = {"name":"DeepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/1000. for i in range(0,1000)]}
+deepLepton = {"name":"DeepLepton", "var":"prob_lep_isPromptId_Training" if args.flat else "lep_deepLepton_prompt",      "color":ROOT.kGreen+2, "thresholds":[ i/100000. for i in range(0,100000)]}
 mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                                                                  "color":ROOT.kGray+1,  "thresholds":[ i/1000. for i in range(-1000,1001)]}
 mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                                                                  "color":ROOT.kGray,    "thresholds":[ i/1000. for i in range(-1000,1001)]}
 
 lepton_ids = [
-    #mvaTTH, 
-    #mvaTTV,
+    mvaTTH, 
+    mvaTTV,
     deepLepton,
 ]
 
@@ -147,34 +156,22 @@ for lepton_id in lepton_ids:
     lepton_id["roc"]      = ROOT.TGraph(len(lepton_id["bkg_eff" ]), array.array('d', lepton_id["bkg_eff" ]), array.array('d', lepton_id["sig_eff" ]))
     lepton_id["roc"].SetLineColor( lepton_id['color'] )
 
-    #look at DL thresholds and signal efficiency and background rejection
-    if lepton_id == deepLepton:
-        for i in range(len(lepton_id["sig_h_eff"])):
-            print("sig_eff: ", lepton_id["sig_eff"][i], "bkg_rej: ", lepton_id["bkg_eff"][i], "DL threshold: " ,lepton_id["thresholds"][i])
-
-
-#n = 1
-#wp_x, wp_y = array.array( 'd' ), array.array( 'd' )
-#wp_x.append(0.206)
-#wp_y.append(0.734)
-#
-#wp = ROOT.TGraph( n, wp_x, wp_y )
+#    #look at DL thresholds and signal efficiency and background rejection
+#    if lepton_id == deepLepton:
+#        for i in range(len(lepton_id["sig_h_eff"])):
+#            print("sig_eff: ", lepton_id["sig_eff"][i], "bkg_rej: ", lepton_id["bkg_eff"][i], "DL threshold: " ,lepton_id["thresholds"][i])
 
 
 gStyle.SetOptTitle(0)
-#gStyle.SetLegendBorderSize(0)
-#gStyle.SetFillStyle(4000)
 c = ROOT.TCanvas()
 option = "L"
 same    ="A"
 for lepton_id in lepton_ids:
-    #lepton_id["roc"].GetXaxis().SetRangeUser(0.01, 1)
     lepton_id["roc"].GetXaxis().SetTitle("background efficiency")
     lepton_id["roc"].GetYaxis().SetTitle("signal efficiency")
     lepton_id["roc"].GetXaxis().SetLimits(0.01, 1)
     lepton_id["roc"].GetHistogram().SetMaximum(1.01)
     lepton_id["roc"].GetHistogram().SetMinimum(0.60)
-    #lepton_id["roc"].GetHistogram().SetMinimum(0.0)
     lepton_id["roc"].SetLineWidth(2)
     lepton_id["roc"].SetFillStyle(0)
     lepton_id["roc"].SetFillColor(0)
@@ -245,6 +242,16 @@ if args.flat:
                                 'TestData' if args.testData else 'TrainData',
                                 'roc',
                             )
+    if args.fairComp:
+        directory = os.path.join(   plot_directory, "DeepLepton",
+                                    flat_sampleInfo['sample_name'],
+                                    flat_sampleInfo['training_date'],
+                                    'TestData' if args.testData else 'TrainData',
+                                    'roc',
+                                    'fairComp',
+                                )
+
+        
 else:
     directory = os.path.join( plot_directory, "DeepLepton", "full_events" ) 
 

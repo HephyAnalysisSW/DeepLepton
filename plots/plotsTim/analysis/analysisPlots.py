@@ -50,12 +50,13 @@ if args.year == 2017:                 args.plot_directory += "_Run2017"
 if args.noData:                       args.plot_directory += "_noData"
 args.plot_directory = os.path.join( args.plot_directory, args.data+'_reducedMC'+str(args.reduceMC) )
 
-selection_dict = {"low_tt2l":"lep_CR_tt2l-jet_CR_tt2l-lower_met-dilepOS-filters", 
+selection_dict = {"low_tt2l":"lep_CR_tt2l_mumu-jet_CR_tt2l-lower_met-dilepOS-filters", 
                 "high_tt2l":"lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-filters", 
                 "low_DY": "lep_CR_DY_mumu-jet_CR_DY-dilepOSmumuDY-lower_met-filters", 
                 "high_DY":"lep_CR_DY_all-jet_CR_DY-dilepOS-met200-filters", 
                 "low_sig":"lep_SR_mu-jet_SR-lower_met-filters", 
                 "med_sig":"lep_SR_all-jet_SR-med_met-filters", 
+                #"high_sig":"lep_SR_all_DL_bgr-jet_SR-met300-filters" } 
                 "high_sig":"lep_SR_all-jet_SR-met300-filters" } 
 args.selection = selection_dict[args.region]
 print(args.selection)
@@ -212,7 +213,7 @@ def make_analysisVariables( event, sample ):
         event.mll = ll.M()         
         mt1 = sqrt( 2*lep_1["pt"]*event.met_pt*( 1 - cos( lep_1['phi'] - event.met_phi ) )) 
         mt2 = sqrt( 2*lep_2["pt"]*event.met_pt*( 1 - cos( lep_2['phi'] - event.met_phi ) )) 
-        event.mt_min = min(mt1, mt2)
+        #event.mt_min = min(mt1, mt2)
 
         v1 = event.met_pt * sin( event.met_phi - lep_2["phi"]  ) / ( lep_1["pt"] * sin( lep_1["phi"] - lep_2["phi"] ) )
         v2 = event.met_pt * sin( lep_1["phi"] - event.met_phi  ) / ( lep_2["pt"] * sin( lep_1["phi"] - lep_2["phi"] ) )
@@ -240,6 +241,13 @@ def make_analysisVariables( event, sample ):
         if v1<0 or v2<0:
             event.mtautau *= -1
         #print(event.mtautau)
+
+        vec = ROOT.TVector2( event.met_pt * cos(event.met_phi), event.met_pt * sin(event.met_phi) )
+        for lep in all_leptons:
+            if abs(lep['pdgId']) == 13:
+                vec += ROOT.TVector2( lep['pt'] * cos(lep['phi']), lep['pt'] * sin(lep['phi']) )
+        event.met_musubtracted = vec.Mod()
+
     else:
         event.ptll = float('nan')
         event.mll =  float('nan')
@@ -249,13 +257,7 @@ def make_analysisVariables( event, sample ):
         event.weight = 0.
         mt1 = float('nan')
         mt2 = float('nan') 
- 
-    vec = ROOT.TVector2( event.met_pt * cos(event.met_phi), event.met_pt * sin(event.met_phi) )
-    for lep in all_leptons:
-        if abs(lep['pdgId']) == 13:
-            vec += ROOT.TVector2( lep['pt'] * cos(lep['phi']), lep['pt'] * sin(lep['phi']) )
-    event.met_musubtracted = vec.Mod()
-
+        event.met_musubtracted = float('nan')
     
     event.weight *= (event.mll < 50.)*(event.mll > 4.)
     if event.nlep_selected==2 and selected_lep[0]['pdgId']==-selected_lep[1]['pdgId']: 
@@ -360,7 +362,7 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
 
 def drawPlots(plots, dataMCScale):
   for log in [False, True]:
-    plot_directory_ = os.path.join(plot_directory, 'analysisPlots3', args.plot_directory, ("log" if log else "lin"), args.selection+"_")
+    plot_directory_ = os.path.join(plot_directory, 'analysisPlots3', args.plot_directory, ("log" if log else "lin"), args.selection)#+"_DL_WP2")
     for plot in plots:
       #print(plot.histos)
       #print(l for l in plot.histos)

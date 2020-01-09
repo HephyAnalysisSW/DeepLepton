@@ -27,9 +27,11 @@ logger.info("Loading MC samples from directory %s", os.path.join(data_directory,
 dirs = {}
 
 # full:
-dirs['TTJets_DiLepton']     = ["TTJets_DiLepton_comb"]
+#dirs['TTJets_DiLepton']     = ["TTJets_DiLepton_comb"]
+dirs['TTJets_DiLepton']     = ["TTJets_DiLepton_new"]
 dirs['VV']                  = ["VVTo2L2Nu_comb", "ZZTo4L", "ZZTo2L2Q"]
-dirs['DY']                  = ["DYJetsToLL_M50_HT70to100" ,"DYJetsToLL_M50_HT100to200_comb", "DYJetsToLL_M50_HT200to400_comb", "DYJetsToLL_M50_HT400to600_comb", "DYJetsToLL_M50_HT600to800", "DYJetsToLL_M50_HT800to1200", "DYJetsToLL_M50_HT1200to2500", "DYJetsToLL_M50_HT2500toInf", "DYJetsToLL_M5to50_HT100to200_comb", "DYJetsToLL_M5to50_HT200to400_comb", "DYJetsToLL_M5to50_HT400to600_comb", "DYJetsToLL_M5to50_HT600toInf_comb"]
+#dirs['DY']                  = ["DYJetsToLL_M50_HT70to100" ,"DYJetsToLL_M50_HT100to200_comb", "DYJetsToLL_M50_HT200to400_comb", "DYJetsToLL_M50_HT400to600_comb", "DYJetsToLL_M50_HT600to800", "DYJetsToLL_M50_HT800to1200", "DYJetsToLL_M50_HT1200to2500", "DYJetsToLL_M50_HT2500toInf", "DYJetsToLL_M5to50_HT100to200_comb", "DYJetsToLL_M5to50_HT200to400_comb", "DYJetsToLL_M5to50_HT400to600_comb", "DYJetsToLL_M5to50_HT600toInf_comb"]
+dirs['DY']                  = ["DYJetsToLL_M50_HT70to100new" ,"DYJetsToLL_M50_HT100to200new", "DYJetsToLL_M50_HT200to400new", "DYJetsToLL_M50_HT400to600new", "DYJetsToLL_M50_HT600to800new", "DYJetsToLL_M50_HT800to1200new", "DYJetsToLL_M50_HT1200to2500new", "DYJetsToLL_M50_HT2500toInfnew", "DYJetsToLL_M5to50_HT100to200new", "DYJetsToLL_M5to50_HT200to400new", "DYJetsToLL_M5to50_HT400to600new", "DYJetsToLL_M5to50_HT600toInfnew"]
 dirs['SMS_T2tt']            = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p1"]
 dirs['SMS_T2tt_lowerpt']    = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p135pt"]
 dirs['SMS_T2tt_350_20']     = ["SMS_T2tt_350_20"]

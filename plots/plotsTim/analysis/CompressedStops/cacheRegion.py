@@ -76,9 +76,9 @@ else:
     triggerSelection = tr.getSelection("MET_high")
 
 
-selectionString      = cutInterpreter.cutString(args.selection, )
+selectionString      = cutInterpreter.cutString(args.selection,'dilepOS' )
 print(selectionString)
-sample.setSelectionString( selectionString+"-dilepOS", triggerSelection )
+sample.setSelectionString( [selectionString, triggerSelection] )
 sample.setWeightString(lumi_scale)
 
 if args.small:

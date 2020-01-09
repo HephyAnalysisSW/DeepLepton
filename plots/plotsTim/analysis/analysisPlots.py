@@ -259,7 +259,7 @@ def make_analysisVariables( event, sample ):
         mt2 = float('nan') 
         event.met_musubtracted = float('nan')
     
-    event.weight *= (event.mll < 50.)*(event.mll > 4.)
+    event.weight *= (event.mll < 50.)*(event.mll > 4.)  # only for same flavour??
     if event.nlep_selected==2 and selected_lep[0]['pdgId']==-selected_lep[1]['pdgId']: 
         event.weight *= (event.mll<9. or event.mll>10.5)
     event.ptll *= (event.ptll > 3.)
@@ -275,7 +275,14 @@ def make_analysisVariables( event, sample ):
         #event.weight *= (160. < event.mtautau) 
         event.weight *= (0 > event.mtautau or 160. < event.mtautau) 
         event.weight *= (event.met_musubtracted > 125.) 
-    
+   
+    if not 'low' in args.region: 
+        if event.nlep_selected==2
+            if selected_lep[0]['pdgId']==-selected_lep[1]['pdgId'] and abs(selected_lep[0]['pdgId'])==13:
+                event.weight = event.met_musubtracted>125.
+            else: 
+                event.weight = event.met_musubtracted>200.
+                
 
 sequence.append( make_analysisVariables )
 

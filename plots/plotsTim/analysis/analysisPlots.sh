@@ -9,7 +9,7 @@
 #python -i analysisPlots.py --region low_DY --signal SMS
 #python -i analysisPlots.py --region high_DY --signal SMS
 #python -i analysisPlots.py --region low_tt2l --signal SMS
-python -i analysisPlots.py --region high_tt2l --signal SMS
+#python -i analysisPlots.py --region high_tt2l --signal SMS
 #
 #python -i analysisPlots.py --region low_DY --signal SMS --noData     
 #python -i analysisPlots.py --region high_DY --signal SMS --noData
@@ -21,3 +21,6 @@ python -i analysisPlots.py --region high_tt2l --signal SMS
 #python -i analysisPlots.py --region high_sig --signal SMS --noData
 
 
+python -i analysisPlots_light.py --region low_sig  --noData 
+python -i analysisPlots_light.py --region med_sig  --noData
+python -i analysisPlots_light.py --region high_sig --noData

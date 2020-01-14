@@ -70,7 +70,7 @@ cacheFileName   = os.path.join( baseDir, "estimates" )
 limitCache      = MergingDirDB( cacheFileName )
 
 tr = triggerSelector(args.year)
-if 'low_met' in str(region):
+if 'lower_met' in str(region):
     triggerSelection = tr.getSelection("MET")
 else:
     triggerSelection = tr.getSelection("MET_high")

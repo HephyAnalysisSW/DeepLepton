@@ -202,7 +202,7 @@ def getVarValue(c, var, n=-1):
     except AttributeError:
         return float('nan')
     if n>=0:
-#    print "getVarValue %s %i"%(var,n)
+        print "getVarValue %s %i %s"%(var,n, type(att))
         if n<att.__len__():
             return att[n]
         else:

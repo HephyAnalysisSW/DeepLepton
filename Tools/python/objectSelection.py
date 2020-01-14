@@ -468,7 +468,7 @@ def eleSelector( lepton_selection, year ):
     
     return func
 
-lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,tightCharge/I,miniRelIso/F,relIso03/F,relIso04/F,ip3d/F,sip3d/F,mediumMuonId/I,pfMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F,mvaTTH/F,matchedTrgObj1Mu/F,matchedTrgObj1El/F,muonInnerTrkRelErr/F,chargeConsistency/I,jetBTagDeepCSV/F,mvaTTV/F,mvaTTH/F,deepLepton_prompt/F'
+lepton_branches_data = 'pt/F,eta/F,etaSc/F,phi/F,pdgId/I,tightId/I,tightCharge/I,miniRelIso/F,relIso03/F,relIso04/F,ip3d/F,sip3d/F,mediumMuonId/I,pfMuonId/I,lostHits/I,convVeto/I,dxy/F,dz/F,hadronicOverEm/F,dEtaScTrkIn/F,dPhiScTrkIn/F,eInvMinusPInv/F,full5x5_sigmaIetaIeta/F,etaSc/F,mvaTTH/F,matchedTrgObj1Mu/F,matchedTrgObj1El/F,muonInnerTrkRelErr/F,chargeConsistency/I,jetBTagDeepCSV/F,mvaTTV/F,mvaTTH/F,deepLeptonPrompt/F'
 lepton_branches_mc   = lepton_branches_data + ',mcMatchId/I,mcMatchAny/I,mcPt/F'
 
 leptonVars = [s.split('/')[0] for s in lepton_branches_mc.split(',')] 

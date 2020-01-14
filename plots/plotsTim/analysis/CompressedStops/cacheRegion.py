@@ -54,7 +54,7 @@ elif args.year == 2016:
     from DeepLepton.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
     from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
     
-    sample_dict = {"DY":DY, "TTJets_DiLepton":TTJets_DiLepton, "WJets":WJets, "VV":VV, "TTJets_SingleLepton":TTJets_SingleLepton, "SMS":SMS_T2tt_lowerpt}    
+    sample_dict = {"DY":DY, "TTJets_DiLepton":TTJets_DiLepton, "WJets":WJets, "VV":VV}#, "TTJets_SingleLepton":TTJets_SingleLepton, "SMS":SMS_T2tt_lowerpt}    
 
     if args.sample == "Data":
         MET_data     = vars()['MET_Run2016']

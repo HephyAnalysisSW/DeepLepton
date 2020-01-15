@@ -60,9 +60,9 @@ special_cuts = {
     "lep_SR_mu_DL_sigeff":        "(Sum$(abs(lep_pdgId)==13&&(lep_pt>3.5)&&lep_pt<30&&abs(lep_eta)<2.4&& (lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dz)<0.1&&abs(lep_dxy)<0.05&&lep_pfMuonId&&lep_mediumMuonId&&lep_deepLepton_prompt<999&&lep_deepLepton_prompt>0.046 ) )) == 2"   ,
     "lep_SR_mu_DL_bgr":        "(Sum$(abs(lep_pdgId)==13&&(lep_pt>3.5)&&lep_pt<30&&abs(lep_eta)<2.4&& (lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dz)<0.1&&abs(lep_dxy)<0.05&&lep_pfMuonId&&lep_mediumMuonId&&lep_deepLepton_prompt<999&&lep_deepLepton_prompt>0.407 ) ) ) == 2"   ,
 
-    "Compressed_Stops_special":   "(mtautau>160||mtautau<0)&&ptll>3&&mll<50&&mll>4&&(mll>10.5||mll<9)&&ht25>100&&met_pt/ht25<1.4&&met_pt/ht25>0.6&&SR==-1&&metMuSubtracted>125"   ,
+    "Compressed_Stops_special":   "(mtautau>160||mtautau<0)&&ptll>3&&mll<50&&mll>4&&(mll>10.5||mll<9)&&ht25>100&&met_pt/ht25<1.4&&met_pt/ht25>0.6&&SR&&metMuSubtracted>125"   ,
 
-
+    "test":                     "met_pt>200&&met_pt<300&&leadingLep_pt>20&&leadingLep_pt<30"
    
     #"genZtoTau":         "genZ_daughter_flavor==15",
  }

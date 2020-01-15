@@ -76,18 +76,27 @@ else:
     triggerSelection = tr.getSelection("MET_high")
 
 
-selectionString      = cutInterpreter.cutString(args.selection,'dilepOS' )
+selectionString      = cutInterpreter.cutString(args.selection )
 print(selectionString)
 sample.setSelectionString( [selectionString, triggerSelection] )
 sample.setWeightString(lumi_scale)
+#sample.scale = lumi_scale
+
+weight_ = lambda event, sample: event.weight
+
+
+sample.read_variables = ["reweightPU36fb/F", "reweightBTagDeepCSV_SF/F"]#, "nlep/I",  "lep[%s]"%(lepton_branches_mc) ]
+#sample.weight         = lambda event, sample: event.reweightBTagDeepCSV_SF*event.reweightPU36fb*0.5 # *(1 if args.small else args.reduceMC)
+#sample.setWeightString( 'lumiweight1fb*%f/2.5'%(lumi_scale))
+
 
 if args.small:
     #sample.normalization=1.
-    sample.reduceFiles( factor=10 )
+    sample.reduceFiles( factor=5 )
     #eventScale = 1./sample.normalization
     #sample.addWeightString(eventScale)
 
-sample_rate  = sample.getYieldFromDraw( selectionString=region.cutString(), weightString=None )['val']
+sample_rate  = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = 'weight*reweightBTagDeepCSV_SF*reweightPU36fb' )['val']
 limitCache.add(key=(str(args.sample)+'_'+str(region)), data=sample_rate)
 
 print(str(args.sample)+'_'+str(region), sample_rate)

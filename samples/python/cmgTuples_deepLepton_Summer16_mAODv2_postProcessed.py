@@ -29,14 +29,14 @@ dirs = {}
 # full:
 #dirs['TTJets_DiLepton']     = ["TTJets_DiLepton_comb"]
 dirs['TTJets_DiLepton']     = ["TTJets_DiLeptonnew"]
-dirs['VV']                  = ["VVTo2L2Nu_comb", "ZZTo4L", "ZZTo2L2Q"]
-#dirs['DY']                  = ["DYJetsToLL_M50_HT70to100" ,"DYJetsToLL_M50_HT100to200_comb", "DYJetsToLL_M50_HT200to400_comb", "DYJetsToLL_M50_HT400to600_comb", "DYJetsToLL_M50_HT600to800", "DYJetsToLL_M50_HT800to1200", "DYJetsToLL_M50_HT1200to2500", "DYJetsToLL_M50_HT2500toInf", "DYJetsToLL_M5to50_HT100to200_comb", "DYJetsToLL_M5to50_HT200to400_comb", "DYJetsToLL_M5to50_HT400to600_comb", "DYJetsToLL_M5to50_HT600toInf_comb"]
-#dirs['DY']                  = ["DYJetsToLL_M50_HT70to100new" ,"DYJetsToLL_M50_HT100to200new", "DYJetsToLL_M50_HT200to400new", "DYJetsToLL_M50_HT400to600new", "DYJetsToLL_M50_HT600to800new", "DYJetsToLL_M50_HT800to1200new", "DYJetsToLL_M50_HT1200to2500new", "DYJetsToLL_M50_HT2500toInfnew", "DYJetsToLL_M5to50_HT100to200new", "DYJetsToLL_M5to50_HT200to400new", "DYJetsToLL_M5to50_HT400to600new", "DYJetsToLL_M5to50_HT600toInfnew"]
-dirs['DY']                  = ["DYJetsToLL_M5to50_HT100to200new"]
+dirs['VV']                  = ["VVTo2L2Nunew", "ZZTo4Lnew", "ZZTo2L2Qnew"]
+dirs['DY_test']                  = ["DYJetsToLL_M50_HT70to100new" ]
+dirs['DY']                  = ["DYJetsToLL_M50_HT70to100new" ,"DYJetsToLL_M50_HT100to200new", "DYJetsToLL_M50_HT200to400new", "DYJetsToLL_M50_HT400to600new", "DYJetsToLL_M50_HT600to800new", "DYJetsToLL_M50_HT800to1200new", "DYJetsToLL_M50_HT1200to2500new", "DYJetsToLL_M50_HT2500toInfnew", "DYJetsToLL_M5to50_HT100to200new", "DYJetsToLL_M5to50_HT200to400new", "DYJetsToLL_M5to50_HT400to600new", "DYJetsToLL_M5to50_HT600toInfnew"]
+#dirs['DY']                  = ["DYJetsToLL_M5to50_HT100to200new"]
 dirs['SMS_T2tt']            = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p1"]
-dirs['SMS_T2tt_lowerpt']    = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p135pt"]
+dirs['SMS_T2tt_lowerpt']    = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p1"]
 dirs['SMS_T2tt_350_20']     = ["SMS_T2tt_350_20"]
-dirs['WJets'] = ["WJetsToLNu_HT70to100", "WJetsToLNu_HT100to200_comb", "WJetsToLNu_HT200to400_comb", "WJetsToLNu_HT400to600_comb", "WJetsToLNu_HT600to800_comb", "WJetsToLNu_HT800to1200_comb", "WJetsToLNu_HT1200to2500_comb", "WJetsToLNu_HT2500toInf_comb"]
+dirs['WJets'] = ["WJetsToLNu_HT70to100new", "WJetsToLNu_HT100to200new", "WJetsToLNu_HT200to400new", "WJetsToLNu_HT400to600new", "WJetsToLNu_HT600to800new", "WJetsToLNu_HT800to1200new", "WJetsToLNu_HT1200to2500new", "WJetsToLNu_HT2500toInfnew"]
 #dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromT_comb", "TTJets_SingleLeptonFromT_comb", "T_tWch_ext", "T_tch_powheg", "TBar_tWch_ext", "TBar_tch_powheg"]
 #______________________________________
 # small:
@@ -99,6 +99,7 @@ directories = { key : [ os.path.join( data_directory, postProcessing_directory, 
 TTJets_DiLepton      = Sample.fromDirectory(name="TTJets_DiLepton",       treeName="Events", isData=False, color=color.TTJets,        texName="t#bar{t}(2l)",              directory=directories['TTJets_DiLepton'])
 #TTJets_SingleLepton  = Sample.fromDirectory(name="TTJets_SingleLepton",   treeName="Events", isData=False, color=color.TTJets1l,      texName="t#bar{t}(1l)",              directory=directories['TTJets_SingleLepton'])
 DY                   = Sample.fromDirectory(name="DY",                    treeName="Events", isData=False, color=color.DY,            texName="DY",                        directory=directories['DY'])
+DY_test              = Sample.fromDirectory(name="DY_test",               treeName="Events", isData=False, color=color.DY,            texName="DY",                        directory=directories['DY_test'])
 VV                   = Sample.fromDirectory(name="VV",                    treeName="Events", isData=False, color=color.VV,            texName="VV",                        directory=directories['VV'])
 SMS_T2tt_350_20      = Sample.fromDirectory(name="SMS_T2tt_350_20",       treeName="Events", isData=False, color=color.signal,        texName="T2tt_350/20",               directory=directories['SMS_T2tt_350_20'])
 SMS_T2tt             = Sample.fromDirectory(name="SMS_T2tt",              treeName="Events", isData=False, color=color.signal,        texName="T2tt_all",                  directory=directories['SMS_T2tt'])

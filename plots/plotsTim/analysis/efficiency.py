@@ -418,37 +418,37 @@ plots = []
 plots.append(Plot(
   texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'leadingLep_pt_add', attribute = lambda event, sample: event.loose_lep_pt,
-  binning=[50,0,50],
+  binning=[45,5,50],
 ))
 
 plots.append(Plot(
   texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'passed_leadingLep_pt_add', attribute = lambda event, sample: event.passed_loose_lep_pt,
-  binning=[50,0,50],
+  binning=[45,5,50],
 ))
 
 plots.append(Plot(
   texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'leadingLep2_pt', attribute = lambda event, sample: event.loose_lep2_pt,
-  binning=[50,0,50],
+  binning=[45,5,50],
 ))
 
 plots.append(Plot(
   texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'passed_leadingLep2_pt', attribute = lambda event, sample: event.passed_loose_lep2_pt,
-  binning=[50,0,50],
+  binning=[45,5,50],
 ))
 
 plots.append(Plot(
   texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'leadingLep_pt', attribute = lambda event, sample: event.loose_lep_pt,
-  binning=[50,0,50],
+  binning=[45,5,50],
 ))
 
 plots.append(Plot(
   texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'passed_leadingLep_pt', attribute = lambda event, sample: event.passed_loose_lep_pt,
-  binning=[50,0,50],
+  binning=[45,5,50],
 ))
 
 print(plots)
@@ -528,48 +528,19 @@ print(plots)
 
 plotting.fill(plots, read_variables = read_variables, sequence = sequence, max_events = 30000 if args.small else -1)
 
-#leadLep = plots[0].histos[0][0]
-#leadLepPassed = plots[1].histos[0][0]
-#leadLep2 = plots[2].histos[0][0]
-#leadLep2Passed = plots[3].histos[0]
-#leadLep.Add(leadLep2)
-
-
 plots[0].histos[0][0].Add(plots[2].histos[0][0])
 plots[1].histos[0][0].Add(plots[3].histos[0][0])
 
 passed = plots[1].histos[0][0].Clone()
 total = plots[0].histos[0][0].Clone()
 
-#total.Add(plots[2].histos[0][0])
-#passed.Add(plots[3].histos[0][0])
-
 passed.ClearUnderflowAndOverflow()
 total.ClearUnderflowAndOverflow()
 
-#print('passed:', passed,' total:', total)
-#
-#for i in range(7):
-#    print(passed.GetBinContent(i), total.GetBinContent(i))
-#print(passed.GetNbinsX(), total.GetNbinsX())
 
-#from array import array
-#from ROOT import TGraph
-#c1 = ROOT.TCanvas( 'c1', 'A Simple Graph Example')
-#n = 20
-#x, y = array( 'd' ), array( 'd' )
-#for i in range( n ):
-#   x.append( 0.1*i )
-#   y.append( 10*sin( x[i]+0.2 ) )
-#   print(' i %i %f %f ' % (i,x[i],y[i]))
-#gr = TGraph( n, x, y )
 ##gr.SetLineColor( 2 )
 ##gr.SetLineWidth( 4 )
 ##gr.SetMarkerColor( 4 )
-##gr.SetMarkerStyle( 21 )
-##gr.SetTitle( 'a simple graph' )
-##gr.GetXaxis().SetTitle( 'X title' )
-##gr.GetYaxis().SetTitle( 'Y title' )
 #gr.Draw( 'ACP' )
 ## TCanvas.Update() draws the frame, after which one can change it
 #c1.Update()
@@ -578,56 +549,34 @@ total.ClearUnderflowAndOverflow()
 #c1.Modified()
 #c1.Update()
 
-
-
-
-
-
-
-plot_directory_ = os.path.join(plot_directory, 'analysisPlots3', args.plot_directory, 'eff')
-#c1 = ROOT.TCanvas('c1', 'Dynamic Filling Example')
+plot_directory_ = os.path.join(plot_directory, 'analysisPlots3', 'TagAndProbe')
 Eff = ROOT.TEfficiency(passed, total)
-Eff.Draw()
+Eff.SetLineColor( 1 )
+#Eff.SetLineWidth( 2 )
+Eff.SetMarkerColor( 3 )
+Eff.SetMarkerStyle( 9 )
+Eff.SetMarkerSize( 0.5 )
+Eff.SetName('Efficiency')
+Eff.SetTitle( 'Efficiency;pT;#epsilon' )
+Eff.SetFillStyle(0)
+Eff.SetFillColor(0)
+
+
+#Eff.GetXaxis().SetTitle( 'p_{T}' )
+#Eff.GetYaxis().SetTitle( 'efficiency' )
+
+Eff.Draw('P')
 can = ROOT.TCanvas("can","can", 700,700)
 Eff.Draw("can")
-plot_dir = os.path.join(plot_directory)
-if not os.path.isdir(plot_dir): os.makedirs(plot_dir)
+if not os.path.isdir(plot_directory_): os.makedirs(plot_directory_)
 for f in ['.png','.pdf','.root']:
-    can.Print(plot_dir+'/bla'+f)
-#Eff.Draw('P')
-#c1.Modified()
-#c1.Update()
-#
-#c1.Print(os.path.join(plot_directory,'firsteff.pdf'))
+    can.Print(plot_directory_+'/efficiency'+f)
 
 
-#for i in range(20):
-#    print(Eff.GetEfficiency(i))
-#
-#print('Eff', Eff.GetEfficiency(2))
-#
-##Eff.CreateGraph().Draw()
-#
-##EffPlot = Plot.fromHisto(name = 'Efficiciency', histos = [[ Eff.CreateHistogram() ]], texX = "p_{T} of leading lepton", texY = 'bla')
-#drawPlots([EffPlot], -1)
-##3canvas_2 = ROOT.TCanvas("c", "c")
-##3f1=ROOT.TF1("f1","sin(x)/x",0.,10.)
-##3f1.Draw()
-##3canvas_2.Draw()
-#
-##c1.Update()
-##canvast= ROOT.TCanvas("canvast", "Stops proper time ", 1000, 600)
-#
-#
-#dataMCScale = -1
-#drawPlots(plots, dataMCScale)
-##drawPlots(Eff, dataMCScale)
+dataMCScale = -1
+drawPlots(plots, dataMCScale)
 
 
-#canvast.Modified()
-
-#canvast.Print(os.path.join(plot_directory,'firsteff.pdf'))
-#canvast.SaveAs(os.path.join(plot_directory,'firsteff.pdf'))
 
 logger.info( "Done with prefix %s and selectionString %s", args.selection, cutInterpreter.cutString(args.selection) )
 

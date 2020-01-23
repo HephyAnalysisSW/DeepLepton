@@ -47,9 +47,13 @@ limitCache      = MergingDirDB( cacheFileName )
 
 
 c = CardFileWriter()
+c.addUncertainty('JES', 'lnN')
+c.addUncertainty('btagging', 'lnN')
+c.addUncertainty('mistagging', 'lnN')
+c.addUncertainty('muonId', 'lnN')
+c.addUncertainty('electronId', 'lnN')
 
-
-sample_list = ["DY", "TTJets_DiLepton", "WJets", "VV", "TTJets_SingleLepton", "SMS", "Data"]
+sample_list = ["DY", "TTJets_DiLepton", "WJets", "VV", "TTJets_SingleLepton", "SMS"]#, "Data"]
 bg_list = ["DY", "TTJets_DiLepton", "WJets", "VV", "TTJets_SingleLepton"]
 
 
@@ -65,13 +69,24 @@ for i_region ,region in enumerate(regions):
         estimate = limitCache.get(key)
         observation[i_region] += estimate
         c.specifyExpectation( bin_name, bg, int(estimate) ) 
+        c.specifyUncertainty( 'JES', bin_name, bg, 1.1)
+        c.specifyUncertainty( 'btagging', bin_name, bg, 1.1)
+        c.specifyUncertainty( 'mistagging', bin_name, bg, 1.1)
+        c.specifyUncertainty( 'muonId', bin_name, bg, 1.1)
+        c.specifyUncertainty( 'electronId', bin_name, bg, 1.1)
     c.specifyObservation(bin_name, int(observation[i_region]))
     estimate_sig = limitCache.get("SMS"+'_'+str(region))
     c.specifyExpectation( bin_name, 'signal', int(estimate_sig))
+    c.specifyUncertainty( 'JES', bin_name, 'signal', 1.1)
+    c.specifyUncertainty( 'btagging', bin_name, 'signal', 1.1)
+    c.specifyUncertainty( 'mistagging', bin_name, 'signal', 1.1)
+    c.specifyUncertainty( 'muonId', bin_name, 'signal', 1.1)
+    c.specifyUncertainty( 'electronId', bin_name, 'signal', 1.1)
+
 
 
 cardfileLocation = os.path.join( cache_directory, "cardFiles" )
-cardname = "firstTry"
+cardname = "card_1"
 cardFilePath = os.path.join( cardfileLocation, cardname + '.txt' )
 c.writeToFile( cardFilePath )
 

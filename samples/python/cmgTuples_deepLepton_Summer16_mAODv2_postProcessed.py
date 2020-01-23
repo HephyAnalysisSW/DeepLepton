@@ -34,10 +34,11 @@ dirs['DY_test']                  = ["DYJetsToLL_M50_HT70to100new" ]
 dirs['DY']                  = ["DYJetsToLL_M50_HT70to100new" ,"DYJetsToLL_M50_HT100to200new", "DYJetsToLL_M50_HT200to400new", "DYJetsToLL_M50_HT400to600new", "DYJetsToLL_M50_HT600to800new", "DYJetsToLL_M50_HT800to1200new", "DYJetsToLL_M50_HT1200to2500new", "DYJetsToLL_M50_HT2500toInfnew", "DYJetsToLL_M5to50_HT100to200new", "DYJetsToLL_M5to50_HT200to400new", "DYJetsToLL_M5to50_HT400to600new", "DYJetsToLL_M5to50_HT600toInfnew"]
 #dirs['DY']                  = ["DYJetsToLL_M5to50_HT100to200new"]
 dirs['SMS_T2tt']            = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p1"]
-dirs['SMS_T2tt_lowerpt']    = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p1"]
+dirs['SMS_T2tt_lowerpt']    = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p1lowerpt"]
 dirs['SMS_T2tt_350_20']     = ["SMS_T2tt_350_20"]
 dirs['WJets'] = ["WJetsToLNu_HT70to100new", "WJetsToLNu_HT100to200new", "WJetsToLNu_HT200to400new", "WJetsToLNu_HT400to600new", "WJetsToLNu_HT600to800new", "WJetsToLNu_HT800to1200new", "WJetsToLNu_HT1200to2500new", "WJetsToLNu_HT2500toInfnew"]
-#dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromT_comb", "TTJets_SingleLeptonFromT_comb", "T_tWch_ext", "T_tch_powheg", "TBar_tWch_ext", "TBar_tch_powheg"]
+dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromTnew", "TTJets_SingleLeptonFromTnew", "T_tWchnew", "TBar_tWchnew"]
+#dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromTnew", "TTJets_SingleLeptonFromTnew", "T_tWchnew", "T_tchnew", "TBar_tWchnew", "TBar_tchnew"]
 #______________________________________
 # small:
 ##TTJets
@@ -97,7 +98,7 @@ directories = { key : [ os.path.join( data_directory, postProcessing_directory, 
 
 #full:
 TTJets_DiLepton      = Sample.fromDirectory(name="TTJets_DiLepton",       treeName="Events", isData=False, color=color.TTJets,        texName="t#bar{t}(2l)",              directory=directories['TTJets_DiLepton'])
-#TTJets_SingleLepton  = Sample.fromDirectory(name="TTJets_SingleLepton",   treeName="Events", isData=False, color=color.TTJets1l,      texName="t#bar{t}(1l)",              directory=directories['TTJets_SingleLepton'])
+TTJets_SingleLepton  = Sample.fromDirectory(name="TTJets_SingleLepton",   treeName="Events", isData=False, color=color.TTJets1l,      texName="t#bar{t}(1l)",              directory=directories['TTJets_SingleLepton'])
 DY                   = Sample.fromDirectory(name="DY",                    treeName="Events", isData=False, color=color.DY,            texName="DY",                        directory=directories['DY'])
 DY_test              = Sample.fromDirectory(name="DY_test",               treeName="Events", isData=False, color=color.DY,            texName="DY",                        directory=directories['DY_test'])
 VV                   = Sample.fromDirectory(name="VV",                    treeName="Events", isData=False, color=color.VV,            texName="VV",                        directory=directories['VV'])

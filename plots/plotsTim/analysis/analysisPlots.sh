@@ -21,6 +21,6 @@
 #python -i analysisPlots.py --region high_sig --signal SMS --noData
 
 
-python -i analysisPlots_light.py --region low_sig  --noData 
-python -i analysisPlots_light.py --region med_sig  --noData
-python -i analysisPlots_light.py --region high_sig --noData
+python -i analysisPlots_light.py --region low_sig  --noData --signal SMS 
+python -i analysisPlots_light.py --region med_sig  --noData --signal SMS
+python -i analysisPlots_light.py --region high_sig --noData --signal SMS

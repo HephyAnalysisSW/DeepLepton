@@ -32,6 +32,7 @@ argParser.add_argument('--selection',          action='store',      default='dil
 #argParser.add_argument('--leptonpreselection', action='store',      default='Sum$(lep_pt>10&&abs(lep_pdgId)==13)>=1')
 argParser.add_argument('--leptonpreselection', action='store',      default='1')#default='(Sum$(abs(lep_pdgId)==11)+Sum$(abs(lep_pdgId)==13))>=2')
 argParser.add_argument('--DL_WP',              action='store',      type=float,     required=True,  help='working point of DeepLepton, value between 0 and 1'  )
+argParser.add_argument('--getWP',              action='store_true', help='find WP, FIX ME!'  )
 args = argParser.parse_args()
 
 #
@@ -58,7 +59,7 @@ if args.year == 2017:
     raise NotImplementedError 
     mc             = [ ]
 elif args.year == 2016:
-    mc             = [ DY_test, ]
+    mc             = [ DY, ]
 for sample in mc: sample.style = styles.fillStyle(sample.color)
 
 
@@ -77,6 +78,8 @@ read_variables =   ["weight/F",
 
 
 sequence = []
+sequence_WP = []
+
 
 def getJets( event, sample ):
     jetVars              = ['eta','pt','phi','btagCSV','id', 'btagDeepCSV']
@@ -90,6 +93,7 @@ loose_mu_selector = muonSelector('loose', args.year)
 tight_mu_selector = muonSelector('tight_2l', args.year)  
 loose_ele_selector = eleSelector('loose', args.year)  
 tight_ele_selector = eleSelector('tight_2l', args.year)  
+
 
 
 def make_analysisVariables( event, sample ):
@@ -109,6 +113,8 @@ def make_analysisVariables( event, sample ):
     event.passed_loose_lep_pt = float('nan')
     event.loose_lep2_pt = float('nan')
     event.passed_loose_lep2_pt = float('nan')
+    event.passed_TTH_loose = float('nan')
+    event.passed_TTH_tight = float('nan')
 
     if (len(loose_leps) == 1 and len(tight_leps)==1):# and loose_leps[0]['pdgId']==-tight_leps[0]['pdgId']:
         l_1 = ROOT.TLorentzVector()
@@ -119,9 +125,10 @@ def make_analysisVariables( event, sample ):
         m_ll = ll.M()         
         if abs(m_ll-91.1876)<=10. and loose_leps[0]['deepLeptonPrompt']<999: 
             event.loose_lep_pt = loose_leps[0]['pt']
-            if loose_leps[0]['deepLeptonPrompt'] >= args.DL_WP:
+            if loose_leps[0]['deepLeptonPrompt'] >= 0.77:
                 event.passed_loose_lep_pt = loose_leps[0]['pt']
-
+            if loose_leps[0]['mvaTTH'] >= 0.79:
+                event.passed_TTH_loose = loose_leps[0]['pt']
 
     elif len(tight_leps) == 2:     #TODO
         l_1 = ROOT.TLorentzVector()
@@ -132,126 +139,26 @@ def make_analysisVariables( event, sample ):
         m_ll = ll.M()         
         if abs(m_ll-91.1876)<=10. and tight_leps[0]['deepLeptonPrompt']<999.: 
             event.loose_lep_pt = tight_leps[0]['pt']
-            if tight_leps[0]['deepLeptonPrompt'] >= args.DL_WP:                
+            if tight_leps[0]['deepLeptonPrompt'] >= 0.77:                
                 event.passed_loose_lep_pt = tight_leps[0]['pt']
+            if tight_leps[0]['mvaTTH'] >= 0.79:                
+                event.passed_TTH_loose = tight_leps[0]['pt']
         
         if abs(m_ll-91.1876)<=10. and tight_leps[1]['deepLeptonPrompt']<999.: 
             event.loose_lep2_pt = tight_leps[1]['pt']
-            if tight_leps[1]['deepLeptonPrompt'] >= args.DL_WP:
+            if tight_leps[1]['deepLeptonPrompt'] >= 0.77:
                 event.passed_loose_lep2_pt = tight_leps[1]['pt']
+            if tight_leps[1]['mvaTTH'] >= 0.79:
+                event.passed_TTH_tight = tight_leps[1]['pt']
 
 
     if event.loose_lep_pt == float('nan') and event.passed_loose_lep_pt is not float('nan'):
         print('ERROR')
 
-    
-    #print(event.loose_lep2_pt ) 
-    #event.nlep_selected = len(muons) + len(electrons)
-    #selected_lep = muons + electrons
-    #
-    #event.leadingLep_pt = all_leptons[0]['pt'] if len(all_leptons) >= 1 else float('nan')
-    #
-    ##if event.nlep_selected == 2 and selected_lep[0]['pdgId']*selected_lep[1]['pdgId']<0 :  #higher
-    ##if event.nlep_selected == 2 and selected_lep[0]['pdgId']==-selected_lep[1]['pdgId'] :   #lower
-
-    #if args.region=="high_tt2l" or args.region=="med_sig" or args.region=="high_sig":
-    #    condition = (event.nlep_selected == 2 and selected_lep[0]['pdgId']*selected_lep[1]['pdgId']<0)
-    #elif args.region=="low_tt2l" or args.region=="low_sig":
-    #    condition = (event.nlep_selected == 2 and selected_lep[0]['pdgId']==-selected_lep[1]['pdgId'])
-    #elif args.region=="low_DY": 
-    #    condition = (event.nlep_selected == 2 and selected_lep[0]['pdgId']==-selected_lep[1]['pdgId'] and (selected_lep[0]['pt']>20  or (selected_lep[0]['ip3d']>0.01 and selected_lep[1]['ip3d']>0.01) or (selected_lep[0]['sip3d']>2 and selected_lep[1]['sip3d']>2)))
-    #elif args.region=="high_DY": 
-    #    condition = (event.nlep_selected == 2 and selected_lep[0]['pdgId']*selected_lep[1]['pdgId']<0 and (selected_lep[0]['pt']>20  or (selected_lep[0]['ip3d']>0.01 and selected_lep[1]['ip3d']>0.01) or (selected_lep[0]['sip3d']>2 and selected_lep[1]['sip3d']>2)))
-
-    #
-    #if condition:
-    #    selected_lep = sorted(selected_lep, key = lambda lep: -lep['pt'])         
-    #    lep_1, lep_2 = selected_lep 
-    #       
-    #    event.leadingLep_pt = lep_1['pt']        
- 
-    #    l_1 = ROOT.TLorentzVector()
-    #    l_1.SetPtEtaPhiM(lep_1['pt'], lep_1['eta'], lep_1['phi'], 0 )
-    #    l_2 = ROOT.TLorentzVector()
-    #    l_2.SetPtEtaPhiM(lep_2['pt'], lep_2['eta'], lep_2['phi'], 0 )
-    #    ll = l_1 + l_2
- 
-    #    event.ptll = ll.Pt() 
-    #    event.mll = ll.M()         
-    #    mt1 = sqrt( 2*lep_1["pt"]*event.met_pt*( 1 - cos( lep_1['phi'] - event.met_phi ) )) 
-    #    mt2 = sqrt( 2*lep_2["pt"]*event.met_pt*( 1 - cos( lep_2['phi'] - event.met_phi ) )) 
-    #    #event.mt_min = min(mt1, mt2)
-
-    #    v1 = event.met_pt * sin( event.met_phi - lep_2["phi"]  ) / ( lep_1["pt"] * sin( lep_1["phi"] - lep_2["phi"] ) )
-    #    v2 = event.met_pt * sin( lep_1["phi"] - event.met_phi  ) / ( lep_2["pt"] * sin( lep_1["phi"] - lep_2["phi"] ) )
-    #    v1 += 1
-    #    v2 += 1
-    #    #print("v1: ", v1)
-    #    #print("v2: ", v2)
-    #    #angle1 = pi if v1<0. else 0.
-    #    #angle2 = pi if v2<0. else 0.
-    #                         
-    #   
-    #    tau_1 = ROOT.TLorentzVector()
-    #    tau_2 = ROOT.TLorentzVector() 
-    #    
-    #    if v1<0:
-    #        tau_1.SetPtEtaPhiM( lep_1['pt']*abs(v1), -lep_1['eta'], lep_1['phi']+pi, 1.77682 )
-    #    else:
-    #        tau_1.SetPtEtaPhiM( lep_1['pt']*abs(v1), lep_1['eta'], lep_1['phi'], 1.77682 )
-    #    if v2<0:
-    #        tau_2.SetPtEtaPhiM( lep_2['pt']*abs(v2), -lep_2['eta'], lep_2['phi']+pi, 1.77682 ) 
-    #    else:
-    #        tau_2.SetPtEtaPhiM( lep_2['pt']*abs(v2), lep_2['eta'], lep_2['phi'], 1.77682 ) 
-    #    tautau = tau_1 + tau_2
-    #    event.mtautau = tautau.M() 
-    #    if v1<0 or v2<0:
-    #        event.mtautau *= -1
-    #    #print(event.mtautau)
-
-    #    vec = ROOT.TVector2( event.met_pt * cos(event.met_phi), event.met_pt * sin(event.met_phi) )
-    #    for lep in all_leptons:
-    #        if abs(lep['pdgId']) == 13:
-    #            vec += ROOT.TVector2( lep['pt'] * cos(lep['phi']), lep['pt'] * sin(lep['phi']) )
-    #    event.met_musubtracted = vec.Mod()
-
-    #else:
-    #    event.ptll = float('nan')
-    #    event.mll =  float('nan')
-    #    event.mt_min = float('nan')
-    #    event.mtautau = float('nan')
-    #    event.leadingLep_pt = float('nan')
-    #    event.weight = 0.
-    #    mt1 = float('nan')
-    #    mt2 = float('nan') 
-    #    event.met_musubtracted = float('nan')
-    #
-    #event.weight *= (event.mll < 50.)*(event.mll > 4.)  # only for same flavour??
-    #if event.nlep_selected==2 and selected_lep[0]['pdgId']==-selected_lep[1]['pdgId']: 
-    #    event.weight *= (event.mll<9. or event.mll>10.5)
-    #event.ptll *= (event.ptll > 3.)
-    #
-    #
-    #if args.region=="low_DY" or args.region=="high_DY":
-    #    event.weight *= (mt1 < 70.)*(mt2 < 70.)
-    #    event.weight *= (0. < event.mtautau < 160.)
-    #    if args.region=="high_DY":
-    #        event.weight *= (event.met_musubtracted > 125.)
-    #else:
-    #    event.weight *= (0 > event.mtautau or 160. < event.mtautau) 
-    #    #event.weight *= (160. < event.mtautau) 
-    #    event.weight *= (0 > event.mtautau or 160. < event.mtautau) 
-    #    event.weight *= (event.met_musubtracted > 125.) 
-   
-    #if not 'low' in args.region: 
-    #    if event.nlep_selected==2
-    #        if selected_lep[0]['pdgId']==-selected_lep[1]['pdgId'] and abs(selected_lep[0]['pdgId'])==13:
-    #            event.weight = event.met_musubtracted>125.
-    #        else: 
-    #            event.weight = event.met_musubtracted>200.
-                
 
 sequence.append( make_analysisVariables )
+sequence_WP.append( make_analysisVariables )
+
 
 
 # DeepLepton
@@ -413,168 +320,172 @@ if args.small:
 Plot.setDefaults(stack = stack, weight = staticmethod( weight_ ), selectionString = cutInterpreter.cutString(args.selection) +"&&"+args.leptonpreselection, addOverFlowBin=None)
 
 plots = []
+plots_WP = []
 
 
 plots.append(Plot(
   texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'leadingLep_pt_add', attribute = lambda event, sample: event.loose_lep_pt,
-  binning=[45,5,50],
+  binning=[38,10,200],
 ))
 
 plots.append(Plot(
   texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'passed_leadingLep_pt_add', attribute = lambda event, sample: event.passed_loose_lep_pt,
-  binning=[45,5,50],
+  binning=[38,10,200],
 ))
 
 plots.append(Plot(
   texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'leadingLep2_pt', attribute = lambda event, sample: event.loose_lep2_pt,
-  binning=[45,5,50],
+  binning=[38,10,200],
 ))
 
 plots.append(Plot(
   texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
   name = 'passed_leadingLep2_pt', attribute = lambda event, sample: event.passed_loose_lep2_pt,
-  binning=[45,5,50],
+  binning=[38,10,200],
+))
+
+#plots.append(Plot(
+#  texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
+#  name = 'leadingLep_pt', attribute = lambda event, sample: event.loose_lep_pt,
+#  binning=[45,5,50],
+#))
+#
+#plots.append(Plot(
+#  texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
+#  name = 'passed_leadingLep_pt', attribute = lambda event, sample: event.passed_loose_lep_pt,
+#  binning=[45,5,50],
+#))
+
+
+plots.append(Plot(
+  texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
+  name = 'passed_TTH_loose', attribute = lambda event, sample: event.passed_TTH_loose,
+  binning=[38,10,200],
 ))
 
 plots.append(Plot(
   texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
-  name = 'leadingLep_pt', attribute = lambda event, sample: event.loose_lep_pt,
-  binning=[45,5,50],
+  name = 'passed_TTH_tight', attribute = lambda event, sample: event.passed_TTH_tight,
+  binning=[38,10,200],
 ))
 
-plots.append(Plot(
-  texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
-  name = 'passed_leadingLep_pt', attribute = lambda event, sample: event.passed_loose_lep_pt,
-  binning=[45,5,50],
-))
-
-print(plots)
-
-#if args.region=="high_tt2l" or args.region=="low_tt2l":
-#    plots.append(Plot(
-#        texX = 'E_{T}^{miss} (GeV)', texY = 'Number of Events / 25 GeV',
-#        attribute = TreeVariable.fromString( "met_pt/F" ),
-#        binning=[450/25,0,450],
-#    ))
-#    
-#    plots.append(Plot(
-#      texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
-#      name = 'leadingLep_pt', attribute = lambda event, sample: event.leadingLep_pt,
-#      binning=[25,0,150],
-#    ))
-#    
-#    plots.append(Plot(
-#      texX = 'm_{ll} (GeV)', texY = 'Number of Events / 4.6 GeV',
-#      name = 'mll', attribute = lambda event, sample: event.mll,
-#      binning=[10,4,50],
-#    ))
-#    
-#    plots.append(Plot(
-#      texX = 'H_{T} (GeV)', texY = 'Number of Events / 50 GeV',
-#      name = 'ht25', attribute = lambda event, sample: event.ht25, 
-#      binning=[700/50,0,700],
-#    ))
-#
-#elif args.region=="high_DY" or args.region=="low_DY":
-#    plots.append(Plot(
-#        texX = 'E_{T}^{miss} (GeV)', texY = 'Number of Events / 25 GeV',
-#        name = 'met_pt', attribute = lambda event, sample: event.met_musubtracted,
-#        binning=[450/25,0,450],
-#    ))
-#    
-#    plots.append(Plot(
-#      texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 6 GeV',
-#      name = 'leadingLep_pt', attribute = lambda event, sample: event.leadingLep_pt,
-#      binning=[150/6,0,150],
-#    ))
-#    
-#    plots.append(Plot(
-#      texX = 'm_{ll} (GeV)', texY = 'Number of Events / 4.6 GeV',
-#      name = 'mll', attribute = lambda event, sample: event.mll,
-#      binning=[10,4,50],
-#    ))
-#    
-#    plots.append(Plot(
-#      texX = 'm_{\\tau\\tau} (GeV)', texY = 'Number of Events / 10 GeV',
-#      name = 'mtautau', attribute = lambda event, sample: event.mtautau,
-#      binning=[205/10,-5,200],
-#    ))
-#
-#elif args.region=="low_sig" or args.region=="med_sig" or args.region=="high_sig":
-#    binning_SR = [5,12,20,30]
-#    plots.append(Plot(
-#      texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events',
-#      name = 'leadingLep_pt', attribute = lambda event, sample: event.leadingLep_pt,
-#      binning=Binning.fromThresholds(binning_SR),
-#    ))
 
 
-
-#plots.append(Plot(
-#  texX = 'm_{\\tau\\tau} (GeV)', texY = 'Number of Events / 5 GeV',
-#  name = 'mtautau', attribute = lambda event, sample: event.mtautau,
-#  binning=[200/5,0,200],
-#))
-
-#plots.append(Plot(
-#  texX = 'deepLepton_prompt', texY = 'Number of Events / 5 GeV',
-#  name = 'deep Lepton prompt', attribute = lambda event, sample: event.lep_deepLepton_prompt,
-#  #attribute = TreeVariable.fromString( "lep_deepLepton_prompt/F" ), 
-#  binning=[20,0,1],
-#))
+#Find same WP
+#___________________________
+if args.getWP:    
+    plots_WP.append(Plot(
+      texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
+      name = 'leadingLep_pt_add', attribute = lambda event, sample: event.loose_lep_pt,
+      binning=[1,0,1000],
+    ))
+    
+    plots_WP.append(Plot(
+      texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
+      name = 'passed_leadingLep_pt_add', attribute = lambda event, sample: event.passed_loose_lep_pt,
+      binning=[1,0,1000],
+    ))
+    
+    plots_WP.append(Plot(
+      texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
+      name = 'leadingLep2_pt', attribute = lambda event, sample: event.loose_lep2_pt,
+      binning=[1,0,1000],
+    ))
+    
+    plots_WP.append(Plot(
+      texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
+      name = 'passed_leadingLep2_pt', attribute = lambda event, sample: event.passed_loose_lep2_pt,
+      binning=[1,0,1000],
+    ))
+    plots_WP.append(Plot(
+      texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
+      name = 'passed_TTH_loose', attribute = lambda event, sample: event.passed_TTH_loose,
+      binning=[1,0,1000],
+    ))
+    
+    plots_WP.append(Plot(
+      texX = 'p_{T}(leading lepton) (GeV)', texY = 'Number of Events / 5 GeV',
+      name = 'passed_TTH_tight', attribute = lambda event, sample: event.passed_TTH_tight,
+      binning=[1,0,1000],
+    ))
+    
+    #for WP in [ i/100. for i in range(0,100)]:
+    for WP in [ 0.76,0.77,0.78,0.79]:
+        plotting.fill(plots_WP, read_variables = read_variables, sequence = sequence_WP, max_events = 30000 if args.small else -1)
+    
+        plots_WP[0].histos[0][0].Add(plots_WP[2].histos[0][0])
+        plots_WP[1].histos[0][0].Add(plots_WP[3].histos[0][0])
+        plots_WP[4].histos[0][0].Add(plots_WP[5].histos[0][0])
+        
+        passed_WP = plots_WP[1].histos[0][0].Clone()
+        total_WP = plots_WP[0].histos[0][0].Clone()
+        passed_TTH_WP = plots_WP[4].histos[0][0].Clone()
+        
+        print('WP: ', WP, 'Efficiency: ',passed_TTH_WP.GetBinContent(1)/total_WP.GetBinContent(1))
+#___________________________
 
 plotting.fill(plots, read_variables = read_variables, sequence = sequence, max_events = 30000 if args.small else -1)
 
 plots[0].histos[0][0].Add(plots[2].histos[0][0])
 plots[1].histos[0][0].Add(plots[3].histos[0][0])
+plots[4].histos[0][0].Add(plots[5].histos[0][0])
 
 passed = plots[1].histos[0][0].Clone()
 total = plots[0].histos[0][0].Clone()
+passed_TTH = plots[4].histos[0][0].Clone()
 
 passed.ClearUnderflowAndOverflow()
 total.ClearUnderflowAndOverflow()
+passed_TTH.ClearUnderflowAndOverflow()
 
 
-##gr.SetLineColor( 2 )
-##gr.SetLineWidth( 4 )
-##gr.SetMarkerColor( 4 )
-#gr.Draw( 'ACP' )
-## TCanvas.Update() draws the frame, after which one can change it
-#c1.Update()
-##c1.GetFrame().SetFillColor( 21 )
-##c1.GetFrame().SetBorderSize( 12 )
-#c1.Modified()
-#c1.Update()
-
+can = ROOT.TCanvas("can","can", 400,400)
 plot_directory_ = os.path.join(plot_directory, 'analysisPlots3', 'TagAndProbe')
 Eff = ROOT.TEfficiency(passed, total)
-Eff.SetLineColor( 1 )
-#Eff.SetLineWidth( 2 )
+
+for i in range(20):
+    print(passed_TTH.GetBinContent(i), total.GetBinContent(i))
+
+Eff_TTH = ROOT.TEfficiency(passed_TTH, total)
+
+#Eff.SetLineColor( 1 )
+Eff.SetLineWidth( 1 )
 Eff.SetMarkerColor( 3 )
 Eff.SetMarkerStyle( 9 )
-Eff.SetMarkerSize( 0.5 )
+Eff.SetMarkerSize( 0.3 )
 Eff.SetName('Efficiency')
-Eff.SetTitle( 'Efficiency;pT;#epsilon' )
-Eff.SetFillStyle(0)
-Eff.SetFillColor(0)
+Eff.SetTitle( "Efficiency_DL; p_{T}; #epsilon" )
 
+Eff_TTH.SetLineWidth( 1 )
+Eff_TTH.SetMarkerColor( 4 )
+Eff_TTH.SetMarkerStyle( 9 )
+Eff_TTH.SetMarkerSize( 0.3 )
+Eff_TTH.SetName('Efficiency')
+Eff_TTH.SetTitle( "Efficiency_TTH; p_{T}; #epsilon" )
+#Eff.SetFillStyle(0)
+#Eff.SetFillColor(0)
 
+can.SetTitle('Efficiency')
 #Eff.GetXaxis().SetTitle( 'p_{T}' )
 #Eff.GetYaxis().SetTitle( 'efficiency' )
 
-Eff.Draw('P')
-can = ROOT.TCanvas("can","can", 700,700)
-Eff.Draw("can")
+can.Draw('PE')
+#Eff_TTH.Draw('PE')
+#Eff.Draw('PE')
+Eff_TTH.Draw('can')
+Eff.Draw('same')
+can.Update()
+
 if not os.path.isdir(plot_directory_): os.makedirs(plot_directory_)
 for f in ['.png','.pdf','.root']:
     can.Print(plot_directory_+'/efficiency'+f)
 
 
-dataMCScale = -1
-drawPlots(plots, dataMCScale)
+#dataMCScale = -1
+#drawPlots(plots, dataMCScale)
 
 
 

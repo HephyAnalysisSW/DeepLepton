@@ -67,6 +67,11 @@ special_cuts = {
     #"genZtoTau":         "genZ_daughter_flavor==15",
  }
 
+for stopm in [250+i for i in [25*j for j in range(1,23)]]:
+    for lspm in [(stopm - delta) for delta in [10,20,30,40,50,60,70,80]]:
+        key = "T2tt_%i_%i"%(stopm, lspm)
+        special_cuts[key] = "Sum$(abs(genPartAll_pdgId)==1000006 && genPartAll_mass==%i)>=1 && Sum$(abs(genPartAll_pdgId)==1000022 && genPartAll_mass==%i)>=1"%(stopm,lspm)
+
 continous_variables = [ ("metSig", "metSig"), ("met", "met_pt"), ]
 discrete_variables  = [ ("njet", "nJetSelected"), ("btag", "nBTag") , ("nlep","nlep") ]
 

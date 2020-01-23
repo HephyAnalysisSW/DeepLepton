@@ -277,7 +277,7 @@ def make_analysisVariables( event, sample ):
         event.weight *= (event.met_musubtracted > 125.) 
    
     if not 'low' in args.region: 
-        if event.nlep_selected==2
+        if event.nlep_selected==2:
             if selected_lep[0]['pdgId']==-selected_lep[1]['pdgId'] and abs(selected_lep[0]['pdgId'])==13:
                 event.weight = event.met_musubtracted>125.
             else: 

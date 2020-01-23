@@ -54,10 +54,10 @@ selection_dict = {"low_tt2l":"lep_CR_tt2l_mumu-jet_CR_tt2l-lower_met-dilepOS-fil
                 "high_tt2l":"lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-filters", 
                 "low_DY": "lep_CR_DY_mumu-jet_CR_DY-dilepOSmumuDY-lower_met-filters", 
                 "high_DY":"lep_CR_DY_all-jet_CR_DY-dilepOS-met200-filters", 
-                "low_sig":"lep_SR_mu-jet_SR-lower_met-filters-Compressed_Stops_special", 
-                "med_sig":"lep_SR_all-jet_SR-med_met-filters-Compressed_Stops_special", 
+                "low_sig":"lep_SR_mu_DL_bgr-jet_SR-lower_met-filters-Compressed_Stops_special", 
+                "med_sig":"lep_SR_all_DL_bgr-jet_SR-med_met-filters-Compressed_Stops_special", 
                 #"high_sig":"lep_SR_all_DL_bgr-jet_SR-met300-filters" } 
-                "high_sig":"lep_SR_all-jet_SR-met300-filters-Compressed_Stops_special" } 
+                "high_sig":"lep_SR_all_DL_bgr-jet_SR-met300-filters-Compressed_Stops_special" } 
 args.selection = selection_dict[args.region]
 print(args.selection)
 
@@ -116,8 +116,8 @@ if args.year == 2017:
     mc             = [ ]
 elif args.year == 2016:
     if "sig" in args.region:
-        #mc             = [ DY, TTJets_DiLepton, VV, TTJets_SingleLepton, WJets,]
-        mc             = [ TTJets_DiLepton, DY, VV, WJets,]
+        mc             = [ DY, TTJets_DiLepton, VV, TTJets_SingleLepton, WJets,]
+        #mc             = [ TTJets_DiLepton, DY, VV, WJets,]
         #mc             = [ DY, TTJets_DiLepton, ]
     else:
         mc             = [ DY, TTJets_DiLepton, VV,]
@@ -371,7 +371,7 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
 
 def drawPlots(plots, dataMCScale):
   for log in [False, True]:
-    plot_directory_ = os.path.join(plot_directory, 'analysisPlots3', args.plot_directory, ("log" if log else "lin"), args.selection)#+"_DL_WP2")
+    plot_directory_ = os.path.join(plot_directory, 'analysisPlots5', args.plot_directory, ("log" if log else "lin"), args.selection)#+"_DL_WP2")
     for plot in plots:
       #print(plot.histos)
       #print(l for l in plot.histos)

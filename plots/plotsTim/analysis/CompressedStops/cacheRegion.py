@@ -54,11 +54,13 @@ elif args.year == 2016:
     from DeepLepton.samples.cmgTuples_Data25ns_80X_07Aug17_postProcessed import *
     from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
     
-    sample_dict = {"DY":DY, "TTJets_DiLepton":TTJets_DiLepton, "WJets":WJets, "VV":VV}#, "TTJets_SingleLepton":TTJets_SingleLepton, "SMS":SMS_T2tt_lowerpt}    
+    sample_dict = {"DY":DY, "TTJets_DiLepton":TTJets_DiLepton, "WJets":WJets, "VV":VV, "TTJets_SingleLepton":TTJets_SingleLepton}#, "SMS":SMS_T2tt_lowerpt}    
 
     if args.sample == "Data":
         MET_data     = vars()['MET_Run2016']
         sample         = MET_data
+    elif "SMS" in args.sample:
+        sample = SMS_T2tt_lowerpt
     else:
         sample = sample_dict[args.sample]
 
@@ -78,9 +80,18 @@ else:
 
 selectionString      = cutInterpreter.cutString(args.selection )
 print(selectionString)
-sample.setSelectionString( [selectionString, triggerSelection] )
+if sample == SMS_T2tt_lowerpt:
+    sample.setSelectionString( [selectionString] )
+else:
+    sample.setSelectionString( [selectionString, triggerSelection] )
+
+#if args.sample == "SMS":
+#    sample.setWeightString(str(1234.35))  #TODO: Test!
+#else:
 sample.setWeightString(lumi_scale)
+    
 #sample.scale = lumi_scale
+
 
 weight_ = lambda event, sample: event.weight
 
@@ -96,7 +107,11 @@ if args.small:
     #eventScale = 1./sample.normalization
     #sample.addWeightString(eventScale)
 
-sample_rate  = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = 'weight*reweightBTagDeepCSV_SF*reweightPU36fb' )['val']
+if args.sample == "SMS":
+    sample_rate  = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = '34.3*weight*reweightBTagDeepCSV_SF*reweightPU36fb' )['val']
+else:
+    sample_rate  = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = 'weight*reweightBTagDeepCSV_SF*reweightPU36fb' )['val']
+
 limitCache.add(key=(str(args.sample)+'_'+str(region)), data=sample_rate)
 
 print(str(args.sample)+'_'+str(region), sample_rate)

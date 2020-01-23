@@ -37,7 +37,7 @@ argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--selection',          action='store',     default='', help="Specify cut.")
 argParser.add_argument('--small',              action='store_true', default=False, help='Run only on a small subset of the data?')
 argParser.add_argument('--region',             action='store',)
-argParser.add_argument('--sample',             action='store',      default='DY', choices = ["DY", "TTJets_DiLepton", "WJets", "VV", "TTJets_SingleLepton", "SMS", "Data"])
+argParser.add_argument('--sample',             action='store',      default='DY')#, choices = ["DY", "TTJets_DiLepton", "WJets", "VV", "TTJets_SingleLepton", "SMS", "Data"])
 argParser.add_argument('--year',               action='store',      default=2016)
 argParser.add_argument('--lumi',               action='store',      default="35.9")
 
@@ -107,10 +107,23 @@ if args.small:
     #eventScale = 1./sample.normalization
     #sample.addWeightString(eventScale)
 
-if args.sample == "SMS":
-    sample_rate  = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = '34.3*weight*reweightBTagDeepCSV_SF*reweightPU36fb' )['val']
+
+#SMS_T2tt_550_470
+
+from stops_13TeV import xsecNNLL
+from signal_norm import norm
+
+if "SMS" in args.sample:
+    WP = args.sample.split('_')[-2:]
+    xsec = xsecNNLL[int(WP[0])][0]
+    norm_factor = norm[int(WP[0])][int(WP[1])]
+    signal_normalization = 14537894./(float(lumi_scale)*1000.*xsec*10.*norm_factor)
+    norm_string = str(signal_normalization)
+    print(norm_string)
+    sample_rate = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = '%f*weight*reweightBTagDeepCSV_SF*reweightPU36fb'%(signal_normalization) )['val']
 else:
-    sample_rate  = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = 'weight*reweightBTagDeepCSV_SF*reweightPU36fb' )['val']
+    sample_rate = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = 'weight*reweightBTagDeepCSV_SF*reweightPU36fb' )['val']
+
 
 limitCache.add(key=(str(args.sample)+'_'+str(region)), data=sample_rate)
 

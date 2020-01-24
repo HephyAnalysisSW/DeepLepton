@@ -18,7 +18,7 @@ with open(sh_file_name, 'w') as sh_file:
                 lumi = 33.2
             else: 
                 lumi = 35.9
-            if sample == "SMS":
+            if "SMS" in sample:
                 for stopm in [(250+25*i) for i in range(23)]:
                     for lspm in [(stopm - delta) for delta in [10,20,30,40,50,60,70,80]]: 
                         selection = selections[i_region%3]

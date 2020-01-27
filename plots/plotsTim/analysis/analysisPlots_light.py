@@ -54,10 +54,13 @@ selection_dict = {"low_tt2l":"lep_CR_tt2l_mumu-jet_CR_tt2l-lower_met-dilepOS-fil
                 "high_tt2l":"lep_CR_tt2l-jet_CR_tt2l-met200-dilepOS-filters", 
                 "low_DY": "lep_CR_DY_mumu-jet_CR_DY-dilepOSmumuDY-lower_met-filters", 
                 "high_DY":"lep_CR_DY_all-jet_CR_DY-dilepOS-met200-filters", 
-                "low_sig":"lep_SR_mu_DL_bgr-jet_SR-lower_met-filters-Compressed_Stops_special", 
-                "med_sig":"lep_SR_all_DL_bgr-jet_SR-med_met-filters-Compressed_Stops_special", 
+                "low_sig":"lep_SR_mu-jet_SR-lower_met-filters-Compressed_Stops_special-dilepOS", 
+                "med_sig":"lep_SR_all-jet_SR-med_met-filters-Compressed_Stops_special-dilepOS", 
                 #"high_sig":"lep_SR_all_DL_bgr-jet_SR-met300-filters" } 
-                "high_sig":"lep_SR_all_DL_bgr-jet_SR-met300-filters-Compressed_Stops_special" } 
+                #"high_sig":"lep_SR_all-jet_SR-met300-filters-Compressed_Stops_special-dilepOS" } 
+                "high_sig":"lep_SR_all-jet_SR-met300-filters-Compressed_Stops_special-dilepOS" } 
+                #"high_sig":"jet_SR-met300-test-filters-dilepOS" } 
+                #"high_sig":"met300" } 
 args.selection = selection_dict[args.region]
 print(args.selection)
 
@@ -116,7 +119,7 @@ if args.year == 2017:
     mc             = [ ]
 elif args.year == 2016:
     if "sig" in args.region:
-        mc             = [ DY, TTJets_DiLepton, VV, TTJets_SingleLepton, WJets,]
+        mc             = [ DY, TTJets_DiLepton, VV, WJets, TTJets_SingleLepton,]
         #mc             = [ TTJets_DiLepton, DY, VV, WJets,]
         #mc             = [ DY, TTJets_DiLepton, ]
     else:
@@ -129,6 +132,7 @@ if args.signal == "SMS":
     postProcessing_directory = "deepLepton_v5/dilep/" 
     from DeepLepton.samples.cmgTuples_deepLepton_Summer16_mAODv2_postProcessed import *
     SMS_T2tt                 = SMS_T2tt_lowerpt
+    #SMS_T2tt                 = SMS_T2tt_SF2
 #    SMS_T2tt                 = SMS_T2tt_350_20
     #SMS_T2tt.style           = styles.lineStyle( ROOT.kBlack, width=3 )
     SMS_T2tt.style           = styles.lineStyle( ROOT.kRed, width=3 )
@@ -420,7 +424,11 @@ if not args.noData:
 
 #print('lumi scale: ', lumi_scale)
 
-if args.noData: lumi_scale = 35.9
+if args.noData: 
+    if 'low' in args.region:
+        lumi_scale = 33.2
+    else:
+        lumi_scale = 35.9
 weight_ = lambda event, sample: event.weight
 
 for sample in mc + signals:
@@ -438,6 +446,7 @@ for sample in mc + signals:
         signal_normalization = 1234.35/lumi_scale
         sample.weight         = lambda event, sample: signal_normalization*event.reweightBTagDeepCSV_SF*event.reweightPU36fb*(1 if args.small else args.reduceMC)
         sample.setSelectionString([getFilterCut(isData=False, year=args.year), cutInterpreter.cutString(args.selection), cutInterpreter.cutString('T2tt_350_20')])# , args.leptonpreselection])
+        #sample.setSelectionString([getFilterCut(isData=False, year=args.year), cutInterpreter.cutString('T2tt_350_20')])# , args.leptonpreselection])
     if args.reduceMC!=1:
         sample.reduceFiles( factor = args.reduceMC )
 
@@ -453,7 +462,8 @@ if args.small:
         sample.reduceFiles( to = 2 )
 
 # Use some defaults
-Plot.setDefaults(stack = stack, weight = staticmethod( weight_ ), selectionString = cutInterpreter.cutString(args.selection) +"&&"+args.leptonpreselection, addOverFlowBin=None)
+#Plot.setDefaults(stack = stack, weight = staticmethod( weight_ ), selectionString = cutInterpreter.cutString(args.selection) +"&&"+args.leptonpreselection, addOverFlowBin=None)
+Plot.setDefaults(stack = stack, weight = staticmethod( weight_ ),  addOverFlowBin=None)
 
 plots = []
 

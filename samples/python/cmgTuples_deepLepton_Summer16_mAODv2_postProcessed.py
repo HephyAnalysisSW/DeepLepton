@@ -35,6 +35,8 @@ dirs['DY']                  = ["DYJetsToLL_M50_HT70to100new" ,"DYJetsToLL_M50_HT
 #dirs['DY']                  = ["DYJetsToLL_M5to50_HT100to200new"]
 dirs['SMS_T2tt']            = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p1"]
 dirs['SMS_T2tt_lowerpt']    = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p1lowerpt"]
+dirs['SMS_T2tt_SF']    = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p1SF"]
+dirs['SMS_T2tt_SF2']    = ["SMS_T2tt_dM_10to80_genHT160_genMET80_mWMin0p1SF2"]
 dirs['SMS_T2tt_350_20']     = ["SMS_T2tt_350_20"]
 dirs['WJets'] = ["WJetsToLNu_HT70to100new", "WJetsToLNu_HT100to200new", "WJetsToLNu_HT200to400new", "WJetsToLNu_HT400to600new", "WJetsToLNu_HT600to800new", "WJetsToLNu_HT800to1200new", "WJetsToLNu_HT1200to2500new", "WJetsToLNu_HT2500toInfnew"]
 dirs['TTJets_SingleLepton'] = ["TTJets_SingleLeptonFromTnew", "TTJets_SingleLeptonFromTnew", "T_tWchnew", "TBar_tWchnew"]
@@ -105,6 +107,8 @@ VV                   = Sample.fromDirectory(name="VV",                    treeNa
 SMS_T2tt_350_20      = Sample.fromDirectory(name="SMS_T2tt_350_20",       treeName="Events", isData=False, color=color.signal,        texName="T2tt_350/20",               directory=directories['SMS_T2tt_350_20'])
 SMS_T2tt             = Sample.fromDirectory(name="SMS_T2tt",              treeName="Events", isData=False, color=color.signal,        texName="T2tt_all",                  directory=directories['SMS_T2tt'])
 SMS_T2tt_lowerpt     = Sample.fromDirectory(name="SMS_T2tt_lowerpt",      treeName="Events", isData=False, color=color.signal,        texName="T2tt_350/20",                  directory=directories['SMS_T2tt_lowerpt'])
+SMS_T2tt_SF          = Sample.fromDirectory(name="SMS_T2tt_SF",           treeName="Events", isData=False, color=color.signal,        texName="T2tt_350/20",                  directory=directories['SMS_T2tt_SF'])
+SMS_T2tt_SF2         = Sample.fromDirectory(name="SMS_T2tt_SF2",          treeName="Events", isData=False, color=color.signal,        texName="T2tt_350/20",                  directory=directories['SMS_T2tt_SF2'])
 WJets                = Sample.fromDirectory(name="WJets",                 treeName="Events", isData=False, color=color.other,         texName="WJets",                     directory=directories['WJets'])
 #TTJets_SingleLepton  = Sample.fromDirectory(name="TTJets_SingleLepton",   treeName="Events", isData=False, color=color.TTJets1l,      texName="tt(fakes)",                 directory=directories['TTJets_SingleLepton'])
 #________________________________

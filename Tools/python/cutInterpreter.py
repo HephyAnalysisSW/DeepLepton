@@ -60,9 +60,15 @@ special_cuts = {
     "lep_SR_mu_DL_sigeff":        "(Sum$(abs(lep_pdgId)==13&&(lep_pt>3.5)&&lep_pt<30&&abs(lep_eta)<2.4&& (lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dz)<0.1&&abs(lep_dxy)<0.05&&lep_pfMuonId&&lep_mediumMuonId&&lep_deepLepton_prompt<999&&lep_deepLepton_prompt>0.046 ) )) == 2"   ,
     "lep_SR_mu_DL_bgr":        "(Sum$(abs(lep_pdgId)==13&&(lep_pt>3.5)&&lep_pt<30&&abs(lep_eta)<2.4&& (lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dz)<0.1&&abs(lep_dxy)<0.05&&lep_pfMuonId&&lep_mediumMuonId&&lep_deepLepton_prompt<999&&lep_deepLepton_prompt>0.407 ) ) ) == 2"   ,
 
-    "Compressed_Stops_special":   "(mtautau>160||mtautau<0)&&ptll>3&&mll<50&&mll>4&&(mll>10.5||mll<9)&&ht25>100&&met_pt/ht25<1.4&&met_pt/ht25>0.6&&SR&&((dimu&&metMuSubtracted>125)||(dimu==0&&metMuSubtracted>200))"   ,
+    #"Compressed_Stops_special":   "(mtautau>160||mtautau<0)&&ptll>3&&mll<50&&mll>4&&(mll>10.5||mll<9.)&&ht25>100&&(met_pt/ht25)<1.4&&(met_pt/ht25)>0.6&&SR&&((dimu&&metMuSubtracted>125)||(dimu==0&&metMuSubtracted>200))"   ,
+    #"Compressed_Stops_special":   "((dimu||diele)&&(mtautau>160||mtautau<0)&&ptll>3&&mll<50&&mll>4&&(mll>10.5||mll<9.)&&ht25>100&&(met_pt/ht25)<1.4&&(met_pt/ht25)>0.6&&SR&&((dimu&&metMuSubtracted>125)||(dimu==0&&metMuSubtracted>200)))",# || ((dimu==0&&diele==0)&&(mtautau>160||mtautau<0)&&ptll>3&&mll<50&&mll>4&&ht25>100&&(met_pt/ht25)<1.4&&(met_pt/ht25)>0.6&&SR&&((dimu&&metMuSubtracted>125)||(dimu==0&&metMuSubtracted>200)))"   ,
+    "Compressed_Stops_special":   "(((dimu||diele)&&(mtautau>160||mtautau<0)&&ptll>3&&mll<50&&mll>4&&(mll>10.5||mll<9.)&&ht25>100&&(met_pt/ht25)<1.4&&(met_pt/ht25)>0.6&&SR&&((dimu&&metMuSubtracted>125)||(dimu==0&&metMuSubtracted>200))) || ((dimu==0&&diele==0)&&(mtautau>160||mtautau<0)&&ptll>3&&mll<50&&ht25>100&&(met_pt/ht25)<1.4&&(met_pt/ht25)>0.6&&SR&&((dimu&&metMuSubtracted>125)||(dimu==0&&metMuSubtracted>200))))"   ,
+    #"Compressed_Stops_special":   " ((dimu==0&&diele==0)&&(mtautau>160||mtautau<0)&&ptll>3&&mll<50&&mll>4&&ht25>100&&(met_pt/ht25)<1.4&&(met_pt/ht25)>0.6&&SR==1&&((dimu&&metMuSubtracted>125)||(dimu==0&&metMuSubtracted>200)))"   ,
 
-    "test":                     "met_pt>200&&met_pt<300&&leadingLep_pt>20&&leadingLep_pt<30"
+    "test":                       "(((dimu||diele)&&(mtautau>160||mtautau<0)&&ptll>3&&mll<50&&mll>4&&(mll>10.5||mll<9.)&&ht25>100&&(met_pt/ht25)<1.4&&(met_pt/ht25)>0.6&&SR&&((dimu&&metMuSubtracted>125)||(dimu==0&&metMuSubtracted>200))) || ((dimu==0&&diele==0)&&(mtautau>160||mtautau<0)&&ptll>3&&mll<50&&ht25>100&&(met_pt/ht25)<1.4&&(met_pt/ht25)>0.6&&SR&&((dimu&&metMuSubtracted>125)||(dimu==0&&metMuSubtracted>200))))"   ,
+    #"test":   "(((dimu||diele)&&ptll>3&&mll<50&&mll>4&&(mll>10.5||mll<9.)&&ht25>100&&(met_pt/ht25)<1.4&&(met_pt/ht25)>0.6&&SR&&((dimu&&metMuSubtracted>125)||(dimu==0&&metMuSubtracted>200))) || ((dimu==0&&diele==0)&&ptll>3&&mll<50&&ht25>100&&(met_pt/ht25)<1.4&&(met_pt/ht25)>0.6&&SR&&((dimu&&metMuSubtracted>125)||(dimu==0&&metMuSubtracted>200))))"   ,
+
+    #"test":                     "met_pt>200&&met_pt<300&&leadingLep_pt>20&&leadingLep_pt<30"
    
     #"genZtoTau":         "genZ_daughter_flavor==15",
  }
@@ -70,7 +76,7 @@ special_cuts = {
 for stopm in [250+25*i for i in range(23)]:
     for lspm in [(stopm - delta) for delta in [10,20,30,40,50,60,70,80]]:
         key = "T2tt_%i_%i"%(stopm, lspm)
-        special_cuts[key] = "Sum$(abs(genPartAll_pdgId)==1000006 && genPartAll_mass==%i)>=1 && Sum$(abs(genPartAll_pdgId)==1000022 && genPartAll_mass==%i)>=1"%(stopm,lspm)
+        special_cuts[key] = "(Sum$(abs(genPartAll_pdgId)==1000006 && genPartAll_mass==%i)>=1 && Sum$(abs(genPartAll_pdgId)==1000022 && genPartAll_mass==%i))>=1"%(stopm,lspm)
 
 continous_variables = [ ("metSig", "metSig"), ("met", "met_pt"), ]
 discrete_variables  = [ ("njet", "nJetSelected"), ("btag", "nBTag") , ("nlep","nlep") ]

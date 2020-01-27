@@ -61,6 +61,7 @@ elif args.year == 2016:
         sample         = MET_data
     elif "SMS" in args.sample:
         sample = SMS_T2tt_lowerpt
+        #sample = SMS_T2tt_SF2
     else:
         sample = sample_dict[args.sample]
 
@@ -80,7 +81,7 @@ else:
 
 selectionString      = cutInterpreter.cutString(args.selection )
 print(selectionString)
-if sample == SMS_T2tt_lowerpt:
+if sample == SMS_T2tt_lowerpt or sample == SMS_T2tt_SF2 or sample==SMS_T2tt_SF:
     sample.setSelectionString( [selectionString] )
 else:
     sample.setSelectionString( [selectionString, triggerSelection] )
@@ -108,7 +109,6 @@ if args.small:
     #sample.addWeightString(eventScale)
 
 
-#SMS_T2tt_550_470
 
 from stops_13TeV import xsecNNLL
 from signal_norm import norm

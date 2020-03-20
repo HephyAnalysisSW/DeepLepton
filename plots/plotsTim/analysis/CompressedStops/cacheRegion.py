@@ -111,16 +111,22 @@ if args.small:
 
 
 from stops_13TeV import xsecNNLL
-from signal_norm import norm
+from filter_efficiencies import filter_eff
 
 if "SMS" in args.sample:
     WP = args.sample.split('_')[-2:]
     xsec = xsecNNLL[int(WP[0])][0]
-    norm_factor = norm[int(WP[0])][int(WP[1])]
-    signal_normalization = 14537894./(float(lumi_scale)*1000.*xsec*10.*norm_factor)
+    eff = norm[int(WP[0])][int(WP[1])]
+    #signal_normalization = 14537894./(float(lumi_scale)*1000.*xsec*10.*eff)
+    #signal_normalization = 2.35*1e-5*10000.*xsec * float(lumi_scale)
+
+    #signal_normalization = xsec * float(lumi_scale) * eff
+    signal_normalization = xsec * float(lumi_scale) / (109214.) #* eff   
+
     norm_string = str(signal_normalization)
-    print(norm_string)
-    sample_rate = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = '%f*weight*reweightBTagDeepCSV_SF*reweightPU36fb'%(signal_normalization) )['val']
+    print('normalization:', norm_string)
+    #sample_rate = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = '%f*weight*reweightBTagDeepCSV_SF*reweightPU36fb'%(signal_normalization) )['val']
+    sample_rate = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = '%f*reweightBTagDeepCSV_SF*reweightPU36fb'%(signal_normalization) )['val']
 else:
     sample_rate = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = 'weight*reweightBTagDeepCSV_SF*reweightPU36fb' )['val']
 

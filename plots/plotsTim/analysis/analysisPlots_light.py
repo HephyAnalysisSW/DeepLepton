@@ -375,7 +375,7 @@ def drawObjects( plotData, dataMCScale, lumi_scale ):
 
 def drawPlots(plots, dataMCScale):
   for log in [False, True]:
-    plot_directory_ = os.path.join(plot_directory, 'analysisPlots5', args.plot_directory, ("log" if log else "lin"), args.selection)#+"_DL_WP2")
+    plot_directory_ = os.path.join(plot_directory, 'analysisPlots7', args.plot_directory, ("log" if log else "lin"), args.selection)#+"_DL_WP2")
     for plot in plots:
       #print(plot.histos)
       #print(l for l in plot.histos)
@@ -443,7 +443,9 @@ for sample in mc + signals:
         
         sample.setSelectionString([getFilterCut(isData=False, year=args.year), cutInterpreter.cutString(args.selection), triggerSelection])# , args.leptonpreselection])
     elif sample in signals:
-        signal_normalization = 1234.35/lumi_scale
+        #signal_normalization = 1234.35/lumi_scale
+        print('old: ', 1234.35/lumi_scale, 'new: ', lumi_scale*4.43/109214.)
+        signal_normalization = lumi_scale*4.43/(109214.)#*0.269)
         sample.weight         = lambda event, sample: signal_normalization*event.reweightBTagDeepCSV_SF*event.reweightPU36fb*(1 if args.small else args.reduceMC)
         sample.setSelectionString([getFilterCut(isData=False, year=args.year), cutInterpreter.cutString(args.selection), cutInterpreter.cutString('T2tt_350_20')])# , args.leptonpreselection])
         #sample.setSelectionString([getFilterCut(isData=False, year=args.year), cutInterpreter.cutString('T2tt_350_20')])# , args.leptonpreselection])

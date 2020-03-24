@@ -445,7 +445,7 @@ for sample in mc + signals:
     elif sample in signals:
         #signal_normalization = 1234.35/lumi_scale
         print('old: ', 1234.35/lumi_scale, 'new: ', lumi_scale*4.43/109214.)
-        signal_normalization = lumi_scale*4.43/(109214.)#*0.269)
+        signal_normalization = lumi_scale*4.43/(109214.)/(2.351e-05)#*0.269)
         sample.weight         = lambda event, sample: signal_normalization*event.reweightBTagDeepCSV_SF*event.reweightPU36fb*(1 if args.small else args.reduceMC)
         sample.setSelectionString([getFilterCut(isData=False, year=args.year), cutInterpreter.cutString(args.selection), cutInterpreter.cutString('T2tt_350_20')])# , args.leptonpreselection])
         #sample.setSelectionString([getFilterCut(isData=False, year=args.year), cutInterpreter.cutString('T2tt_350_20')])# , args.leptonpreselection])

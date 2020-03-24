@@ -19,5 +19,5 @@ if os.environ['USER'] in ['tbrueckler']:
     plot_directory   = "/afs/hephy.at/user/t/tbrueckler/www/"
     skim_directory   = "/afs/hephy.at/data/cms03/tbrueckler/DeepLepton/skims/"
     data_directory   = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
-    cache_directory  = "/afs/hephy.at/data/cms03/tbrueckler/CompressedStops/cache_DL_newNorm/"
+    cache_directory  = "/afs/hephy.at/data/cms03/tbrueckler/CompressedStops/caches_valid/"
 

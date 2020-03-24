@@ -126,8 +126,8 @@ mvaTTV     = {"name":"TTV",        "var":"lep_mvaTTV",                          
 mvaTTH     = {"name":"TTH",        "var":"lep_mvaTTH",                                                                  "color":ROOT.kGray,    "thresholds":[ i/1000. for i in range(-1000,1001)]}
 
 lepton_ids = [
-    mvaTTH, 
-    mvaTTV,
+#    mvaTTH, 
+#    mvaTTV,
     deepLepton,
 ]
 
@@ -156,10 +156,11 @@ for lepton_id in lepton_ids:
     lepton_id["roc"]      = ROOT.TGraph(len(lepton_id["bkg_eff" ]), array.array('d', lepton_id["bkg_eff" ]), array.array('d', lepton_id["sig_eff" ]))
     lepton_id["roc"].SetLineColor( lepton_id['color'] )
 
-#    #look at DL thresholds and signal efficiency and background rejection
-#    if lepton_id == deepLepton:
-#        for i in range(len(lepton_id["sig_h_eff"])):
-#            print("sig_eff: ", lepton_id["sig_eff"][i], "bkg_rej: ", lepton_id["bkg_eff"][i], "DL threshold: " ,lepton_id["thresholds"][i])
+
+    #look at DL thresholds and signal efficiency and background rejection
+    if lepton_id == deepLepton:
+        for i in range(len(lepton_id["sig_h_eff"])):
+            print("sig_eff: ", lepton_id["sig_eff"][i], "bkg_rej: ", lepton_id["bkg_eff"][i], "DL threshold: " ,lepton_id["thresholds"][i])
 
 
 gStyle.SetOptTitle(0)

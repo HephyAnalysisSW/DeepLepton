@@ -71,6 +71,18 @@ special_cuts = {
     #"test":                     "met_pt>200&&met_pt<300&&leadingLep_pt>20&&leadingLep_pt<30"
    
     #"genZtoTau":         "genZ_daughter_flavor==15",
+
+
+#vloose=0.97sigeff
+    "lep_SR_all_DL_vloose":        "(Sum$(abs(lep_pdgId)==13&&(lep_pt>3.5)&&lep_pt<30&&abs(lep_eta)<2.4&& (lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dz)<0.1&&abs(lep_dxy)<0.05&&lep_pfMuonId&&lep_mediumMuonId&&lep_deepLeptonPrompt<999&&lep_deepLeptonPrompt>0.0275 ) ) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&lep_pt<30&&abs(lep_eta)<2.5&& (lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dz)<0.1&&abs(lep_dxy)<0.05&&lep_lostHits<=1&&lep_deepLeptonPrompt<999&&lep_deepLeptonPrompt>0.0639) )) == 2"   ,
+
+    "lep_SR_mu_DL_vloose":        "(Sum$(abs(lep_pdgId)==13&&(lep_pt>3.5)&&lep_pt<30&&abs(lep_eta)<2.4&& (lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dz)<0.1&&abs(lep_dxy)<0.05&&lep_pfMuonId&&lep_mediumMuonId&&lep_deepLeptonPrompt<999&&lep_deepLeptonPrompt>0.0275 ) )) == 2"   ,
+
+#vvloose=0.99
+    "lep_SR_all_DL_vloose":        "(Sum$(abs(lep_pdgId)==13&&(lep_pt>3.5)&&lep_pt<30&&abs(lep_eta)<2.4&& (lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dz)<0.1&&abs(lep_dxy)<0.05&&lep_pfMuonId&&lep_mediumMuonId&&lep_deepLeptonPrompt<999&&lep_deepLeptonPrompt>0.00867) ) + Sum$(abs(lep_pdgId)==11&&lep_pt>5&&lep_pt<30&&abs(lep_eta)<2.5&& (lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dz)<0.1&&abs(lep_dxy)<0.05&&lep_lostHits<=1&&lep_deepLeptonPrompt<999&&lep_deepLeptonPrompt>0.01213) )) == 2"   ,
+
+    "lep_SR_mu_DL_vloose":        "(Sum$(abs(lep_pdgId)==13&&(lep_pt>3.5)&&lep_pt<30&&abs(lep_eta)<2.4&& (lep_miniRelIso<0.4&&lep_sip3d<8&&abs(lep_dz)<0.1&&abs(lep_dxy)<0.05&&lep_pfMuonId&&lep_mediumMuonId&&lep_deepLeptonPrompt<999&&lep_deepLeptonPrompt>0.00867) )) == 2"   ,
+
  }
 
 for stopm in [250+25*i for i in range(23)]:

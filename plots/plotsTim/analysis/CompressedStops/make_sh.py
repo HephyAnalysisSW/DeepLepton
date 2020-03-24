@@ -8,7 +8,7 @@ sh_file_name = "launch_cache_DL.sh"
 #    print(str(region))
 
 #selections = ["lep_SR_mu-jet_SR-lower_met-filters-Compressed_Stops_special","lep_SR_all-jet_SR-med_met-filters-Compressed_Stops_special","lep_SR_all-jet_SR-met300-filters-Compressed_Stops_special"]
-selections = ["lep_SR_mu_DL_bgr-jet_SR-lower_met-filters-Compressed_Stops_special","lep_SR_all_DL_bgr-jet_SR-med_met-filters-Compressed_Stops_special","lep_SR_all_DL_bgr-jet_SR-met300-filters-Compressed_Stops_special"]
+selections = ["lep_SR_mu_DL_vloose-jet_SR-lower_met-filters-Compressed_Stops_special","lep_SR_all_DL_vloose-jet_SR-med_met-filters-Compressed_Stops_special","lep_SR_all_DL_vloose-jet_SR-met300-filters-Compressed_Stops_special"]
 
 
 with open(sh_file_name, 'w') as sh_file:

@@ -69,7 +69,7 @@ elif args.year == 2016:
 baseDir       = os.path.join( cache_directory, "caches" )
 if not os.path.exists( baseDir ): os.makedirs( baseDir )
 
-cacheFileName   = os.path.join( baseDir, "estimates" )
+cacheFileName   = os.path.join( baseDir, "estimates_DL_WPvloose" )
 limitCache      = MergingDirDB( cacheFileName )
 
 tr = triggerSelector(args.year)
@@ -112,19 +112,22 @@ if args.small:
 
 from stops_13TeV import xsecNNLL
 from filter_efficiencies import filter_eff
+from signal_events import num_events
 
 if "SMS" in args.sample:
     WP = args.sample.split('_')[-2:]
     xsec = xsecNNLL[int(WP[0])][0]
-    eff = norm[int(WP[0])][int(WP[1])]
-    #signal_normalization = 14537894./(float(lumi_scale)*1000.*xsec*10.*eff)
+    eff = filter_eff[int(WP[0])][int(WP[1])]
+    n_events = num_events[int(WP[0])][int(WP[1])]
+    
+    #old_signal_normalization = 14537894./(float(lumi_scale)*1000.*xsec*10.*eff)
     #signal_normalization = 2.35*1e-5*10000.*xsec * float(lumi_scale)
 
     #signal_normalization = xsec * float(lumi_scale) * eff
-    signal_normalization = xsec * float(lumi_scale) / (109214.) #* eff   
+    signal_normalization = xsec * float(lumi_scale) / n_events   #(109214.) #* eff   
 
     norm_string = str(signal_normalization)
-    print('normalization:', norm_string)
+    print('normalization:', norm_string)  #, 'old: ', old_signal_normalization)
     #sample_rate = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = '%f*weight*reweightBTagDeepCSV_SF*reweightPU36fb'%(signal_normalization) )['val']
     sample_rate = sample.getYieldFromDraw( selectionString=region.cutString(), weightString = '%f*reweightBTagDeepCSV_SF*reweightPU36fb'%(signal_normalization) )['val']
 else:

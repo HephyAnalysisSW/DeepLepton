@@ -8,7 +8,7 @@ from RootTools.core.standard import *
 
 # DeepLepton
 from DeepLepton.Tools.user import skim_directory
-from DeepLepton.Tools.helpers import getCollection
+from DeepLepton.Tools.helpers import getCollection, deltaR, deltaR2
 
 # parser
 def get_parser():
@@ -100,51 +100,71 @@ elif options.flavour == 'muo':
     read_variables.extend(['nMuon/I', 'Muon[%s]'%(",".join(lep_vars))])
 
 lep_varnames = map( lambda n:n.split('/')[0], lep_vars ) 
-new_variables  = []
+new_variables= map( lambda b: "lep_%s"%b, lep_vars )
+pf_flavours  = ['charged', 'neutral', 'photon', 'electron', 'muon']
+for pf_flavour in pf_flavours:
+    # per PFCandidate flavor, add a counter and a vector with all pf candidate variables
+    new_variables.append( VectorTreeVariable.fromString( 'pfCand_%s[%s]'%(pf_flavour, ",".join(cand_vars)), nMax = 100) )
 
-def filler( event ):
+new_variables.append( VectorTreeVariable.fromString( 'SV[%s]'%( ",".join(SV_vars)), nMax = 100) )
+
+def fill_vector_collection( event, collection_name, collection_varnames, objects, nMax = 100):
+    setattr( event, "n"+collection_name, len(objects) )
+    for i_obj, obj in enumerate(objects[:nMax]):
+        for var in collection_varnames:
+            if var in obj.keys():
+                if type(obj[var]) == type("string"):
+                    obj[var] = int(ord(obj[var]))
+                if type(obj[var]) == type(True):
+                    obj[var] = int(obj[var])
+                getattr(event, collection_name+"_"+var)[i_obj] = obj[var]
+
+# Do this when looping over the event 
+def prepare_cands( event ):
     r = reader.event
     if options.flavour == 'muo':
         leps = getCollection(r, 'Muon', lep_varnames, 'nMuon')
     elif options.flavour == 'ele':
         leps = getCollection(r, 'Electron', lep_varnames, 'nElectron')
 
-    leps = filter( lambda l: (l['pt']>=pt_threshold[0] or pt_threshold[0]<0) and (l['pt']<pt_threshold[1] or pt_threshold[1]<0), leps )
+    # write leptons to event
+    event.leps = filter( lambda l: (l['pt']>=pt_threshold[0] or pt_threshold[0]<0) and (l['pt']<pt_threshold[1] or pt_threshold[1]<0), leps )
 
     # No leptons -> stop.
-    if len(leps)==0: return
+    if len(event.leps)==0: 
+        return
 
     PFCands = getCollection(r, 'PFCands', cand_varnames, 'nPFCands', maxN = nPFCandMax)
-    SV      = getCollection(r, 'SV', SV_varnames, 'nSV')
+    SVs     = getCollection(r, 'SV', SV_varnames, 'nSV')
 
-    #print len(leps), len(PFCands), len(SV)
-    neutral, charged, photon, electron, muon = [[]]*5
-
+    #print len(leps), len(PFCands), len(SVs)
+    sorted_cands = {pf_flavour:[] for pf_flavour in pf_flavours}
     for lep in leps:
         for PFCand in PFCands:
             pdgId = PFCand['pdgId']
             if abs(pdgId)==211:
-                charged.append(PFCand)
-            elif abs(pdgId)==100:
-                neutral.append(PFCand)
-            elif abs(pdgId)==21:
-                photon.append(PFCand)
+                sorted_cands['charged'].append(PFCand)
+            elif abs(pdgId)==130:
+                sorted_cands['neutral'].append(PFCand)
+            elif abs(pdgId)==22:
+                sorted_cands['photon'].append(PFCand)
             elif abs(pdgId)==13:
-                muon.append(PFCand)
+                sorted_cands['muon'].append(PFCand)
             elif abs(pdgId)==11:
-                electron.append(PFCand)
+                sorted_cands['electron'].append(PFCand)
 
-#    for lep in lep:
-
+    # weite SVs and sorted_cands to event 
+    event.SVs          = SVs
+    event.sorted_cands = sorted_cands
 
 # Create a maker. Maker class will be compiled. This instance will be used as a parent in the loop
 treeMaker_parent = TreeMaker(
-    sequence  = [ filler ],
+    sequence  = [ prepare_cands ],
     variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, new_variables),
     treeName = 'tree',
     )
 
-# Reader.
+# Reader
 reader = sample.treeReader( \
     variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables),
     selectionString = "&&".join(skimConds)
@@ -174,12 +194,33 @@ maker = treeMaker_parent.cloneWithoutCompile( externalTree = clonedTree )
 
 maker.start()
 reader.start()
+counter=0
 while reader.run():
-    maker.run()
+    counter+=1
+
+    # Don't use maker.run because we want to fill more than once
+    prepare_cands( event = maker.event )
+
+    for lep in maker.event.leps:
+        for b in lep_varnames:
+            setattr(maker.event, "lep_"+b, lep[b])
+        for pf_flavour in pf_flavours:
+            cands = filter( lambda c: deltaR2(c, lep) < dR_PF**2, maker.event.sorted_cands[pf_flavour] )
+            fill_vector_collection( maker.event, 'pfCand_%s'%pf_flavour, cand_varnames, cands, nMax = 100 )
+        SV = filter( lambda c: deltaR2(c, lep) < dR_PF**2, maker.event.SVs )
+        fill_vector_collection( maker.event, 'SV', SV_varnames, SV, nMax = 100 )
+
+        maker.fill()
+        maker.event.init()
+
+    # stop early when small.
+    if options.small:
+        if counter==200:
+            break
 
 logger.info("Writing tree")
 maker.tree.Write()
-outputfile.Close()
+outfile.Close()
 logger.info( "Written %s", outfilename)
 
 #for leptonClass in leptonClasses:

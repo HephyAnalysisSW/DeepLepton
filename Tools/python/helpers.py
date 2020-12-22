@@ -222,8 +222,11 @@ def getObjDict(c, prefix, variables, i):
     res['index']=i
     return res
 
-def getCollection(c, prefix, variables, counter_variable):
-    return [getObjDict(c, prefix+'_', variables, i) for i in range(int(getVarValue(c, counter_variable)))]
+def getCollection(c, prefix, variables, counter_variable, maxN = None):
+    n = int(getVarValue(c, counter_variable))
+    if maxN is not None and n>maxN:
+        n=maxN
+    return [getObjDict(c, prefix+'_', variables, i) for i in range(n)]
 
 def getCutYieldFromChain(c, cutString = "(1)", cutFunc = None, weight = "weight", weightFunc = None, returnVar=False):
     c.Draw(">>eList", cutString)

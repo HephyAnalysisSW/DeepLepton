@@ -174,7 +174,7 @@ for leptonClass in leptonClasses:
     leptonClass['TChain'] = leptonClass['TChain'].CopyTree(selectionString)
 
     leptonClass['Entries'] = leptonClass['TChain'].GetEntries()
-    logger.info( "flavor %s class %s entries %i", options.flavour, leptonClass['name'], leptonClass['Entries'] )
+    logger.info( "flavour %s class %s entries %i", options.flavour, leptonClass['name'], leptonClass['Entries'] )
 
 if options.ratio == 'balanced':
     x = [[0,1,2], [nonPrompt['Entries']+fake['Entries'], nonPrompt['Entries'], fake['Entries']]]

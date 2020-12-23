@@ -175,19 +175,18 @@ while reader.run():
     SVs     = getCollection(r, 'SV', SV_varnames, 'nSV')
     #print len(leps), len(PFCands), len(SVs)
     sorted_cands = {pf_flavour:[] for pf_flavour in pf_flavours}
-    for lep in leps:
-        for PFCand in PFCands:
-            pdgId = PFCand['pdgId']
-            if abs(pdgId)==211:
-                sorted_cands['charged'].append(PFCand)
-            elif abs(pdgId)==130:
-                sorted_cands['neutral'].append(PFCand)
-            elif abs(pdgId)==22:
-                sorted_cands['photon'].append(PFCand)
-            elif abs(pdgId)==13:
-                sorted_cands['muon'].append(PFCand)
-            elif abs(pdgId)==11:
-                sorted_cands['electron'].append(PFCand)
+    for PFCand in PFCands:
+        pdgId = PFCand['pdgId']
+        if abs(pdgId)==211:
+            sorted_cands['charged'].append(PFCand)
+        elif abs(pdgId)==130:
+            sorted_cands['neutral'].append(PFCand)
+        elif abs(pdgId)==22:
+            sorted_cands['photon'].append(PFCand)
+        elif abs(pdgId)==13:
+            sorted_cands['muon'].append(PFCand)
+        elif abs(pdgId)==11:
+            sorted_cands['electron'].append(PFCand)
 
     for lep in leps:
         #now decide which maker to use

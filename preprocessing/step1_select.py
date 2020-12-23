@@ -66,11 +66,11 @@ logger.debug( "Files to be run over:\n%s", "\n".join(sample.files) )
 #output directory
 output_directory = os.path.join( skim_directory, options.version+('_small' if options.small else ''), 'step1', str(options.year) ) 
 
-leptonClasses  = [{'name':'Prompt',    'selector': lambda l: abs( l['mcMatchId'] ) in [6,23,24,25,37]}, 
-                  {'name':'NonPrompt', 'selector': lambda l: not (abs(l['mcMatchId']) in [6,23,24,25,37]) and (abs(l['mcMatchAny']) in [4,5])}, 
-                  {'name':'Fake',      'selector': lambda l: not (abs(l['mcMatchId']) in [6,23,24,25,37]) and not (abs(l['mcMatchAny']) in [4,5])}
+leptonClasses  = [{'name':'Prompt',    'selector': lambda genPartFlav: abs(genPartFlav) in [1, 15]}, 
+                  {'name':'NonPrompt', 'selector': lambda genPartFlav: abs(genPartFlav) in [4, 5]}, 
+                  {'name':'Fake',      'selector': lambda genPartFlav: abs(genPartFlav) not in [1, 15, 4, 5]}
                  ]
-leptonFlavour   =  {'name':'muo', 'pdgId': 13} if options.flavour == 'muo' else  {'name':'ele', 'pdgId': 11}
+leptonFlavour  =  {'name':'muo', 'pdgId': 13} if options.flavour == 'muo' else  {'name':'ele', 'pdgId': 11}
 
 #pt selection
 ptSelectionList = options.ptSelection.split('_')
@@ -119,8 +119,43 @@ def fill_vector_collection( event, collection_name, collection_varnames, objects
                     obj[var] = int(obj[var])
                 getattr(event, collection_name+"_"+var)[i_obj] = obj[var]
 
-# Do this when looping over the event 
-def prepare_cands( event ):
+
+
+# Reader
+reader = sample.treeReader( \
+    variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables),
+    selectionString = "&&".join(skimConds)
+    )
+
+for leptonClass in leptonClasses:
+
+    outfilename =  os.path.join(output_directory, options.flavour, leptonClass['name'], sample.name + '.root')
+
+    if not os.path.exists(os.path.dirname(outfilename)):
+        try:
+            os.makedirs(os.path.dirname(outfilename))
+        except:
+            pass
+
+    print leptonClass['name'], ROOT.gDirectory
+    tmp_directory = ROOT.gDirectory
+    outfile = ROOT.TFile.Open(outfilename, 'recreate')
+    outfile.cd()
+    maker = TreeMaker( sequence  = [ ],
+        variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, new_variables),
+        treeName = 'tree')
+    tmp_directory.cd()
+    print "Done", leptonClass['name'], ROOT.gDirectory
+
+    leptonClass['outfile']    = outfile
+    leptonClass['outfilename']= outfilename
+    #leptonClass['clonedTree'] = reader.cloneTree( [], newTreename = 'tree', rootfile = leptonClass['outfile'] )
+    leptonClass['maker']      = maker 
+    leptonClass['maker'].start()
+
+reader.start()
+counter=0
+while reader.run():
     r = reader.event
     if options.flavour == 'muo':
         leps = getCollection(r, 'Muon', lep_varnames, 'nMuon')
@@ -128,15 +163,16 @@ def prepare_cands( event ):
         leps = getCollection(r, 'Electron', lep_varnames, 'nElectron')
 
     # write leptons to event
-    event.leps = filter( lambda l: (l['pt']>=pt_threshold[0] or pt_threshold[0]<0) and (l['pt']<pt_threshold[1] or pt_threshold[1]<0), leps )
+    leps = filter( lambda l: (l['pt']>=pt_threshold[0] or pt_threshold[0]<0) and (l['pt']<pt_threshold[1] or pt_threshold[1]<0), leps )
 
-    # No leptons -> stop.
-    if len(event.leps)==0: 
-        return
+    # No leptons -> don't consider this event.
+    if len(leps)==0: 
+        continue
+    counter+=1
 
+    # get the candidates
     PFCands = getCollection(r, 'PFCands', cand_varnames, 'nPFCands', maxN = nPFCandMax)
     SVs     = getCollection(r, 'SV', SV_varnames, 'nSV')
-
     #print len(leps), len(PFCands), len(SVs)
     sorted_cands = {pf_flavour:[] for pf_flavour in pf_flavours}
     for lep in leps:
@@ -153,61 +189,24 @@ def prepare_cands( event ):
             elif abs(pdgId)==11:
                 sorted_cands['electron'].append(PFCand)
 
-    # weite SVs and sorted_cands to event 
-    event.SVs          = SVs
-    event.sorted_cands = sorted_cands
-
-# Create a maker. Maker class will be compiled. This instance will be used as a parent in the loop
-treeMaker_parent = TreeMaker(
-    sequence  = [ prepare_cands ],
-    variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, new_variables),
-    treeName = 'tree',
-    )
-
-# Reader
-reader = sample.treeReader( \
-    variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables),
-    selectionString = "&&".join(skimConds)
-    )
-
-# Split input in ranges
-outfilename =  os.path.join(output_directory, options.sample, sample.name + '.root')
-
-tmp_directory = ROOT.gDirectory
-outfile = ROOT.TFile.Open(outfilename, 'recreate')
-tmp_directory.cd()
-
-if not os.path.exists(os.path.dirname(outfilename)):
-    try:
-        os.makedirs(os.path.dirname(outfilename))
-    except:
-        pass
-
-clonedTree = reader.cloneTree( [], newTreename = 'tree', rootfile = outfile )
-
-_logger.   add_fileHandler( outfilename.replace('.root', '.log'), options.logLevel )
-_logger_rt.add_fileHandler( outfilename.replace('.root', '_rt.log'), options.logLevel )
-
-tree = ROOT.TTree('tree','tree')
-
-maker = treeMaker_parent.cloneWithoutCompile( externalTree = clonedTree )
-
-maker.start()
-reader.start()
-counter=0
-while reader.run():
-    counter+=1
-
-    # Don't use maker.run because we want to fill more than once
-    prepare_cands( event = maker.event )
-
-    for lep in maker.event.leps:
+    for lep in leps:
+        #now decide which maker to use
+        maker = None
+        for leptonClass in leptonClasses:
+            if leptonClass['selector'](ord(lep['genPartFlav'])):
+                maker = leptonClass['maker']
+                break
+        if maker is None:
+            raise RuntimeError("Unclassified lepton: genPartFlav: %i " % reader.event.lep_genPartFlav)
+        # write the lepton
         for b in lep_varnames:
             setattr(maker.event, "lep_"+b, lep[b])
+        # write vector with PF candidates
         for pf_flavour in pf_flavours:
-            cands = filter( lambda c: deltaR2(c, lep) < dR_PF**2, maker.event.sorted_cands[pf_flavour] )
+            cands = filter( lambda c: deltaR2(c, lep) < dR_PF**2, sorted_cands[pf_flavour] )
             fill_vector_collection( maker.event, 'pfCand_%s'%pf_flavour, cand_varnames, cands, nMax = 100 )
-        SV = filter( lambda c: deltaR2(c, lep) < dR_PF**2, maker.event.SVs )
+        # write nearby SVs
+        SV = filter( lambda c: deltaR2(c, lep) < dR_PF**2, SVs )
         fill_vector_collection( maker.event, 'SV', SV_varnames, SV, nMax = 100 )
 
         maker.fill()
@@ -218,8 +217,10 @@ while reader.run():
         if counter==200:
             break
 
-logger.info("Writing tree")
-maker.tree.Write()
-outfile.Close()
-logger.info( "Written %s", outfilename)
+logger.info("Writing trees.")
+for leptonClass in leptonClasses:
+    #leptonClass['maker'].tree.Write()
+    leptonClass['outfile'].Write()
+    leptonClass['outfile'].Close()
+    logger.info( "Written %s", leptonClass['outfilename'])
 

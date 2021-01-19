@@ -2,6 +2,7 @@
 import ROOT
 import os
 import sys
+from math import *
 
 # RootTools
 from RootTools.core.standard import *
@@ -155,9 +156,9 @@ for leptonClass in leptonClasses:
     leptonClass['maker'].start()
 
 # put this function into helpers after it works.
-def ptRel(p4,axis):
-    a = ROOT.TVector3(axis.Vect().X(),axis.Vect().Y(),axis.Vect().Z())
-    o = ROOT.TLorentzVector(p4.Px(),p4.Py(),p4.Pz(),p4.E())
+def ptRel(cand, lep):
+    a = ROOT.TVector3(cos(lep['phi']),sin(lep['phi']),sinh(lep['eta']))
+    o = ROOT.TLorentzVector(cand['pt']*cos(cand['phi']), cand['pt']*sin(cand['phi']),cand['pt']*sinh(cand['eta']),cand['pt']*cosh(cand['eta']),)
     return o.Perp(a)
 #print(read_variables)
 
@@ -218,10 +219,9 @@ while reader.run():
         # write nearby SVs
         SV = filter( lambda c: deltaR2(c, lep) < dR_PF**2, SVs )
         fill_vector_collection( maker.event, 'SV', SV_varnames, SV, nMax = 100 )
-        # calculate and write dR and ptRel
-        print(lep)
-        print(PFCand)
-        print(deltaR2(lep, PFCand))
+        # calculate and write dR and ptRel      
+        #print(ptRel(PFCand, lep), deltaR2(lep, PFCand), deltaR2(PFCand, lep))
+        maker.event.ptRel = ptRel(PFCand, lep)
         maker.event.dR = deltaR2(lep, PFCand)
         maker.fill()
         maker.event.init()

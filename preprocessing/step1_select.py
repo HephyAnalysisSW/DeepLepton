@@ -85,6 +85,7 @@ read_variables = [
     'nSV/I',
     "SV[%s]"%(",".join(SV_vars)),
     ]
+read_variables += ["event/l", "luminosityBlock/I", "run/I"]
 cand_varnames = map( lambda n:n.split('/')[0], cand_vars ) 
 SV_varnames   = map( lambda n:n.split('/')[0], SV_vars ) 
 
@@ -107,7 +108,7 @@ for pf_flavour in pf_flavours:
     new_variables.append( VectorTreeVariable.fromString( 'pfCand_%s[%s]'%(pf_flavour, ",".join(cand_vars)), nMax = 100) )
 
 new_variables.append( VectorTreeVariable.fromString( 'SV[%s]'%( ",".join(SV_vars)), nMax = 100) )
-
+new_variables += ["event/l", "luminosityBlock/I", "run/I"]
 def fill_vector_collection( event, collection_name, collection_varnames, objects, nMax = 100):
     setattr( event, "n"+collection_name, len(objects) )
     for i_obj, obj in enumerate(objects[:nMax]):
@@ -153,6 +154,13 @@ for leptonClass in leptonClasses:
     leptonClass['maker']      = maker 
     leptonClass['maker'].start()
 
+# put this function into helpers after it works.
+def ptRel(p4,axis):
+    a = ROOT.TVector3(axis.Vect().X(),axis.Vect().Y(),axis.Vect().Z())
+    o = ROOT.TLorentzVector(p4.Px(),p4.Py(),p4.Pz(),p4.E())
+    return o.Perp(a)
+#print(read_variables)
+
 reader.start()
 counter=0
 while reader.run():
@@ -197,6 +205,9 @@ while reader.run():
                 break
         if maker is None:
             raise RuntimeError("Unclassified lepton: genPartFlav: %i " % reader.event.lep_genPartFlav)
+        maker.event.event           = r.event
+        maker.event.luminosityBlock = r.luminosityBlock
+        maker.event.run             = r.run
         # write the lepton
         for b in lep_varnames:
             setattr(maker.event, "lep_"+b, lep[b])
@@ -207,10 +218,14 @@ while reader.run():
         # write nearby SVs
         SV = filter( lambda c: deltaR2(c, lep) < dR_PF**2, SVs )
         fill_vector_collection( maker.event, 'SV', SV_varnames, SV, nMax = 100 )
-
+        # calculate and write dR and ptRel
+        print(lep)
+        print(PFCand)
+        print(deltaR2(lep, PFCand))
+        maker.event.dR = deltaR2(lep, PFCand)
         maker.fill()
         maker.event.init()
-
+                
     # stop early when small.
     if options.small:
         if counter==200:

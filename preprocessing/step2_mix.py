@@ -11,6 +11,12 @@ from RootTools.core.Sample import *
 # DeepLepton
 from DeepLepton.Tools.user import skim_directory 
 
+NEW = [
+'DYJetsToLL_M10to50_LO',
+'DYJetsToLL_M50_LO',
+'DYJetsToLL_M50_LO_0'
+]
+
 DY_2016 = [
 'DY1JetsToLL_M50_LO',
 'DY2JetsToLL_M50_LO',
@@ -93,7 +99,7 @@ def get_parser():
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                     help="Run only job i")
     argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,                                        help="Version for output directory")
     argParser.add_argument('--flavour',                     action='store',                     type=str,   choices=['ele','muo'],    required = True,             help="Which flavour?")
-    argParser.add_argument('--sampleSelection',             action='store',                     type=str,   choices=['DYvsQCD', 'TTJets', 'TTs', 'all'],   required = True,             help="Which flavour?")
+    argParser.add_argument('--sampleSelection',             action='store',                     type=str,   choices=['DYvsQCD', 'TTJets', 'TTs', 'all', 'new'],   required = True,             help="Which flavour?")
     argParser.add_argument('--small',                       action='store_true',                                                                                   help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
     argParser.add_argument('--ptSelectionStep1',            action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection in step1?")
     argParser.add_argument('--ptSelection',                 action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection for step2?")
@@ -113,14 +119,26 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
 pt_threshold = (int(options.ptSelection.split('_')[1]), int(options.ptSelection.split('_')[2]))
 kinematicSelection = 'lep_pt>{pt_min}'.format( pt_min=pt_threshold[0] ) if pt_threshold[1]<0 else 'lep_pt>{pt_min}&&lep_pt<={pt_max}'.format( pt_min=pt_threshold[0], pt_max=pt_threshold[1] )
 
-#selectionString
-selectionString = '(evt%{nJobs}=={job}&&abs(lep_pdgId)=={flavour}&&{kinematic})'.format( nJobs=options.nJobs, job=options.job, flavour='11' if options.flavour=='ele' else '13', kinematic = kinematicSelection)
-
+#selectionString # Somehow the selection String doesn't work with the evt part
+#selectionString = '(evt%{nJobs}=={job}&&abs(lep_pdgId)=={flavour}&&{kinematic})'.format( nJobs=options.nJobs, job=options.job, flavour='11' if options.flavour=='ele' else '13', kinematic = kinematicSelection)
+selectionString = '(event%{nJobs}=={job}&&abs(lep_pdgId)=={flavour}&&{kinematic})'.format( nJobs=options.nJobs, job=options.job, flavour='11' if options.flavour=='ele' else '13', kinematic = kinematicSelection)
 random.seed(100)
 
 def getInput( sub_directories, class_name):
     inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, class_name, options.ptSelectionStep1)
     inputList = [(os.path.join( inputPath, s )) for s in sub_directories]
+    sample = Sample.fromDirectory( class_name, inputList, 'tree', None, selectionString)
+    random.shuffle( sample.files )
+    return sample
+
+# maxis
+def getInput2( sub_directories, class_name):
+    inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, class_name)
+    #print('Input path is:', inputPath)
+    #print('sub directories:', sub_directories)
+    #file_list = os.listdir(inputPath)
+    inputList = [(os.path.join( inputPath, '' )) for s in sub_directories]
+    #inputList = [(os.path.join( inputPath, s )) for s in file_list]
     sample = Sample.fromDirectory( class_name, inputList, 'tree', None, selectionString)
     random.shuffle( sample.files )
     return sample
@@ -143,6 +161,10 @@ if options.year == 2016:
         samplePrompt    = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+DY_2016,  "Prompt")
         sampleNonPrompt = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+QCD_2016, "NonPrompt")
         sampleFake      = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+QCD_2016, "Fake")
+    elif options.sampleSelection == "new": # brute forced for now so that the thing works
+        samplePrompt    = getInput2( NEW, "Prompt")
+        sampleNonPrompt = getInput2( NEW, "NonPrompt")
+        sampleFake      = getInput2( NEW, "Fake")
 elif options.year == 2017:
     if options.sampleSelection == "TTJets":
         samplePrompt    = getInput( TTJets_2017, "Prompt")
@@ -150,9 +172,11 @@ elif options.year == 2017:
         sampleFake      = getInput( TTJets_2017, "Fake")
 
 
+
 if options.small:
     for s in [ samplePrompt, sampleNonPrompt, sampleFake ]: 
         s.reduceFiles( to = 2 )
+
 
 prompt    =  {'name':'Prompt',    'sample':samplePrompt,    'TChain':ROOT.TChain('tree'), 'counter':0 }
 nonPrompt =  {'name':'NonPrompt', 'sample':sampleNonPrompt, 'TChain':ROOT.TChain('tree'), 'counter':0 }
@@ -164,15 +188,15 @@ postfix = '' if options.nJobs==1 else "_%i" % options.job
 
 #Loop
 for leptonClass in leptonClasses:
+    print('leptonClass loop start')
     logger.info( "Class %s", leptonClass['name'] )
 
-    inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, leptonClass['name'], options.ptSelectionStep1)
-
-    for sampleFile in leptonClass['sample'].files:
-            
+    #inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, leptonClass['name'], options.ptSelectionStep1)
+    inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, leptonClass['name'])
+    for sampleFile in leptonClass['sample'].files:    
         leptonClass['TChain'].Add(sampleFile)
-    leptonClass['TChain'] = leptonClass['TChain'].CopyTree(selectionString)
-
+    
+    leptonClass['TChain'] = leptonClass['TChain'].CopyTree(selectionString) # macht aus TChain TTree und filtert mit selection String?
     leptonClass['Entries'] = leptonClass['TChain'].GetEntries()
     logger.info( "flavour %s class %s entries %i", options.flavour, leptonClass['name'], leptonClass['Entries'] )
 
@@ -187,7 +211,11 @@ n_maxfileentries = 100000
 n_current_entries  = 0
 n_file           = 0
 
-outputDir = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
+#outputDir = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
+outputDir = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection)
+
+if options.small and ('small' in options.version):
+    outputDir = os.path.join( skim_directory, options.version, "step2", str(options.year), options.flavour, options.ptSelection)
 
 try:
     os.makedirs(outputDir)
@@ -203,6 +231,7 @@ while (prompt['counter']<prompt["Entries"] and nonPrompt['counter']<nonPrompt["E
     #(re)create and save output files
     if n_current_entries==0 and n_file==0:
         outputFile     = ROOT.TFile(str(outputPath)+str(n_file)+'.root', 'recreate')
+        
         outputFileTree = fake['TChain'].CloneTree(0,"")
     if n_current_entries==0 and n_file>0:
         logger.info("%i entries copied to %s", outputFileTree.GetEntries(), outputPath+str(n_file-1)+".root" )
@@ -237,3 +266,4 @@ logger.info("%i entries copied to %s", outputFileTree.GetEntries(), outputPath+s
 logger.info("Counter: prompt %i nonprompt %i fake %i", prompt['counter'], nonPrompt['counter'], fake['counter'])
 outputFile.Write(outputPath+str(n_file)+".root", outputFile.kOverwrite)
 outputFile.Close()
+logger.info('Successfully Finished')

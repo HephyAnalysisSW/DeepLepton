@@ -1,5 +1,9 @@
 #!/bin/sh
 
+python -i step3.py --version v1_small  --output_version v1 --year 2016 --flavour ele --ptSelection pt_5_-1 --sampleSelection all
+python -i step3.py --version v1_small  --output_version v1 --year 2016 --flavour muo --ptSelection pt_5_-1 --sampleSelection all
+
+
 #PF and SV sorting + isClassId_Training branches
 
 ##TTJets
@@ -31,7 +35,7 @@
 
 #2017
 #python -i step3.py --version v1 --output_version v4 --year 2017 --flavour muo --ptSelection pt_5_-1   --sampleSelection TTJets  #SPLIT360
-python -i step3.py --version v1  --output_version v4 --year 2017 --flavour ele --ptSelection pt_5_-1 --sampleSelection TTJets  #SPLIT1895
+#python -i step3.py --version v1  --output_version v4 --year 2017 --flavour ele --ptSelection pt_5_-1 --sampleSelection TTJets  #SPLIT1895
 
 #Test
 #python -i step3.py --version v1 --output_version v2 --year 2017 --flavour ele --ptSelection pt_5_-1   --sampleSelection TTs_test  #SPLIT1

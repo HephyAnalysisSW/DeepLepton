@@ -123,8 +123,11 @@ pfCandIdList = [
 classList = ['Prompt', 'NonPrompt', 'Fake',]
 
 #define paths
-inputPath    = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
+#inputPath    = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
+inputPath    = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection)
 outputPath   = os.path.join( skim_directory, options.version+'_'+options.output_version + ("_small" if options.small else ""), "step3", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
+
+print(inputPath, outputPath)
 
 try:
     os.makedirs(outputPath)
@@ -151,7 +154,7 @@ for inputFile in inputFileList:
     #clone tree
     oFile     = ROOT.TFile.Open(os.path.join(outputPath,os.path.basename(inputFile)), 'recreate')
     logger.info( "Output file %s", oFile.GetName() )
-    oFileTree = iFileTree.CloneTree(0)
+    oFileTree = iFileTree.CloneTree() # in the parenthesis was 0 before
 
     #add class branches
     for leptonClass in classList:
@@ -195,16 +198,19 @@ for inputFile in inputFileList:
 
     #loop over all entries
     #for i in xrange(200):
+     
     for i in xrange(nEntries):
-        iFileTree.GetEntry(i)
-
+        iFileTree.GetEntry(i) # What does this do?
+ 
         for pfCandId in pfCandIdList:
             pfCandVarList = varList(pfCandId)
             npfCand = 'nSV' if pfCandId=='SV' else 'npfCand_'+pfCandId
 
             #check if number of leaves matches number of PF candidates
             ptRel = oFileTree.GetLeaf('SV_pt' if pfCandId=='SV' else 'pfCand_'+pfCandId+'_ptRel')
-            npf   = oFileTree.GetLeaf(npfCand).GetValue()
+            npf   = oFileTree.GetLeaf(npfCand).GetValue() # Error semms to happen here.
+            print(oFileTree.GetListOfLeaves().ls())
+            print(ptRel, npf) #ptRel is a null pointer
             if ptRel.GetLen() != npf:
                 logger.warning( 'Wrong number of PF candidates!' )
 

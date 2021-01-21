@@ -110,6 +110,7 @@ for pf_flavour in pf_flavours:
 
 new_variables.append( VectorTreeVariable.fromString( 'SV[%s]'%( ",".join(SV_vars)), nMax = 100) )
 new_variables += ["event/l", "luminosityBlock/I", "run/I"]
+new_variables += ["ptRel/F", "dR/F"]
 def fill_vector_collection( event, collection_name, collection_varnames, objects, nMax = 100):
     setattr( event, "n"+collection_name, len(objects) )
     for i_obj, obj in enumerate(objects[:nMax]):

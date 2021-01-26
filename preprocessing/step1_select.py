@@ -82,7 +82,8 @@ cand_vars = ["d0/F", "d0Err/F", "dz/F", "dzErr/F", "eta/F", "mass/F", "phi/F", "
 SV_vars   = ['dlen/F', 'dlenSig/F', 'dxy/F', 'dxySig/F', 'pAngle/F', 'chi2/F', 'eta/F', 'mass/F', 'ndof/F', 'phi/F', 'pt/F', 'x/F', 'y/F', 'z/F']
 read_variables = [
     'nPFCands/I',
-    VectorTreeVariable.fromString("PFCands[%s]"%(",".join(cand_vars + ['ptRel/F', 'dR/F'])), nMax=nPFCandMax),
+    #VectorTreeVariable.fromString("PFCands[%s]"%(",".join(cand_vars + ['ptRel/F', 'dR/F'])), nMax=nPFCandMax),
+    VectorTreeVariable.fromString("PFCands[%s]"%(",".join(cand_vars)), nMax=nPFCandMax),
     'nSV/I',
     "SV[%s]"%(",".join(SV_vars)),
     ]
@@ -106,11 +107,11 @@ new_variables= map( lambda b: "lep_%s"%b, lep_vars )
 pf_flavours  = ['charged', 'neutral', 'photon', 'electron', 'muon']
 for pf_flavour in pf_flavours:
     # per PFCandidate flavor, add a counter and a vector with all pf candidate variables
-    new_variables.append( VectorTreeVariable.fromString( 'pfCand_%s[%s]'%(pf_flavour, ",".join(cand_vars)), nMax = 100) )
+    new_variables.append( VectorTreeVariable.fromString( 'pfCand_%s[%s]'%(pf_flavour, ",".join(cand_vars + ['ptRel/F', 'deltaR/F'])), nMax = 100) ) # here
 
 new_variables.append( VectorTreeVariable.fromString( 'SV[%s]'%( ",".join(SV_vars)), nMax = 100) )
 new_variables += ["event/l", "luminosityBlock/I", "run/I"]  
-#new_variables += [ VectorTreeVariable.fromString( 'pfCands[%s]'%( ",".join(["ptRel/F", "dR/F", "eta/F"])), nMax = 100) ]
+
 def fill_vector_collection( event, collection_name, collection_varnames, objects, nMax = 100):
     setattr( event, "n"+collection_name, len(objects) )
     for i_obj, obj in enumerate(objects[:nMax]):
@@ -122,13 +123,12 @@ def fill_vector_collection( event, collection_name, collection_varnames, objects
                     obj[var] = int(obj[var])
                 getattr(event, collection_name+"_"+var)[i_obj] = obj[var]
 
-# Reader
-print('looking for warning')   
+# Reader 
 reader = sample.treeReader( \
     variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables),
     selectionString = "&&".join(skimConds)
     )
-print('looking for warning')   
+
 for leptonClass in leptonClasses:
 
     outfilename =  os.path.join(output_directory, options.flavour, leptonClass['name'], sample.name + '.root')
@@ -160,7 +160,6 @@ def ptRel(cand, lep):
     a = ROOT.TVector3(cos(lep['phi']),sin(lep['phi']),sinh(lep['eta']))
     o = ROOT.TLorentzVector(cand['pt']*cos(cand['phi']), cand['pt']*sin(cand['phi']),cand['pt']*sinh(cand['eta']),cand['pt']*cosh(cand['eta']),)
     return o.Perp(a)
-#print(read_variables)
 
 reader.start()
 counter=0
@@ -215,19 +214,15 @@ while reader.run():
         # write vector with PF candidates
         for pf_flavour in pf_flavours:
             cands = filter( lambda c: deltaR2(c, lep) < dR_PF**2, sorted_cands[pf_flavour] )
-            #pt = ptRel(PFCand, lep)
-            #print('new cand')
-            #print(cands)
             if not len(cands) == 0:
                 cands[0]["ptRel"] = ptRel(cands[0], lep)
-                cands[0]["dR"] = deltaR2(lep, cands[0])
+                cands[0]["deltaR"] = deltaR2(lep, cands[0])
+                #print(cands[0])
             fill_vector_collection( maker.event, 'pfCand_%s'%pf_flavour, cand_varnames, cands, nMax = 100 )
         # write nearby SVs
         SV = filter( lambda c: deltaR2(c, lep) < dR_PF**2, SVs )
         fill_vector_collection( maker.event, 'SV', SV_varnames, SV, nMax = 100 )
-        # calculate and write dR and ptRel      
-        ptRels = []
-        dRs    = []
+
         maker.fill()
         maker.event.init()
                 

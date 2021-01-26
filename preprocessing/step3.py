@@ -58,33 +58,40 @@ def varList(pfCandId):
         'SV_eta',
         'SV_phi',
         'SV_mass',
-        'SV_charge',
-        'SV_ntracks',
+        #'SV_charge',
+        #'SV_ntracks',
         'SV_chi2',
         'SV_ndof',
         'SV_dxy',
-        'SV_edxy',
-        'SV_ip3d',
-        'SV_eip3d',
-        'SV_sip3d',
-        'SV_cosTheta',
-        'SV_mva',
-        'SV_jetPt',
-        'SV_jetEta',
-        'SV_jetDR',
-        'SV_jetBTagCSV',
-        'SV_jetBTagCMVA',
-        'SV_jetBTagDeepCSV',
-        'SV_mcMatchNTracks',
-        'SV_mcMatchNTracksHF',
-        'SV_mcMatchFraction',
-        'SV_mcFlavFirst',
-        'SV_mcFlavHeaviest',
-        'SV_maxDxyTracks',
-        'SV_secDxyTracks',
-        'SV_maxD3dTracks',
-        'SV_secD3dTracks',
-        'SV_deltaR',
+        'SV_dlen',
+        'SV_dlenSig',
+        'SV_dxySig',
+        'SV_pAngle',
+        'SV_x',
+        'SV_y',
+        'SV_z',
+        #'SV_edxy',
+        #'SV_ip3d',
+        #'SV_eip3d',
+        #'SV_sip3d',
+        #'SV_cosTheta',
+        #'SV_mva',
+        #'SV_jetPt',
+        #'SV_jetEta',
+        #'SV_jetDR',
+        #'SV_jetBTagCSV',
+        #'SV_jetBTagCMVA',
+        #'SV_jetBTagDeepCSV',
+        #'SV_mcMatchNTracks',
+        #'SV_mcMatchNTracksHF',
+        #'SV_mcMatchFraction',
+        #'SV_mcFlavFirst',
+        #'SV_mcFlavHeaviest',
+        #'SV_maxDxyTracks',
+        #'SV_secDxyTracks',
+        #'SV_maxD3dTracks',
+        #'SV_secD3dTracks',
+        #'SV_deltaR',
         ]
 
     else:
@@ -96,14 +103,26 @@ def varList(pfCandId):
         'pfCand_'+pfCandId+'_phi',
         'pfCand_'+pfCandId+'_mass',
         'pfCand_'+pfCandId+'_puppiWeight',
-        'pfCand_'+pfCandId+'_hcalFraction',
-        'pfCand_'+pfCandId+'_fromPV',
-        'pfCand_'+pfCandId+'_dxy_pf',
-        'pfCand_'+pfCandId+'_dz_pf',
-        'pfCand_'+pfCandId+'_dzAssociatedPV',
+        #'pfCand_'+pfCandId+'_hcalFraction', # uncomment as soon as thing works
+        #'pfCand_'+pfCandId+'_fromPV',
+        #'pfCand_'+pfCandId+'_dxy_pf',
+        #'pfCand_'+pfCandId+'_dz_pf',
+        #'pfCand_'+pfCandId+'_dzAssociatedPV',
         'pfCand_'+pfCandId+'_deltaR',
         'pfCand_'+pfCandId+'_ptRel',
-                        ]
+        'pfCand_'+pfCandId+'_d0',
+        'pfCand_'+pfCandId+'_d0Err',
+        'pfCand_'+pfCandId+'_dz',
+        'pfCand_'+pfCandId+'_dzErr',
+        'pfCand_'+pfCandId+'_puppiWeightNoLep',
+        'pfCand_'+pfCandId+'_trkChi2',
+        'pfCand_'+pfCandId+'_vtxChi2',
+        'pfCand_'+pfCandId+'_charge',
+        'pfCand_'+pfCandId+'_lostInnerHits',
+        'pfCand_'+pfCandId+'_pdgId',
+        'pfCand_'+pfCandId+'_pvAssocQuality',
+        'pfCand_'+pfCandId+'_trkQuality',
+        ]
 
     return pfCandVarList
 
@@ -125,7 +144,8 @@ classList = ['Prompt', 'NonPrompt', 'Fake',]
 #define paths
 #inputPath    = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 inputPath    = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection)
-outputPath   = os.path.join( skim_directory, options.version+'_'+options.output_version + ("_small" if options.small else ""), "step3", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
+#outputPath   = os.path.join( skim_directory, options.version+'_'+options.output_version + ("_small" if options.small else ""), "step3", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
+outputPath   = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step3", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 
 print(inputPath, outputPath)
 
@@ -206,29 +226,40 @@ for inputFile in inputFileList:
             pfCandVarList = varList(pfCandId)
             npfCand = 'nSV' if pfCandId=='SV' else 'npfCand_'+pfCandId
 
-            #check if number of leaves matches number of PF candidates
+            #check if number of leaves matches number of PF candidates    
             ptRel = oFileTree.GetLeaf('SV_pt' if pfCandId=='SV' else 'pfCand_'+pfCandId+'_ptRel')
-            npf   = oFileTree.GetLeaf(npfCand).GetValue() # Error semms to happen here.
-            print(oFileTree.GetListOfLeaves().ls())
-            print(ptRel, npf) #ptRel is a null pointer
+            npf   = oFileTree.GetLeaf(npfCand).GetValue()
+            #print('test')
+            #print(pfCandVarList)
+            #for dings in pfCandVarList:
+            #    print('dings', dings)
+            #    print(oFileTree.GetLeaf(dings).GetValue())
+            #print(oFileTree.GetLeaf('pfCand_charged_dz').GetValue())
+            #print('SV_pt' if pfCandId=='SV' else 'pfCand_'+pfCandId+'_ptRel')
+            #print(oFileTree.GetListOfLeaves().ls())
+            #print(ptRel, npf) #ptRel is a null pointer
             if ptRel.GetLen() != npf:
                 logger.warning( 'Wrong number of PF candidates!' )
 
             #collect ptRel  + indices (entry, leaf, ptRel)
             ptRelData = []
             for j in xrange(ptRel.GetLen()):
-                ptRelData.append([i, j, ptRel.GetValue(j)])
+                #print(ptRel.GetValue())
+                ptRelData.append([i, j, ptRel.GetValue(j)]) # value seems to be often nan
            
             #reorder leaf indices by ptRel, entry indices remain the same
+            #print('before sort ptRelData:', ptRelData)
             ptRelData=sorted(ptRelData, key=getKey, reverse=True)
 
 
             for pfCandVar in pfCandVarList:
                 name = pfCandVar+('_ptSorted' if pfCandId=='SV' else '_ptRelSorted')
                 pfVar = oFileTree.GetLeaf(pfCandVar)
-
+                #print('pfVar:', pfVar.GetValue())
+                #print('ptRelData:', ptRelData)
                 #fill pTRel sorted vars()[name] in branches
                 k=0
+                #print('ptRelData:', ptRelData)
                 for instance in ptRelData:
                     
                     value = pfVar.GetValue(instance[1])
@@ -276,8 +307,11 @@ for inputFile in inputFileList:
         #fill training lepton classes (tau exception)
         for leptonClass in classList:
             name = 'lep_is'+leptonClass+'Id'+'_Training'
-            classVar = oFileTree.GetLeaf('lep_is'+leptonClass+'Id')
-            
+            #classVar = oFileTree.GetLeaf('lep_is'+leptonClass+'Id') #original
+            classVar = oFileTree.GetLeaf(name)
+            #print('classVar', classVar)
+            #print('name', name)
+            #print( oFileTree.GetLeaf('lep_isPromptId_Training').GetValue())
             if options.tauException:
                 #Tau exception
                 if leptonClass == 'Prompt':
@@ -288,15 +322,17 @@ for inputFile in inputFileList:
                     PromptVar = oFileTree.GetLeaf('lep_isPromptId')
                     vars()[name][0] = 1 if classVar.GetValue()==1. or (PromptVar.GetValue()==1. and mcTauVar.GetValue()==1.) else 0
                 if leptonClass == 'Fake':
+                    print('Fake')
                     vars()[name][0] = 1 if classVar.GetValue()==1. else 0
             else:
+                #print('else')
                 #just copy branches
                 vars()[name][0] = 1 if classVar.GetValue()==1. else 0
             
 
         #fill not prompt class branch
         name = 'lep_isNotPromptId'+'_Training'
-        classVar = oFileTree.GetLeaf('lep_isPromptId')
+        classVar = oFileTree.GetLeaf('lep_isPromptId_Training') # 'lep_isPromptId
         if options.tauException:
             vars()[name][0] = 0 if classVar.GetValue()==1. and mcTauVar.GetValue()!=1. else 1
         else:

@@ -229,37 +229,23 @@ for inputFile in inputFileList:
             #check if number of leaves matches number of PF candidates    
             ptRel = oFileTree.GetLeaf('SV_pt' if pfCandId=='SV' else 'pfCand_'+pfCandId+'_ptRel')
             npf   = oFileTree.GetLeaf(npfCand).GetValue()
-            #print('test')
-            #print(pfCandVarList)
-            #for dings in pfCandVarList:
-            #    print('dings', dings)
-            #    print(oFileTree.GetLeaf(dings).GetValue())
-            #print(oFileTree.GetLeaf('pfCand_charged_dz').GetValue())
-            #print('SV_pt' if pfCandId=='SV' else 'pfCand_'+pfCandId+'_ptRel')
-            #print(oFileTree.GetListOfLeaves().ls())
-            #print(ptRel, npf) #ptRel is a null pointer
+            
             if ptRel.GetLen() != npf:
                 logger.warning( 'Wrong number of PF candidates!' )
 
             #collect ptRel  + indices (entry, leaf, ptRel)
             ptRelData = []
             for j in xrange(ptRel.GetLen()):
-                #print(ptRel.GetValue())
-                ptRelData.append([i, j, ptRel.GetValue(j)]) # value seems to be often nan
+                ptRelData.append([i, j, ptRel.GetValue(j)])
            
             #reorder leaf indices by ptRel, entry indices remain the same
-            #print('before sort ptRelData:', ptRelData)
             ptRelData=sorted(ptRelData, key=getKey, reverse=True)
 
 
             for pfCandVar in pfCandVarList:
                 name = pfCandVar+('_ptSorted' if pfCandId=='SV' else '_ptRelSorted')
                 pfVar = oFileTree.GetLeaf(pfCandVar)
-                #print('pfVar:', pfVar.GetValue())
-                #print('ptRelData:', ptRelData)
-                #fill pTRel sorted vars()[name] in branches
                 k=0
-                #print('ptRelData:', ptRelData)
                 for instance in ptRelData:
                     
                     value = pfVar.GetValue(instance[1])
@@ -273,8 +259,6 @@ for inputFile in inputFileList:
                           
                     vars()[name][k]=value
                     k +=1
-
-                #print vars()[name]
 
             #for pfCandVar in pfCandVarList:
             #    name = pfCandVar+('_ptSorted' if pfCandId=='SV' else '_ptRelSorted')
@@ -309,9 +293,6 @@ for inputFile in inputFileList:
             name = 'lep_is'+leptonClass+'Id'+'_Training'
             #classVar = oFileTree.GetLeaf('lep_is'+leptonClass+'Id') #original
             classVar = oFileTree.GetLeaf(name)
-            #print('classVar', classVar)
-            #print('name', name)
-            #print( oFileTree.GetLeaf('lep_isPromptId_Training').GetValue())
             if options.tauException:
                 #Tau exception
                 if leptonClass == 'Prompt':

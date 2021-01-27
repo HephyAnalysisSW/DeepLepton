@@ -88,7 +88,7 @@ read_variables = [
     "SV[%s]"%(",".join(SV_vars)),
     ]
 read_variables += ["event/l", "luminosityBlock/I", "run/I"]
-cand_varnames = map( lambda n:n.split('/')[0], cand_vars ) 
+cand_varnames = map( lambda n:n.split('/')[0], cand_vars + ['ptRel/F', 'deltaR/F'] ) 
 SV_varnames   = map( lambda n:n.split('/')[0], SV_vars ) 
 
 if options.flavour == 'ele':
@@ -215,9 +215,10 @@ while reader.run():
         for pf_flavour in pf_flavours:
             cands = filter( lambda c: deltaR2(c, lep) < dR_PF**2, sorted_cands[pf_flavour] )
             if not len(cands) == 0:
-                cands[0]["ptRel"] = ptRel(cands[0], lep)
-                cands[0]["deltaR"] = deltaR2(lep, cands[0])
-                #print(cands[0])
+                for i in range(len(cands)):
+                    cands[i]["ptRel"]   = ptRel(cands[i], lep)
+                    cands[i]["deltaR"] = deltaR2(lep, cands[i])
+            
             fill_vector_collection( maker.event, 'pfCand_%s'%pf_flavour, cand_varnames, cands, nMax = 100 )
         # write nearby SVs
         SV = filter( lambda c: deltaR2(c, lep) < dR_PF**2, SVs )

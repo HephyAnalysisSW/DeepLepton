@@ -1,7 +1,7 @@
 
 # DeepLepton ntuple production
 
-## Installation (CMSSW_10_2_18) 
+## Installation of release dependent code (CMSSW_10_2_18) 
 ```
 cmsrel CMSSW_10_2_18
 cd CMSSW_10_2_18/src
@@ -10,6 +10,13 @@ git clone https://github.com/HephyAnalysisSW/Samples
 git clone https://github.com/HephyAnalysisSW/RootTools
 git clone https://github.com/HephyAnalysisSW/Analysis
 scram b -j9
+```
+## Installation of DeepJet and DeepJetCore for training i.e. outside a release
+on CBE
+```
+singularity run /cvmfs/unpacked.cern.ch/gitlab-registry.cern.ch/liko/centos7-djc:latest /bin/bash
+git clone https://github.com/HephyAnalysisSW/DeepJet
+git clone https://github.com/HephyAnalysisSW/DeepJetCore
 ```
 ## Preparing the training data
 The nanoAOD samples (including the ParticleFlow Candidate collection) are collected in Samples/python/nanoAOD_PFCands_Summer16.py

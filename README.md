@@ -1,8 +1,22 @@
 
 # DeepLepton ntuple production
 
-## Installation (94X) 
-## running the script
+## Installation (CMSSW_10_2_18) 
+```
+cmsrel CMSSW_10_2_18
+cd CMSSW_10_2_18/src
+git clone https://github.com/HephyAnalysisSW/DeepLepton
+git clone https://github.com/HephyAnalysisSW/Samples
+git clone https://github.com/HephyAnalysisSW/RootTools
+git clone https://github.com/HephyAnalysisSW/Analysis
+scram b -j9
+```
+## Preparing the training data
+The nanoAOD samples (including the ParticleFlow Candidate collection) are collected in Samples/python/nanoAOD_PFCands_Summer16.py
+Fill the sample cache by running
+```
+python DeepLepton/Samples/python/nanoAOD_PFCands_Summer16.py
+```
 ## running on crab
 ## 
 

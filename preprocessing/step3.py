@@ -70,28 +70,6 @@ def varList(pfCandId):
         'SV_x',
         'SV_y',
         'SV_z',
-        #'SV_edxy',
-        #'SV_ip3d',
-        #'SV_eip3d',
-        #'SV_sip3d',
-        #'SV_cosTheta',
-        #'SV_mva',
-        #'SV_jetPt',
-        #'SV_jetEta',
-        #'SV_jetDR',
-        #'SV_jetBTagCSV',
-        #'SV_jetBTagCMVA',
-        #'SV_jetBTagDeepCSV',
-        #'SV_mcMatchNTracks',
-        #'SV_mcMatchNTracksHF',
-        #'SV_mcMatchFraction',
-        #'SV_mcFlavFirst',
-        #'SV_mcFlavHeaviest',
-        #'SV_maxDxyTracks',
-        #'SV_secDxyTracks',
-        #'SV_maxD3dTracks',
-        #'SV_secD3dTracks',
-        #'SV_deltaR',
         ]
 
     else:
@@ -103,11 +81,6 @@ def varList(pfCandId):
         'pfCand_'+pfCandId+'_phi',
         'pfCand_'+pfCandId+'_mass',
         'pfCand_'+pfCandId+'_puppiWeight',
-        #'pfCand_'+pfCandId+'_hcalFraction', # uncomment as soon as thing works
-        #'pfCand_'+pfCandId+'_fromPV',
-        #'pfCand_'+pfCandId+'_dxy_pf',
-        #'pfCand_'+pfCandId+'_dz_pf',
-        #'pfCand_'+pfCandId+'_dzAssociatedPV',
         'pfCand_'+pfCandId+'_deltaR',
         'pfCand_'+pfCandId+'_ptRel',
         'pfCand_'+pfCandId+'_d0',
@@ -142,8 +115,7 @@ pfCandIdList = [
 classList = ['Prompt', 'NonPrompt', 'Fake',]
 
 #define paths
-#inputPath    = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
-inputPath    = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection)
+inputPath    = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 #outputPath   = os.path.join( skim_directory, options.version+'_'+options.output_version + ("_small" if options.small else ""), "step3", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 outputPath   = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step3", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 
@@ -162,6 +134,8 @@ if len(sample.files)==0:
     sys.exit(0)
 
 inputFileList = sample.files
+if options.small:
+   inputFileList = sample.files[:1]
 
 logger.info( "Processing %i files", len( inputFileList ) )
 #Loop over input files

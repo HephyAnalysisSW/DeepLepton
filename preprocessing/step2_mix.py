@@ -11,79 +11,18 @@ from RootTools.core.Sample import *
 # DeepLepton
 from DeepLepton.Tools.user import skim_directory 
 
-NEW = [
-'DYJetsToLL_M10to50_LO',
-'DYJetsToLL_M50_LO',
-'DYJetsToLL_M50_LO_0'
-]
-
-DY_2016 = [
-'DY1JetsToLL_M50_LO',
-'DY2JetsToLL_M50_LO',
-'DY3JetsToLL_M50_LO',
-'DY4JetsToLL_M50_LO',
-]
-
-TTJets_diLepton_2016 = [
-'TTJets_DiLepton',
-'TTJets_DiLepton_ext',
-]
-
-TTJets_singleLepton_2016 = [
-'TTJets_SingleLeptonFromTbar',
-'TTJets_SingleLeptonFromTbar_ext',
-'TTJets_SingleLeptonFromT',
-'TTJets_SingleLeptonFromT_ext',
-]
-
-TTs_other_2016 = [
-'TT_pow',
-'TTLep_pow',
-'TTSemiLep_pow',
-'TT_pow_ext3',
-'TTJets',
-'TTJets_LO',
-]
-
-TT_Lepton_2016 = ['TTLep_pow',]
-TT_semiLepton_2016 = ['TTSemiLep_pow',]
-
-QCD_2016 = [
-'QCD_Pt15to20_Mu5',
-'QCD_Pt20to30_Mu5',
-'QCD_Pt30to50_Mu5',
-'QCD_Pt50to80_Mu5',
-'QCD_Pt80to120_Mu5',
-'QCD_Pt80to120_Mu5_ext',
-'QCD_Pt120to170_Mu5',
-'QCD_Pt170to300_Mu5',
-'QCD_Pt170to300_Mu5_ext',
-'QCD_Pt300to470_Mu5',
-'QCD_Pt300to470_Mu5_ext',
-'QCD_Pt300to470_Mu5_ext2',
-'QCD_Pt470to600_Mu5',
-'QCD_Pt470to600_Mu5_ext',
-'QCD_Pt470to600_Mu5_ext2',
-'QCD_Pt600to800_Mu5',
-'QCD_Pt600to800_Mu5_ext',
-'QCD_Pt800to1000_Mu5',
-'QCD_Pt800to1000_Mu5_ext',
-'QCD_Pt800to1000_Mu5_ext2',
-'QCD_Pt1000toInf_Mu5',
-'QCD_Pt1000toInf_Mu5_ext',
-]
-
-TTJets_2017 = [
-'TTJets',
-'TTJets_SingleLeptonFromT',
-'TTLep_pow',
-'TTSemi_pow',
-'TTHad_pow',
-'TTLep_pow_TuneDown',
-'TTLep_pow_TuneUp',
-'TTLep_pow_hdampDown',
-'TTLep_pow_hdampUp'
-]
+DY  = { 2016:['DYJetsToLL_M50_LO'], 
+        2017:[], 
+        2018:[]}
+Top = { 2016:[], 
+        2017:[], 
+        2018:[]}
+QCD = { 'muo': {2016: ['QCD_Mu_Pt30to50'], 
+                2017: [], 
+                2018: []}, 
+        'ele': {2016: [], 
+                2017: [], 
+                2018: []}} 
 
 #parser
 def get_parser():
@@ -99,7 +38,7 @@ def get_parser():
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                     help="Run only job i")
     argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,                                        help="Version for output directory")
     argParser.add_argument('--flavour',                     action='store',                     type=str,   choices=['ele','muo'],    required = True,             help="Which flavour?")
-    argParser.add_argument('--sampleSelection',             action='store',                     type=str,   choices=['DYvsQCD', 'TTJets', 'TTs', 'all', 'new'],   required = True,             help="Which flavour?")
+    argParser.add_argument('--sampleSelection',             action='store',                     type=str,   choices=['DYvsQCD', 'Top', 'all'],           required = True,             help="Which flavour?")
     argParser.add_argument('--small',                       action='store_true',                                                                                   help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
     argParser.add_argument('--ptSelectionStep1',            action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection in step1?")
     argParser.add_argument('--ptSelection',                 action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection for step2?")
@@ -119,59 +58,32 @@ logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
 pt_threshold = (int(options.ptSelection.split('_')[1]), int(options.ptSelection.split('_')[2]))
 kinematicSelection = 'lep_pt>{pt_min}'.format( pt_min=pt_threshold[0] ) if pt_threshold[1]<0 else 'lep_pt>{pt_min}&&lep_pt<={pt_max}'.format( pt_min=pt_threshold[0], pt_max=pt_threshold[1] )
 
-#selectionString # Somehow the selection String doesn't work with the evt part
-#selectionString = '(evt%{nJobs}=={job}&&abs(lep_pdgId)=={flavour}&&{kinematic})'.format( nJobs=options.nJobs, job=options.job, flavour='11' if options.flavour=='ele' else '13', kinematic = kinematicSelection)
 selectionString = '(event%{nJobs}=={job}&&abs(lep_pdgId)=={flavour}&&{kinematic})'.format( nJobs=options.nJobs, job=options.job, flavour='11' if options.flavour=='ele' else '13', kinematic = kinematicSelection)
-random.seed(100)
 
+random.seed(100) # Otherwise file shuffling not deterministic!
 def getInput( sub_directories, class_name):
+    assert len(sub_directories)>0, "sub_directories can not be empty!"
     inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, class_name, options.ptSelectionStep1)
-    inputList = [(os.path.join( inputPath, s )) for s in sub_directories]
-    sample = Sample.fromDirectory( class_name, inputList, 'tree', None, selectionString)
-    random.shuffle( sample.files )
-    return sample
-
-# maxis
-def getInput2( sub_directories, class_name):
-    inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, class_name)
-    #print('Input path is:', inputPath)
-    #print('sub directories:', sub_directories)
-    #file_list = os.listdir(inputPath)
-    inputList = [(os.path.join( inputPath, '' )) for s in sub_directories]
-    #inputList = [(os.path.join( inputPath, s )) for s in file_list]
-    sample = Sample.fromDirectory( class_name, inputList, 'tree', None, selectionString)
+    sample = Sample.fromDirectory( 
+        name = class_name, 
+        directory = [os.path.join( inputPath, s ) for s in sub_directories], 
+        treeName = 'tree', selectionString=selectionString)
     random.shuffle( sample.files )
     return sample
 
 #settings
-if options.year == 2016:
-    if options.sampleSelection == "DYvsQCD":
-        samplePrompt    = getInput( DY_2016, "Prompt")
-        sampleNonPrompt = getInput( QCD_2016, "NonPrompt")
-        sampleFake      = getInput( QCD_2016, "Fake")
-    elif options.sampleSelection == "TTJets":
-        samplePrompt    = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016, "Prompt")
-        sampleNonPrompt = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016, "NonPrompt")
-        sampleFake      = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016, "Fake")
-    elif options.sampleSelection == "TTs":
-        samplePrompt    = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016, "Prompt")
-        sampleNonPrompt = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016, "NonPrompt")
-        sampleFake      = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016, "Fake")
-    elif options.sampleSelection == "all":
-        samplePrompt    = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+DY_2016,  "Prompt")
-        sampleNonPrompt = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+QCD_2016, "NonPrompt")
-        sampleFake      = getInput( TTJets_diLepton_2016+TTJets_singleLepton_2016+TTs_other_2016+QCD_2016, "Fake")
-    elif options.sampleSelection == "new": # brute forced for now so that the thing works
-        samplePrompt    = getInput2( NEW, "Prompt")
-        sampleNonPrompt = getInput2( NEW, "NonPrompt")
-        sampleFake      = getInput2( NEW, "Fake")
-elif options.year == 2017:
-    if options.sampleSelection == "TTJets":
-        samplePrompt    = getInput( TTJets_2017, "Prompt")
-        sampleNonPrompt = getInput( TTJets_2017, "NonPrompt")
-        sampleFake      = getInput( TTJets_2017, "Fake")
-
-
+if options.sampleSelection == "DYvsQCD":
+    samplePrompt    = getInput( DY[options.year], "Prompt")
+    sampleNonPrompt = getInput( QCD[options.flavour][options.year], "NonPrompt")
+    sampleFake      = getInput( QCD[options.flavour][options.year], "Fake")
+elif options.sampleSelection == "TT":
+    samplePrompt    = getInput( Top[options.year], "Prompt")
+    sampleNonPrompt = getInput( Top[options.year], "NonPrompt")
+    sampleFake      = getInput( Top[options.year], "Fake")
+elif options.sampleSelection == "all":
+    samplePrompt    = getInput( Top[options.year]+DY[options.year],  "Prompt")
+    sampleNonPrompt = getInput( Top[options.year]+QCD[options.flavour][options.year], "NonPrompt")
+    sampleFake      = getInput( Top[options.year]+QCD[options.flavour][options.year], "Fake")
 
 if options.small:
     for s in [ samplePrompt, sampleNonPrompt, sampleFake ]: 
@@ -191,8 +103,6 @@ for leptonClass in leptonClasses:
     print('leptonClass loop start')
     logger.info( "Class %s", leptonClass['name'] )
 
-    #inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, leptonClass['name'], options.ptSelectionStep1)
-    inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, leptonClass['name'])
     for sampleFile in leptonClass['sample'].files:    
         leptonClass['TChain'].Add(sampleFile)
     
@@ -211,11 +121,7 @@ n_maxfileentries = 100000
 n_current_entries  = 0
 n_file           = 0
 
-#outputDir = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
-outputDir = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection)
-
-if options.small and ('small' in options.version):
-    outputDir = os.path.join( skim_directory, options.version, "step2", str(options.year), options.flavour, options.ptSelection)
+outputDir = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 
 try:
     os.makedirs(outputDir)

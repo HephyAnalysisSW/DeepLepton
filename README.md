@@ -6,6 +6,7 @@
 cmsrel CMSSW_10_2_18
 cd CMSSW_10_2_18/src
 git clone https://github.com/HephyAnalysisSW/DeepLepton
+git clone https://github.com/HephyAnalysisSW/DeepJet
 git clone https://github.com/HephyAnalysisSW/Samples
 git clone https://github.com/HephyAnalysisSW/RootTools
 git clone https://github.com/HephyAnalysisSW/Analysis

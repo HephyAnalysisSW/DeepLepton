@@ -26,7 +26,7 @@ def get_parser():
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                          help="Run only job i")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
-    argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,         help="Version for output directory")
+    argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,        help="Version for output directory")
     argParser.add_argument('--ptSelection',                 action='store',         nargs='?',  type=str,  default='pt_5_-1',      help="pt selection of leptons")
 
     return argParser
@@ -57,7 +57,8 @@ nPFCandMax = 5000
 
 # Load all samples to be post processed
 sample = eval( options.sample )
-   
+sample_name = sample.name # 
+
 #file management
 len_orig = len(sample.files)
 sample = sample.split( n=options.nJobs, nSub=options.job)
@@ -120,7 +121,7 @@ def fill_vector_collection( event, collection_name, collection_varnames, objects
             if var in obj.keys():
                 if type(obj[var]) == type("string"):
                     obj[var] = int(ord(obj[var]))
-                if type(obj[var]) == type(True):
+                elif type(obj[var]) == type(True):
                     obj[var] = int(obj[var])
                 getattr(event, collection_name+"_"+var)[i_obj] = obj[var]
 
@@ -132,7 +133,8 @@ reader = sample.treeReader( \
 
 for leptonClass in leptonClasses:
 
-    outfilename =  os.path.join(output_directory, options.flavour, leptonClass['name'], sample.name + '.root')
+    outfilename =  os.path.join(output_directory, options.flavour, leptonClass['name'], options.ptSelection, sample_name, sample.name + '.root')
+    logger.debug("Writing to: %s", outfilename)
 
     if not os.path.exists(os.path.dirname(outfilename)):
         try:
@@ -140,7 +142,6 @@ for leptonClass in leptonClasses:
         except:
             pass
 
-    print leptonClass['name'], ROOT.gDirectory
     tmp_directory = ROOT.gDirectory
     outfile = ROOT.TFile.Open(outfilename, 'recreate')
     outfile.cd()
@@ -148,7 +149,6 @@ for leptonClass in leptonClasses:
         variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, new_variables),
         treeName = 'tree')
     tmp_directory.cd()
-    print "Done", leptonClass['name'], ROOT.gDirectory
 
     leptonClass['outfile']    = outfile
     leptonClass['outfilename']= outfilename
@@ -215,10 +215,9 @@ while reader.run():
         # write vector with PF candidates
         for pf_flavour in pf_flavours:
             cands = filter( lambda c: deltaR2(c, lep) < dR_PF**2, sorted_cands[pf_flavour] )
-            if not len(cands) == 0:
-                for i in range(len(cands)):
-                    cands[i]["ptRel"]   = ptRel(cands[i], lep)
-                    cands[i]["deltaR"] = deltaR2(lep, cands[i])
+            for cand in cands:
+                cand["ptRel"]  = ptRel  (cand, lep)
+                cand["deltaR"] = deltaR2(cand, lep)
             
             fill_vector_collection( maker.event, 'pfCand_%s'%pf_flavour, cand_varnames, cands, nMax = 100 )
         # write nearby SVs

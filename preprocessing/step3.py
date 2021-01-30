@@ -30,7 +30,7 @@ def get_parser():
     argParser.add_argument('--small',           action='store_true',        help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
     argParser.add_argument('--nJobs',           action='store', nargs='?',  type=int, default=1, help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',             action='store',             type=int, default=0, help="Run only job i")
-    argParser.add_argument('--tauException',    action='store_true',        help="Make Tau exception for prompt leptons")        
+    argParser.add_argument('--muFromTauArePrompt',    action='store_true',        help="Consider muons from tau leptons as prompt")        
 
     return argParser
 
@@ -112,7 +112,14 @@ pfCandIdList = [
 #vetoNanSelection = "&&".join(["(!TMath::IsNaN(%s))"%var for var in varList('SV')])
 
 #class list
-classList = ['Prompt', 'NonPrompt', 'Fake',]
+classList = ['Prompt', 'NonPrompt', 'Fake', 'NotPrompt']
+#Ele: Flavour of genParticle for MC matching to status==1 electrons or photons: 1 = prompt electron (including gamma*->mu mu), 15 = electron from prompt tau, 22 = prompt photon (likely conversion), 5 = electron from b, 4 = electron from c, 3 = electron from light or unknown, 0 = unmatched
+#Mu:  Flavour of genParticle for MC matching to status==1 muons: 1 = prompt muon (including gamma*->mu mu), 15 = muon from prompt tau, 5 = muon from b, 4 = muon from c, 3 = muon from light or unknown, 0 = unmatched
+
+if options.muFromTauArePrompt:
+    absPdgIds = {'Prompt':[1,15], 'NonPrompt':[5, 4,], 'Fake':[0,3,22],  'NotPrompt':[0,3,4,5,22]}
+else:
+    absPdgIds = {'Prompt':[1], 'NonPrompt':[5, 4, 15], 'Fake':[0,3,22],  'NotPrompt':[0,3,4,5,15,22]}
 
 #define paths
 inputPath    = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
@@ -156,12 +163,6 @@ for inputFile in inputFileList:
         varName = name+'/I'
         vars()[name] = array( 'i', [ 0 ] )
         oFileTree.Branch(name , vars()[name], varName )
-
-    #add not prompt class branch        
-    name = 'lep_isNotPromptId'+'_Training'
-    varName = name+'/I'
-    vars()[name] = array( 'i', [ 0 ] )
-    oFileTree.Branch(name , vars()[name], varName )
 
     #Loop over PF candidate ID
     for pfCandId in pfCandIdList:
@@ -262,36 +263,11 @@ for inputFile in inputFileList:
             #            k +=1
 
 
-        #fill training lepton classes (tau exception)
-        for leptonClass in classList:
-            name = 'lep_is'+leptonClass+'Id'+'_Training'
-            #classVar = oFileTree.GetLeaf('lep_is'+leptonClass+'Id') #original
-            classVar = oFileTree.GetLeaf(name)
-            if options.tauException:
-                #Tau exception
-                if leptonClass == 'Prompt':
-                    mcTauVar = oFileTree.GetLeaf('lep_mcMatchTau')
-                    vars()[name][0] = 1 if classVar.GetValue()==1. and mcTauVar.GetValue()!=1. else 0
-                if leptonClass == 'NonPrompt':
-                    mcTauVar  = oFileTree.GetLeaf('lep_mcMatchTau')
-                    PromptVar = oFileTree.GetLeaf('lep_isPromptId')
-                    vars()[name][0] = 1 if classVar.GetValue()==1. or (PromptVar.GetValue()==1. and mcTauVar.GetValue()==1.) else 0
-                if leptonClass == 'Fake':
-                    print('Fake')
-                    vars()[name][0] = 1 if classVar.GetValue()==1. else 0
-            else:
-                #print('else')
-                #just copy branches
-                vars()[name][0] = 1 if classVar.GetValue()==1. else 0
-            
+        #fill training lepton classes 
 
-        #fill not prompt class branch
-        name = 'lep_isNotPromptId'+'_Training'
-        classVar = oFileTree.GetLeaf('lep_isPromptId_Training') # 'lep_isPromptId
-        if options.tauException:
-            vars()[name][0] = 0 if classVar.GetValue()==1. and mcTauVar.GetValue()!=1. else 1
-        else:
-            vars()[name][0] = 0 if classVar.GetValue()==1. else 1
+        genPartFlav = oFileTree.GetLeaf('lep_genPartFlav').GetValue()
+        for leptonClass in classList:
+            vars()['lep_is'+leptonClass+'Id_Training'][0] = (genPartFlav in absPdgIds[leptonClass]) 
 
         #fill tree    
         iFileTree.CopyAddresses(oFileTree)

@@ -90,28 +90,28 @@ read_variables = [
     "SV[%s]"%(",".join(SV_vars)),
     ]
 read_variables += ["event/l", "luminosityBlock/I", "run/I"]
-cand_varnames = map( lambda n:n.split('/')[0], cand_vars + ['ptRel/F', 'deltaR/F'] ) 
-SV_varnames   = map( lambda n:n.split('/')[0], SV_vars ) 
+cand_varnames = map( lambda n:n.split('/')[0], cand_vars) 
+SV_varnames   = map( lambda n:n.split('/')[0], SV_vars) 
 
 if options.flavour == 'ele':
-    lep_vars = ['pt/F', 'eta/F', 'phi/F', 'pdgId/I', 'cutBased/I', 'miniPFRelIso_all/F', 'pfRelIso03_all/F', 'sip3d/F', 'lostHits/b', 'convVeto/O', 'dxy/F', 'dz/F', 'charge/I', 'deltaEtaSC/F', 'vidNestedWPBitmap/I']
+    lep_vars = ['pt/F', 'eta/F', 'phi/F', 'pdgId/I', 'cutBased/I', 'miniPFRelIso_all/F', 'pfRelIso03_all/F', 'sip3d/F', 'lostHits/b', 'convVeto/O', 'dxy/F', 'dz/F', 'charge/I', 'deltaEtaSC/F', 'vidNestedWPBitmap/I', 'dr03EcalRecHitSumEt/F', 'dr03HcalDepth1TowerSumEt/F', 'dr03TkSumPt/F', 'dxyErr/F', 'dzErr/F', 'eCorr/F', 'eInvMinusPInv/F', 'energyErr/F', 'hoe/F', 'ip3d/F', 'jetPtRelv2/F', 'jetRelIso/F', 'miniPFRelIso_chg/F', 'mvaFall17V2noIso/F', 'pfRelIso03_chg/F', 'r9/F', 'sieie/F']
     if not sample.isData:
         lep_vars.extend(['genPartFlav/B', 'genPartIdx/I'])
     read_variables.extend(['nElectron/I', 'Electron[%s]'%(",".join(lep_vars))])
 elif options.flavour == 'muo':
-    lep_vars = ["pt/F", "eta/F", "phi/F", "pdgId/I", "mediumId/O", "miniPFRelIso_all/F", "pfRelIso03_all/F", "sip3d/F", "dxy/F", "dz/F", "charge/I"]
+    lep_vars = ["pt/F", "eta/F", "phi/F", "pdgId/I", "mediumId/O", "miniPFRelIso_all/F", "pfRelIso03_all/F", "sip3d/F", "dxy/F", "dz/F", "charge/I", 'dxyErr/F', 'dzErr/F', 'ip3d/F', 'jetPtRelv2/F', 'jetRelIso/F', 'miniPFRelIso_chg/F', 'mvaLowPt/F', 'nStations/I', 'nTrackerLayers/I', 'pfRelIso03_all/F', 'pfRelIso03_chg/F', 'pfRelIso04_all/F', 'ptErr/F', 'segmentComp/F', 'tkRelIso/F', 'tunepRelPt/F']
     if not sample.isData:
         lep_vars.extend(['genPartFlav/B', 'genPartIdx/I'])
     read_variables.extend(['nMuon/I', 'Muon[%s]'%(",".join(lep_vars))])
 
 lep_varnames = map( lambda n:n.split('/')[0], lep_vars ) 
-new_variables= map( lambda b: "lep_%s"%b, lep_vars )
+new_variables= map( lambda b: "lep_%s"%(b[:-1]+'F'), lep_vars )
 pf_flavours  = ['charged', 'neutral', 'photon', 'electron', 'muon']
 for pf_flavour in pf_flavours:
     # per PFCandidate flavor, add a counter and a vector with all pf candidate variables
     new_variables.append( VectorTreeVariable.fromString( 'pfCand_%s[%s]'%(pf_flavour, ",".join(cand_vars + ['ptRel/F', 'deltaR/F'])), nMax = 100) ) # here
 
-new_variables.append( VectorTreeVariable.fromString( 'SV[%s]'%( ",".join(SV_vars)), nMax = 100) )
+new_variables.append( VectorTreeVariable.fromString( 'SV[%s]'%( ",".join(SV_vars + ['ptRel/F', 'deltaR/F'])), nMax = 100) )
 new_variables += ["event/l", "luminosityBlock/I", "run/I"]  
 
 def fill_vector_collection( event, collection_name, collection_varnames, objects, nMax = 100):
@@ -211,7 +211,12 @@ while reader.run():
         maker.event.run             = r.run
         # write the lepton
         for b in lep_varnames:
-            setattr(maker.event, "lep_"+b, lep[b])
+            if type(lep[b])==type(""):
+                #print "lep_"+b, float(ord(lep[b])), type(lep[b])
+                setattr(maker.event, "lep_"+b, float(ord(lep[b])))
+            else:
+                #print "lep_"+b, float(lep[b]), type(lep[b])
+                setattr(maker.event, "lep_"+b, float(lep[b]))
         # write vector with PF candidates
         for pf_flavour in pf_flavours:
             cands = filter( lambda c: deltaR2(c, lep) < dR_PF**2, sorted_cands[pf_flavour] )
@@ -219,10 +224,14 @@ while reader.run():
                 cand["ptRel"]  = ptRel  (cand, lep)
                 cand["deltaR"] = deltaR2(cand, lep)
             
-            fill_vector_collection( maker.event, 'pfCand_%s'%pf_flavour, cand_varnames, cands, nMax = 100 )
+            fill_vector_collection( maker.event, 'pfCand_%s'%pf_flavour, cand_varnames + ['ptRel', 'deltaR'], cands, nMax = 100 )
         # write nearby SVs
         SV = filter( lambda c: deltaR2(c, lep) < dR_PF**2, SVs )
-        fill_vector_collection( maker.event, 'SV', SV_varnames, SV, nMax = 100 )
+        for sv in SV:
+            sv["ptRel"]  = ptRel  (sv, lep)
+            sv["deltaR"] = deltaR2(sv, lep)
+            
+        fill_vector_collection( maker.event, 'SV', SV_varnames + ['ptRel', 'deltaR'], SV, nMax = 100 )
 
         maker.fill()
         maker.event.init()
@@ -238,4 +247,3 @@ for leptonClass in leptonClasses:
     leptonClass['outfile'].Write()
     leptonClass['outfile'].Close()
     logger.info( "Written %s", leptonClass['outfilename'])
-

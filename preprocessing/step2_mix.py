@@ -46,24 +46,24 @@ def get_parser():
 
     return argParser
 
-options = get_parser().parse_args()
+args = get_parser().parse_args()
 
 # Logging
 import DeepLepton.Tools.logger as logger
-logger  = logger.get_logger(options.logLevel, logFile = None)
+logger  = logger.get_logger(args.logLevel, logFile = None)
 import RootTools.core.logger as logger_rt
-logger_rt = logger_rt.get_logger(options.logLevel, logFile = None )
+logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
 #pt selection option for different pt sub selection of ptSelection in step1
-pt_threshold = (int(options.ptSelection.split('_')[1]), int(options.ptSelection.split('_')[2]))
+pt_threshold = (int(args.ptSelection.split('_')[1]), int(args.ptSelection.split('_')[2]))
 kinematicSelection = 'lep_pt>{pt_min}'.format( pt_min=pt_threshold[0] ) if pt_threshold[1]<0 else 'lep_pt>{pt_min}&&lep_pt<={pt_max}'.format( pt_min=pt_threshold[0], pt_max=pt_threshold[1] )
 
-selectionString = '(event%{nJobs}=={job}&&abs(lep_pdgId)=={flavour}&&{kinematic})'.format( nJobs=options.nJobs, job=options.job, flavour='11' if options.flavour=='ele' else '13', kinematic = kinematicSelection)
+selectionString = '(event%{nJobs}=={job}&&abs(lep_pdgId)=={flavour}&&{kinematic})'.format( nJobs=args.nJobs, job=args.job, flavour='11' if args.flavour=='ele' else '13', kinematic = kinematicSelection)
 
 random.seed(100) # Otherwise file shuffling not deterministic!
 def getInput( sub_directories, class_name):
     assert len(sub_directories)>0, "sub_directories can not be empty!"
-    inputPath = os.path.join( skim_directory, options.version, "step1", str(options.year), options.flavour, class_name, options.ptSelectionStep1)
+    inputPath = os.path.join( skim_directory, args.version, "step1", str(args.year), args.flavour, class_name, args.ptSelectionStep1)
     sample = Sample.fromDirectory( 
         name = class_name, 
         directory = [os.path.join( inputPath, s ) for s in sub_directories], 
@@ -72,23 +72,22 @@ def getInput( sub_directories, class_name):
     return sample
 
 #settings
-if options.sampleSelection == "DYvsQCD":
-    samplePrompt    = getInput( DY[options.year], "Prompt")
-    sampleNonPrompt = getInput( QCD[options.flavour][options.year], "NonPrompt")
-    sampleFake      = getInput( QCD[options.flavour][options.year], "Fake")
-elif options.sampleSelection == "TT":
-    samplePrompt    = getInput( Top[options.year], "Prompt")
-    sampleNonPrompt = getInput( Top[options.year], "NonPrompt")
-    sampleFake      = getInput( Top[options.year], "Fake")
-elif options.sampleSelection == "all":
-    samplePrompt    = getInput( Top[options.year]+DY[options.year],  "Prompt")
-    sampleNonPrompt = getInput( Top[options.year]+QCD[options.flavour][options.year], "NonPrompt")
-    sampleFake      = getInput( Top[options.year]+QCD[options.flavour][options.year], "Fake")
+if args.sampleSelection == "DYvsQCD":
+    samplePrompt    = getInput( DY[args.year], "Prompt")
+    sampleNonPrompt = getInput( QCD[args.flavour][args.year], "NonPrompt")
+    sampleFake      = getInput( QCD[args.flavour][args.year], "Fake")
+elif args.sampleSelection == "TT":
+    samplePrompt    = getInput( Top[args.year], "Prompt")
+    sampleNonPrompt = getInput( Top[args.year], "NonPrompt")
+    sampleFake      = getInput( Top[args.year], "Fake")
+elif args.sampleSelection == "all":
+    samplePrompt    = getInput( Top[args.year]+DY[args.year],  "Prompt")
+    sampleNonPrompt = getInput( Top[args.year]+QCD[args.flavour][args.year], "NonPrompt")
+    sampleFake      = getInput( Top[args.year]+QCD[args.flavour][args.year], "Fake")
 
-if options.small:
+if args.small:
     for s in [ samplePrompt, sampleNonPrompt, sampleFake ]: 
         s.reduceFiles( to = 2 )
-
 
 prompt    =  {'name':'Prompt',    'sample':samplePrompt,    'TChain':ROOT.TChain('tree'), 'counter':0 }
 nonPrompt =  {'name':'NonPrompt', 'sample':sampleNonPrompt, 'TChain':ROOT.TChain('tree'), 'counter':0 }
@@ -96,32 +95,36 @@ fake      =  {'name':'Fake',      'sample':sampleFake,      'TChain':ROOT.TChain
 
 leptonClasses  = [ prompt, nonPrompt, fake ]
 
-postfix = '' if options.nJobs==1 else "_%i" % options.job
+postfix = '' if args.nJobs==1 else "_%i" % args.job
 
 #Loop
 for leptonClass in leptonClasses:
-    print('leptonClass loop start')
     logger.info( "Class %s", leptonClass['name'] )
 
     for sampleFile in leptonClass['sample'].files:    
         leptonClass['TChain'].Add(sampleFile)
-    
-    leptonClass['TChain'] = leptonClass['TChain'].CopyTree(selectionString) # macht aus TChain TTree und filtert mit selection String?
+        logger.debug("Class %s: Adding file %s", leptonClass['name'], sampleFile) 
+    leptonClass['TChain'].GetEntry(0)
+    leptonClass['TTree'] = leptonClass['TChain'].CopyTree(selectionString) # macht aus TChain TTree und filtert mit selection String?
     leptonClass['Entries'] = leptonClass['TChain'].GetEntries()
-    logger.info( "flavour %s class %s entries %i", options.flavour, leptonClass['name'], leptonClass['Entries'] )
+    if args.small:
+        leptonClass['Entries'] /= 10
+    logger.info( "flavour %s class %s entries %i", args.flavour, leptonClass['name'], leptonClass['Entries'] )
 
-if options.ratio == 'balanced':
+
+if args.ratio == 'balanced':
     x = [[0,1,2], [nonPrompt['Entries']+fake['Entries'], nonPrompt['Entries'], fake['Entries']]]
 else:
     x = [[0,1,2], [leptonClass['Entries'] for leptonClass in leptonClasses]]
 
-y = sum(([t] * w for t, w in zip(*x)), [])
+choices = sum(([t] * w for t, w in zip(*x)), [])
+random.shuffle(choices)
 
 n_maxfileentries = 100000
 n_current_entries  = 0
 n_file           = 0
 
-outputDir = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
+outputDir = os.path.join( skim_directory, args.version + ("_small" if args.small else ""), "step2", str(args.year), args.flavour, args.ptSelection, args.sampleSelection)
 
 try:
     os.makedirs(outputDir)
@@ -130,33 +133,32 @@ except OSError as err:
 
 #if not os.path.exists( outputDir ):
 #    os.makedirs( outputDir )
-outputPath = os.path.join( outputDir, 'modulo_'+str(options.job)+'_trainfile_' )
+outputPath = os.path.join( outputDir, 'modulo_'+str(args.job)+'_trainfile_' )
 
-while (prompt['counter']<prompt["Entries"] and nonPrompt['counter']<nonPrompt["Entries"] and fake['counter']<fake["Entries"]):
+for i_choice, choice in enumerate(choices):
 
     #(re)create and save output files
     if n_current_entries==0 and n_file==0:
         outputFile     = ROOT.TFile(str(outputPath)+str(n_file)+'.root', 'recreate')
-        
-        outputFileTree = fake['TChain'].CloneTree(0,"")
+        outputFileTree = fake['TTree'].CloneTree(0, "")
     if n_current_entries==0 and n_file>0:
         logger.info("%i entries copied to %s", outputFileTree.GetEntries(), outputPath+str(n_file-1)+".root" )
         logger.info("Counter: prompt %i nonprompt %i fake %i", prompt['counter'], nonPrompt['counter'], fake['counter'])
         outputFile.Write(outputPath+str(n_file-1)+".root", outputFile.kOverwrite)
         outputFile.Close()
         outputFile     = ROOT.TFile(outputPath+str(n_file)+".root", 'recreate')
-        outputFileTree = fake['TChain'].CloneTree(0,"")
+        outputFileTree = fake['TTree'].CloneTree(0,"")
 
     #write lepton from random class into output file
-    choice = random.choice(y)
-    inputEntry   = leptonClasses[choice]['TChain'].GetEntry(leptonClasses[choice]['counter'])
-    TChainTree   = leptonClasses[choice]['TChain'].GetTree()
+    #choice = random.choice(y)
 
-    TChainTree.CopyAddresses(outputFileTree)
+    leptonClasses[choice]['TTree'].CopyAddresses(outputFileTree)
+    inputEntry   = leptonClasses[choice]['TTree'].GetEntry(leptonClasses[choice]['counter'])
+
     outputEntry  = outputFileTree.Fill()
     if inputEntry!=outputEntry: 
-        logger.error("error while copying entry")
-        break 
+        logger.error("Error while copying entry")
+        raise RuntimeError("Error while copying entry")
    
     #increase counters
     leptonClasses[choice]['counter'] += 1
@@ -166,6 +168,11 @@ while (prompt['counter']<prompt["Entries"] and nonPrompt['counter']<nonPrompt["E
     if n_current_entries>=n_maxfileentries:
         n_current_entries=0
         n_file += 1
+
+    # in balanced running, we could have too few prompt events to balance fake+nonprompt. When we reach the end of the prompt tree, we therefore stop.
+    if args.ratio == 'balanced' and prompt['Entries'] == prompt['counter']:
+        logger.info("Balanced ratio: Stopping early because there are no more prompt events.")
+        break 
 
 #Save and Close last output File        
 logger.info("%i entries copied to %s", outputFileTree.GetEntries(), outputPath+str(n_file)+".root" )

@@ -28,6 +28,7 @@ def get_parser():
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
     argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,        help="Version for output directory")
     argParser.add_argument('--ptSelection',                 action='store',         nargs='?',  type=str,  default='pt_5_-1',      help="pt selection of leptons")
+    argParser.add_argument('--muFromTauArePrompt',    action='store_true',        help="Consider muons from tau leptons as prompt")        
 
     return argParser
 
@@ -69,10 +70,17 @@ if options.small:
 #output directory
 output_directory = os.path.join( skim_directory, options.version+('_small' if options.small else ''), 'step1', str(options.year) ) 
 
-leptonClasses  = [{'name':'Prompt',    'selector': lambda genPartFlav: abs(genPartFlav) in [1, 15]}, 
-                  {'name':'NonPrompt', 'selector': lambda genPartFlav: abs(genPartFlav) in [4, 5]}, 
-                  {'name':'Fake',      'selector': lambda genPartFlav: abs(genPartFlav) not in [1, 15, 4, 5]}
-                 ]
+
+if options.muFromTauArePrompt:
+    absPdgIds = {'Prompt':[1,15], 'NonPrompt':[4,5], 'Fake':[0,3,22],  'NotPrompt':[0,3,4,5,22]}
+else:
+    absPdgIds = {'Prompt':[1],    'NonPrompt':[5, 4, 15], 'Fake':[0,3,22],  'NotPrompt':[0,3,4,5,15,22]}
+
+leptonClasses  = {'Prompt'     : {'selector': lambda genPartFlav: abs(genPartFlav) in absPdgIds['Prompt']}, 
+                  'NonPrompt'  : {'selector': lambda genPartFlav: abs(genPartFlav) in absPdgIds['NonPrompt']}, 
+                  'Fake'       : {'selector': lambda genPartFlav: abs(genPartFlav) not in (absPdgIds['Prompt']+absPdgIds['NonPrompt'])},
+                  }
+
 leptonFlavour  =  {'name':'muo', 'pdgId': 13} if options.flavour == 'muo' else  {'name':'ele', 'pdgId': 11}
 
 #pt selection
@@ -82,14 +90,8 @@ pt_threshold    = (float(ptSelectionList[1]), float(ptSelectionList[2]))
 pf_flavours  = ['charged', 'neutral', 'photon', 'electron', 'muon']
 
 # read variables
-cand_vars_read = ["d0/F", "d0Err/F", "dz/F", "dzErr/F", "eta/F", "mass/F", "phi/F", "pt/F", "puppiWeight/F", "puppiWeightNoLep/F", "trkChi2/F", "vtxChi2/F", "charge/I", "lostInnerHits/I", "pdgId/I", "pvAssocQuality/I", "trkQuality/I"]
-cand_vars_write = {'charged': ["d0/F", "d0Err/F", "dz/F", "dzErr/F", "eta/F", "mass/F", "phi/F", "pt/F", "puppiWeight/F", "puppiWeightNoLep/F", "trkChi2/F", "vtxChi2/F", "charge/F", "lostInnerHits/F", "pvAssocQuality/F", "trkQuality/F"],
-                   'neutral': ["eta/F", "phi/F", "pt/F", "puppiWeight/F", "puppiWeightNoLep/F"],
-                   'photon':  ["eta/F", "phi/F", "pt/F", "puppiWeight/F", "puppiWeightNoLep/F"],
-                   'electron':["d0/F", "d0Err/F", "dz/F", "dzErr/F", "eta/F", "mass/F", "phi/F", "pt/F", "puppiWeight/F", "puppiWeightNoLep/F", "trkChi2/F", "vtxChi2/F", "charge/F", "lostInnerHits/F", "pvAssocQuality/F", "trkQuality/F"],
-                   'muon':    ["d0/F", "d0Err/F", "dz/F", "dzErr/F", "eta/F", "mass/F", "phi/F", "pt/F", "puppiWeight/F", "puppiWeightNoLep/F", "trkChi2/F", "vtxChi2/F", "charge/F", "lostInnerHits/F", "pvAssocQuality/F", "trkQuality/F"],
-                }
-SV_vars   = ['dlen/F', 'dlenSig/F', 'dxy/F', 'dxySig/F', 'pAngle/F', 'chi2/F', 'eta/F', 'mass/F', 'ndof/F', 'phi/F', 'pt/F', 'x/F', 'y/F', 'z/F']
+from vars import cand_vars_read, cand_vars_train, SV_vars ,ele_vars, muo_vars
+
 read_variables = [
     'nPFCands/I',
     #VectorTreeVariable.fromString("PFCands[%s]"%(",".join(cand_vars + ['ptRel/F', 'dR/F'])), nMax=nPFCandMax),
@@ -100,25 +102,27 @@ read_variables = [
 read_variables += ["event/l", "luminosityBlock/I", "run/I"]
 
 cand_varnames_read  = map( lambda n:n.split('/')[0], cand_vars_read) 
-cand_varnames_write = {pf_flavour: map( lambda n:n.split('/')[0], cand_vars_write[pf_flavour]) for pf_flavour in pf_flavours} 
+cand_varnames_write = {pf_flavour: map( lambda n:n.split('/')[0], cand_vars_train[pf_flavour]) for pf_flavour in pf_flavours} 
 SV_varnames         = map( lambda n:n.split('/')[0], SV_vars) 
 
 if options.flavour == 'ele':
-    lep_vars = ['pt/F', 'eta/F', 'phi/F', 'pdgId/I', 'cutBased/I', 'miniPFRelIso_all/F', 'pfRelIso03_all/F', 'sip3d/F', 'lostHits/b', 'convVeto/O', 'dxy/F', 'dz/F', 'charge/I', 'deltaEtaSC/F', 'vidNestedWPBitmap/I', 'dr03EcalRecHitSumEt/F', 'dr03HcalDepth1TowerSumEt/F', 'dr03TkSumPt/F', 'dxyErr/F', 'dzErr/F', 'eCorr/F', 'eInvMinusPInv/F', 'energyErr/F', 'hoe/F', 'ip3d/F', 'jetPtRelv2/F', 'jetRelIso/F', 'miniPFRelIso_chg/F', 'mvaFall17V2noIso/F', 'pfRelIso03_chg/F', 'r9/F', 'sieie/F']
+    lep_vars = ele_vars 
     if not sample.isData:
         lep_vars.extend(['genPartFlav/B'])
     read_variables.extend(['nElectron/I', 'Electron[%s]'%(",".join(lep_vars))])
 elif options.flavour == 'muo':
-    lep_vars = ["pt/F", "eta/F", "phi/F", "pdgId/I", "mediumId/O", "miniPFRelIso_all/F", "pfRelIso03_all/F", "sip3d/F", "dxy/F", "dz/F", "charge/I", 'dxyErr/F', 'dzErr/F', 'ip3d/F', 'jetPtRelv2/F', 'jetRelIso/F', 'miniPFRelIso_chg/F', 'mvaLowPt/F', 'nStations/I', 'nTrackerLayers/I', 'pfRelIso03_all/F', 'pfRelIso03_chg/F', 'pfRelIso04_all/F', 'ptErr/F', 'segmentComp/F', 'tkRelIso/F', 'tunepRelPt/F']
+    lep_vars = muo_vars 
     if not sample.isData:
         lep_vars.extend(['genPartFlav/B'])
     read_variables.extend(['nMuon/I', 'Muon[%s]'%(",".join(lep_vars))])
 
 lep_varnames = map( lambda n:n.split('/')[0], lep_vars ) 
 new_variables= map( lambda b: "lep_%s"%(b[:-1]+'F'), lep_vars )
+new_variables+= ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "lep_isNotPromptId_Training/I", "lep_isFakeId_Training/I"]
+
 for pf_flavour in pf_flavours:
     # per PFCandidate flavor, add a counter and a vector with all pf candidate variables
-    new_variables.append( VectorTreeVariable.fromString( 'pfCand_%s[%s]'%(pf_flavour, ",".join(cand_vars_write[pf_flavour] + ['ptRel/F', 'deltaR/F'])), nMax = 100) ) # here
+    new_variables.append( VectorTreeVariable.fromString( 'pfCand_%s[%s]'%(pf_flavour, ",".join(cand_vars_train[pf_flavour] + ['ptRel/F', 'deltaR/F'])), nMax = 100) ) # here
 
 new_variables.append( VectorTreeVariable.fromString( 'SV[%s]'%( ",".join(SV_vars + ['ptRel/F', 'deltaR/F'])), nMax = 100) )
 new_variables += ["event/l", "luminosityBlock/I", "run/I"]  
@@ -140,9 +144,9 @@ reader = sample.treeReader( \
     selectionString = "&&".join(skimConds)
     )
 
-for leptonClass in leptonClasses:
+for leptonClass_name, leptonClass in leptonClasses.iteritems():
 
-    outfilename =  os.path.join(output_directory, options.flavour, leptonClass['name'], options.ptSelection, sample_name, sample.name + '.root')
+    outfilename =  os.path.join(output_directory, options.flavour, leptonClass_name, options.ptSelection, sample_name, sample.name + '.root')
     logger.debug("Writing to: %s", outfilename)
 
     if not os.path.exists(os.path.dirname(outfilename)):
@@ -209,8 +213,10 @@ while reader.run():
     for lep in leps:
         #now decide which maker to use
         maker = None
-        for leptonClass in leptonClasses:
-            if leptonClass['selector'](ord(lep['genPartFlav'])):
+    
+        genPartFlav = ord(lep['genPartFlav'])
+        for leptonClass in leptonClasses.values():
+            if leptonClass['selector'](genPartFlav):
                 maker = leptonClass['maker']
                 break
         if maker is None:
@@ -224,6 +230,12 @@ while reader.run():
                 setattr(maker.event, "lep_"+b, float(ord(lep[b])))
             else:
                 setattr(maker.event, "lep_"+b, float(lep[b]))
+
+        maker.event.lep_isPromptId_Training     = leptonClasses['Prompt']['selector'](genPartFlav)
+        maker.event.lep_isNonPromptId_Training  = leptonClasses['NonPrompt']['selector'](genPartFlav)
+        maker.event.lep_isFakeId_Training       = leptonClasses['Fake']['selector'](genPartFlav)
+        maker.event.lep_isNotPrompt_Training    = (maker.event.lep_isNonPromptId_Training or maker.event.lep_isFakeId_Training)
+
         # write vector with PF candidates
         for pf_flavour in pf_flavours:
             cands = filter( lambda c: deltaR2(c, lep) < dR_PF**2, sorted_cands[pf_flavour] )
@@ -249,7 +261,7 @@ while reader.run():
             break
 
 logger.info("Writing trees.")
-for leptonClass in leptonClasses:
+for leptonClass in leptonClasses.values():
     #leptonClass['maker'].tree.Write()
     leptonClass['outfile'].Write()
     leptonClass['outfile'].Close()

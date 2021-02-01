@@ -50,53 +50,13 @@ def printData(data):
 def getKey(item):
     return float(item[2])
 
+from vars import SV_vars, cand_vars_train
 def varList(pfCandId):
-
     if pfCandId=='SV':
-        pfCandVarList = [
-        'SV_pt',
-        'SV_eta',
-        'SV_phi',
-        'SV_mass',
-        #'SV_charge',
-        #'SV_ntracks',
-        'SV_chi2',
-        'SV_ndof',
-        'SV_dxy',
-        'SV_dlen',
-        'SV_dlenSig',
-        'SV_dxySig',
-        'SV_pAngle',
-        'SV_x',
-        'SV_y',
-        'SV_z',
-        ]
-
+        pfCandVarList = map( lambda v:'SV_'+v.split('/')[0], SV_vars )
     else:
         #define related variables of PF candidates
-        pfCandVarList = [
-        'pfCand_'+pfCandId+'_pdgId',
-        'pfCand_'+pfCandId+'_pt',
-        'pfCand_'+pfCandId+'_eta',
-        'pfCand_'+pfCandId+'_phi',
-        'pfCand_'+pfCandId+'_mass',
-        'pfCand_'+pfCandId+'_puppiWeight',
-        'pfCand_'+pfCandId+'_deltaR',
-        'pfCand_'+pfCandId+'_ptRel',
-        'pfCand_'+pfCandId+'_d0',
-        'pfCand_'+pfCandId+'_d0Err',
-        'pfCand_'+pfCandId+'_dz',
-        'pfCand_'+pfCandId+'_dzErr',
-        'pfCand_'+pfCandId+'_puppiWeightNoLep',
-        'pfCand_'+pfCandId+'_trkChi2',
-        'pfCand_'+pfCandId+'_vtxChi2',
-        'pfCand_'+pfCandId+'_charge',
-        'pfCand_'+pfCandId+'_lostInnerHits',
-        'pfCand_'+pfCandId+'_pdgId',
-        'pfCand_'+pfCandId+'_pvAssocQuality',
-        'pfCand_'+pfCandId+'_trkQuality',
-        ]
-
+        pfCandVarList = map( lambda v:'pfCand_'+pfCandId+'_'+v.split('/')[0], cand_vars_train[pfCandId] )
     return pfCandVarList
 
 #define PF candidates for loop
@@ -109,24 +69,20 @@ pfCandIdList = [
                 'SV',
                ]
 
-#vetoNanSelection = "&&".join(["(!TMath::IsNaN(%s))"%var for var in varList('SV')])
-
 #class list
 classList = ['Prompt', 'NonPrompt', 'Fake', 'NotPrompt']
 #Ele: Flavour of genParticle for MC matching to status==1 electrons or photons: 1 = prompt electron (including gamma*->mu mu), 15 = electron from prompt tau, 22 = prompt photon (likely conversion), 5 = electron from b, 4 = electron from c, 3 = electron from light or unknown, 0 = unmatched
 #Mu:  Flavour of genParticle for MC matching to status==1 muons: 1 = prompt muon (including gamma*->mu mu), 15 = muon from prompt tau, 5 = muon from b, 4 = muon from c, 3 = muon from light or unknown, 0 = unmatched
 
 if options.muFromTauArePrompt:
-    absPdgIds = {'Prompt':[1,15], 'NonPrompt':[5, 4,], 'Fake':[0,3,22],  'NotPrompt':[0,3,4,5,22]}
+    absPdgIds = {'Prompt':[1,15], 'NonPrompt':[4,5], 'Fake':[0,3,22],  'NotPrompt':[0,3,4,5,22]}
 else:
-    absPdgIds = {'Prompt':[1], 'NonPrompt':[5, 4, 15], 'Fake':[0,3,22],  'NotPrompt':[0,3,4,5,15,22]}
+    absPdgIds = {'Prompt':[1],    'NonPrompt':[5, 4, 15], 'Fake':[0,3,22],  'NotPrompt':[0,3,4,5,15,22]}
 
 #define paths
-inputPath    = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
+inputPath    = os.path.join( skim_directory, options.version, "step2", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 #outputPath   = os.path.join( skim_directory, options.version+'_'+options.output_version + ("_small" if options.small else ""), "step3", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
 outputPath   = os.path.join( skim_directory, options.version + ("_small" if options.small else ""), "step3", str(options.year), options.flavour, options.ptSelection, options.sampleSelection)
-
-print(inputPath, outputPath)
 
 try:
     os.makedirs(outputPath)

@@ -6,7 +6,7 @@ import importlib
 import random
 
 # RootTools
-from RootTools.core.Sample import *
+from RootTools.core.standard import *
 
 # DeepLepton
 from DeepLepton.Tools.user import skim_directory 
@@ -43,6 +43,8 @@ def get_parser():
     argParser.add_argument('--ptSelectionStep1',            action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection in step1?")
     argParser.add_argument('--ptSelection',                 action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection for step2?")
     argParser.add_argument('--ratio',                       action='store',                     type=str,   choices=['balanced', 'unbalanced'], required = True,   help="Which signal to background ratio?")
+    argParser.add_argument('--SV_sorting',                  action='store',                     type=str,   choices=['pt', 'ptRel', 'deltaR'], default ='pt',      help="How to sort SVs?")
+    argParser.add_argument('--pfCand_sorting',              action='store',                     type=str,   choices=['pt', 'ptRel', 'deltaR'], default ='ptRel',   help="How to sort pfCands?")
 
     return argParser
 
@@ -89,29 +91,53 @@ if args.small:
     for s in [ samplePrompt, sampleNonPrompt, sampleFake ]: 
         s.reduceFiles( to = 2 )
 
-prompt    =  {'name':'Prompt',    'sample':samplePrompt,    'TChain':ROOT.TChain('tree'), 'counter':0 }
-nonPrompt =  {'name':'NonPrompt', 'sample':sampleNonPrompt, 'TChain':ROOT.TChain('tree'), 'counter':0 }
-fake      =  {'name':'Fake',      'sample':sampleFake,      'TChain':ROOT.TChain('tree'), 'counter':0 }
+prompt    =  {'name':'Prompt',    'sample':samplePrompt,    }
+nonPrompt =  {'name':'NonPrompt', 'sample':sampleNonPrompt, }
+fake      =  {'name':'Fake',      'sample':sampleFake,      }
 
 leptonClasses  = [ prompt, nonPrompt, fake ]
 
-postfix = '' if args.nJobs==1 else "_%i" % args.job
+# find leaf structure
+from RootTools.core.helpers import shortTypeDict
+structure = {'':[]}
+for l in prompt['sample'].chain.GetListOfLeaves():
+    # this is anm element of a vector branch:
+    if l.GetLeafCount():
+        counter_var = l.GetLeafCount().GetName()
+        vector_name = counter_var[1:]
 
-#Loop
+        vector_branch_declaration = ( l.GetName()[len(vector_name)+1:], shortTypeDict[l.GetTypeName()] )
+        if not structure.has_key(vector_name):
+            structure[vector_name] = [ vector_branch_declaration ]
+        else:
+            structure[vector_name].append(vector_branch_declaration )
+    else:
+        structure[''].append( (l.GetName(), shortTypeDict[l.GetTypeName()]))
+
+# define variables for reading and writing
+read_variables = []
+write_variables = []
+for key, value in structure.iteritems():
+    if key=='':
+        read_variables.extend(  map( lambda v: '/'.join(v), value ) )
+        write_variables.extend( map( lambda v: '/'.join(v), value ) )
+    else:
+        read_variables.append( key+'[%s]'% (','.join (map( lambda v: '/'.join(v), value )) ) )
+        write_variables.append( key+'[%s]'% (','.join(map( lambda v: '/'.join(v), value )) ) )
+        read_variables.append( 'n'+key+'/I' )
+
+#Loop over samples
 for leptonClass in leptonClasses:
     logger.info( "Class %s", leptonClass['name'] )
-
-    for sampleFile in leptonClass['sample'].files:    
-        leptonClass['TChain'].Add(sampleFile)
-        logger.debug("Class %s: Adding file %s", leptonClass['name'], sampleFile) 
-    leptonClass['TChain'].GetEntry(0)
-    leptonClass['TTree'] = leptonClass['TChain'].CopyTree(selectionString) # macht aus TChain TTree und filtert mit selection String?
-    leptonClass['Entries'] = leptonClass['TChain'].GetEntries()
-    if args.small:
-        leptonClass['Entries'] /= 10
+    leptonClass['Entries'] = leptonClass['sample'].chain.GetEntries(selectionString)
     logger.info( "flavour %s class %s entries %i", args.flavour, leptonClass['name'], leptonClass['Entries'] )
 
+    leptonClass['reader'] = leptonClass['sample'].treeReader( \
+        variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables),
+        selectionString = selectionString 
+        )
 
+# decide on whether we write all events or balance the output
 if args.ratio == 'balanced':
     x = [[0,1,2], [nonPrompt['Entries']+fake['Entries'], nonPrompt['Entries'], fake['Entries']]]
 else:
@@ -120,9 +146,9 @@ else:
 choices = sum(([t] * w for t, w in zip(*x)), [])
 random.shuffle(choices)
 
-n_maxfileentries = 100000
-n_current_entries  = 0
-n_file           = 0
+n_maxfileentries    = 100000
+n_current_entries   = 0
+n_file              = 0
 
 outputDir = os.path.join( skim_directory, args.version + ("_small" if args.small else ""), "step2", str(args.year), args.flavour, args.ptSelection, args.sampleSelection)
 
@@ -131,38 +157,78 @@ try:
 except OSError as err:
     pass
 
-#if not os.path.exists( outputDir ):
-#    os.makedirs( outputDir )
-outputPath = os.path.join( outputDir, 'modulo_'+str(args.job)+'_trainfile_' )
+def make_maker( n_file ):
+    tmp_directory = ROOT.gDirectory
+    outfile = ROOT.TFile.Open(os.path.join( outputDir, 'modulo_'+str(args.job)+'_trainfile_%i.root'%n_file ), 'recreate')
+    outfile.cd()
+    maker = TreeMaker( sequence  = [ ],
+        variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, write_variables),
+        treeName = 'tree')
+    tmp_directory.cd()
+    maker.outfile = outfile
+    return maker
+
+#start all readers
+for leptonClass in leptonClasses:
+    leptonClass['reader'].start()
+    leptonClass['counter'] = 0
 
 for i_choice, choice in enumerate(choices):
 
     #(re)create and save output files
     if n_current_entries==0 and n_file==0:
-        outputFile     = ROOT.TFile(str(outputPath)+str(n_file)+'.root', 'recreate')
-        outputFileTree = fake['TTree'].CloneTree(0, "")
+        maker = make_maker( n_file )
+        maker.start()
     if n_current_entries==0 and n_file>0:
-        logger.info("%i entries copied to %s", outputFileTree.GetEntries(), outputPath+str(n_file-1)+".root" )
+        logger.info("%i entries copied to %s", maker.tree.GetEntries(), maker.outfile.GetName() )
         logger.info("Counter: prompt %i nonprompt %i fake %i", prompt['counter'], nonPrompt['counter'], fake['counter'])
-        outputFile.Write(outputPath+str(n_file-1)+".root", outputFile.kOverwrite)
-        outputFile.Close()
-        outputFile     = ROOT.TFile(outputPath+str(n_file)+".root", 'recreate')
-        outputFileTree = fake['TTree'].CloneTree(0,"")
+        maker.outfile.Write()
+        maker.outfile.Close()
+        logger.info( "Written %s", maker.outfile.GetName())
 
-    #write lepton from random class into output file
-    #choice = random.choice(y)
+        maker = make_maker( n_file )
+        maker.start()
 
-    leptonClasses[choice]['TTree'].CopyAddresses(outputFileTree)
-    inputEntry   = leptonClasses[choice]['TTree'].GetEntry(leptonClasses[choice]['counter'])
-
-    outputEntry  = outputFileTree.Fill()
-    if inputEntry!=outputEntry: 
-        logger.error("Error while copying entry")
-        raise RuntimeError("Error while copying entry")
-   
     #increase counters
     leptonClasses[choice]['counter'] += 1
     n_current_entries += 1
+
+    reader = leptonClasses[choice]['reader']
+    reader.run()
+    r = reader.event
+
+    # copy
+    for name, value in structure.iteritems():
+        if name=='':
+            for branch_name, _ in value:
+                setattr( maker.event, branch_name, getattr( r, branch_name ) )
+        else:
+            setattr( maker.event, "n"+name, getattr( r, "n"+name ) )
+            # sorting of SV and candidates
+            n_objs = getattr( r, "n"+name )
+
+            # obtain sorting values as list ( [val, i_val], ...) and sort descending wrt. to val (ascending for deltaR). 
+            
+            if name=='SV':
+                sort_vals = [ ( getattr( r, "%s_%s"%(name, args.SV_sorting) )[i], i) for i in range( n_objs ) ]
+                if args.SV_sorting=='deltaR':
+                    sort_vals.sort()
+                else: 
+                    sort_vals.sort(key=lambda v:-v[0])
+                #print name, args.SV_sorting, sort_vals 
+            elif name.startswith('pfCand_'):
+                sort_vals = [ ( getattr( r, "%s_%s"%(name, args.pfCand_sorting) )[i], i) for i in range( n_objs ) ]
+                if args.pfCand_sorting=='deltaR':
+                    sort_vals.sort()
+                else: 
+                    sort_vals.sort(key=lambda v:-v[0])
+                #print name, args.pfCand_sorting, sort_vals 
+            else:
+                raise RuntimeError("Don't know what to do with %r."%name) 
+            for val in value:
+                for i in range( n_objs ):
+                    getattr( maker.event, "%s_%s"%(name, val[0]) )[i] =  getattr( r, "%s_%s"%(name, val[0]) )[sort_vals[i][1]]
+    maker.run()
 
     #check if maximal file entries reached
     if n_current_entries>=n_maxfileentries:
@@ -175,8 +241,9 @@ for i_choice, choice in enumerate(choices):
         break 
 
 #Save and Close last output File        
-logger.info("%i entries copied to %s", outputFileTree.GetEntries(), outputPath+str(n_file)+".root" )
+logger.info("%i entries copied to %s", maker.tree.GetEntries(), maker.outfile.GetName() ) 
 logger.info("Counter: prompt %i nonprompt %i fake %i", prompt['counter'], nonPrompt['counter'], fake['counter'])
-outputFile.Write(outputPath+str(n_file)+".root", outputFile.kOverwrite)
-outputFile.Close()
+maker.outfile.Write()
+maker.outfile.Close()
+logger.info( "Written %s", maker.outfile.GetName())
 logger.info('Successfully Finished')

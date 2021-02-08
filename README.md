@@ -1,6 +1,6 @@
 This repository holds the release dependent code for DeepLepton, i.e., to prepare the training data and evaluate the training output.
-The training is done with a container and the release independent code is in [https://github.com/HephyAnalysisSW/DeepLepton-Training](DeepLepton-Training).
-The latter builds on [https://github.com/DL4Jets/DeepJetCore](DeepJetCore). Starters should go through the training example there.
+The training is done with a container and the release independent code is in [DeepLepton-Training](https://github.com/HephyAnalysisSW/DeepLepton-Training).
+The latter builds on [DeepjetCore](https://github.com/DL4Jets/DeepJetCore). Starters should go through the training example there.
 
 # DeepLepton ntuple production
 
@@ -21,7 +21,7 @@ Filenames and normalizations are cached. the cache can be filled in advance by
 ```
 python DeepLepton/Samples/python/nanoAOD_PFCands_Summer16.py
 ```
-The data are preprocessed (e.g. to write a tree with one lepton per 'Event') by executing step1 and step2 of [https://github.com/HephyAnalysisSW/DeepLepton/tree/2.0/preprocessing](DeepLepton/preprocessing). This is release dependent code.
+The data are preprocessed (e.g. to write a tree with one lepton per 'Event') by executing step1 and step2 of [DeepLepton/preprocessing](https://github.com/HephyAnalysisSW/DeepLepton/tree/2.0/preprocessing). This is release dependent code.
 
 ## Installation of release independent training framework
 on CBE checkout the training repository:

@@ -35,7 +35,8 @@ srun --partition=g --reservation=interactive --qos=medium --time 08:00:00 --pty 
 srun --reservation=interactive --qos=medium --time 08:00:00 --pty bash # for CPU
 
 cd DeepLepton-Training
-singularity run /scratch-cbe/users/dietrich.liko/deepjetcore3-latest.sif /bin/bash
+singularity run /scratch-cbe/users/dietrich.liko/deepjetcore3-latest.sif /bin/bash #for CPU
+singularity run --nv /scratch-cbe/users/dietrich.liko/deepjetcore3-latest.sif /bin/bash #for GPU
 source ./env.sh 
 ```
 

@@ -20,12 +20,22 @@ git clone https://github.com/HephyAnalysisSW/DeepJet
 git clone https://github.com/HephyAnalysisSW/DeepJetCore
 ```
 ## Preparing the training data
-The nanoAOD samples (including the ParticleFlow Candidate collection) are collected in Samples/python/nanoAOD_PFCands_Summer16.py
+The nanoAOD samples with the ParticleFlow Candidate collection are produced with the Samples/cfg/*PFCands*.py cfg. 
+The only difference to central nanoAOD is a producer that stores PFCandidates in a vector.
+We collect the resulting samples in Samples/python/nanoAOD_PFCands_Summer16.py etc.
 Fill the sample cache by running
 ```
 python DeepLepton/Samples/python/nanoAOD_PFCands_Summer16.py
 ```
-## running on crab
+## Preprocessing
+The two preprocessing steps are CMSSW scripts that run on CBE by submitting, e.g.
+```
+DeepLepton/preprocessing/step1_select.sh
+DeepLepton/preprocessing/step2_select.sh
+``` 
+step1 selectes the events and the leptons in the events and writes a TTree 'tree' with one entry per lepton. 
+Truth information is added and dR and ptRel of the SV and PFCandidates are computed. step2 mixes the data randomly and takes care of
+the sorting of SV and PFCand.  
 ## 
 
 # DeepLepton training framework: Repository for training and evaluation of DNN for lepton ID 

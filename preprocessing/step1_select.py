@@ -234,7 +234,7 @@ while reader.run():
         maker.event.lep_isPromptId_Training     = leptonClasses['Prompt']['selector'](genPartFlav)
         maker.event.lep_isNonPromptId_Training  = leptonClasses['NonPrompt']['selector'](genPartFlav)
         maker.event.lep_isFakeId_Training       = leptonClasses['Fake']['selector'](genPartFlav)
-        maker.event.lep_isNotPrompt_Training    = (maker.event.lep_isNonPromptId_Training or maker.event.lep_isFakeId_Training)
+        maker.event.lep_isNotPromptId_Training  = (maker.event.lep_isNonPromptId_Training or maker.event.lep_isFakeId_Training)
 
         # write vector with PF candidates
         for pf_flavour in pf_flavours:

@@ -34,9 +34,23 @@ logger.info("Using db file: %s", dbFile)
 redirector = "root://eos.grid.vbc.ac.at/"
 
 ## DY
-DYJetsToLL_M50_LO = Sample.nanoAODfromDAS("DYJetsToLL_M50_LO",       "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/mmoser-crab_RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3_ext1-v2_v6_PFCands-91e8898dad3723f03bca2e9d2835912d/USER",   dbFile=dbFile, instance = "phys03", redirector=redirector, overwrite=False, xSection=2075.14*3)
+#DYJetsToLL_M50_LO = Sample.nanoAODfromDAS("DYJetsToLL_M50_LO",       "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/mmoser-crab_RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3_ext1-v2_v6_PFCands-91e8898dad3723f03bca2e9d2835912d/USER",   dbFile=dbFile, instance = "phys03", redirector=redirector, overwrite=False, xSection=2075.14*3)
 
-DY = [ DYJetsToLL_M50_LO ]
+DYJetsToLL_M50_LO        = Sample.nanoAODfromDAS("DYJetsToLL_M50_LO",       "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/mmoser-crab_RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3_ext1-v2_v6_PFCands-91e8898dad3723f03bca2e9d2835912d/USER",   dbFile=dbFile, instance = "phys03", redirector=redirector, overwrite=ov, xSection=2075.14*3)
+DYJetsToLL_M50_LO_ext2   = Sample.nanoAODfromDAS("DYJetsToLL_M50_LO_ext2",  "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/mmoser-crab_RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3_ext2-v2_v6_PFCands-91e8898dad3723f03bca2e9d2835912d/USER",   dbFile=dbFile, instance = "phys03", redirector=redirector, overwrite=ov, xSection=2075.14*3)
+DYJetsToLL_M50_ext2      = Sample.nanoAODfromDAS("DYJetsToLL_M50_ext2",     "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/mmoser-crab_RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3_ext2-v1_v6_PFCands-91e8898dad3723f03bca2e9d2835912d/USER",  dbFile=dbFile, instance = "phys03", redirector=redirector, overwrite=ov, xSection=2075.14*3)
+DYJetsToLL_M10to50_LO    = Sample.nanoAODfromDAS("DYJetsToLL_M10to50_LO",   "/DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/mmoser-crab_RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2_v6_PFCands-91e8898dad3723f03bca2e9d2835912d/USER",   dbFile=dbFile, instance = "phys03", redirector=redirector, overwrite=ov, xSection=18610)
+DYJetsToLL_M10to50       = Sample.nanoAODfromDAS("DYJetsToLL_M10to50",      "/DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/mmoser-crab_RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2_v6_PFCands-91e8898dad3723f03bca2e9d2835912d/USER",   dbFile=dbFile, instance = "phys03", redirector=redirector, overwrite=ov, xSection=18610)
+
+
+
+
+DY = [  DYJetsToLL_M50_LO,
+        DYJetsToLL_M50_LO_ext2,
+        DYJetsToLL_M50_ext2,
+        DYJetsToLL_M10to50_LO,
+        DYJetsToLL_M10to50,
+        ]
 
 QCD_Mu_Pt30to50   = Sample.nanoAODfromDAS("QCD_Mu_Pt30to50",   "/QCD_Pt-30to50_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/mmoser-crab_RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2_v6_PFCands-91e8898dad3723f03bca2e9d2835912d/USER",   dbFile=dbFile, instance = "phys03", redirector=redirector, overwrite=ov, xSection=-1)
 QCD = [ QCD_Mu_Pt30to50 ]

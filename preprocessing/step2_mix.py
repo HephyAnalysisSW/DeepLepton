@@ -57,7 +57,7 @@ import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
 #pt selection option for different pt sub selection of ptSelection in step1
-pt_threshold = (int(args.ptSelection.split('_')[1]), int(args.ptSelection.split('_')[2]))
+pt_threshold = (float(args.ptSelection.split('_')[1]), float(args.ptSelection.split('_')[2]))
 kinematicSelection = 'lep_pt>{pt_min}'.format( pt_min=pt_threshold[0] ) if pt_threshold[1]<0 else 'lep_pt>{pt_min}&&lep_pt<={pt_max}'.format( pt_min=pt_threshold[0], pt_max=pt_threshold[1] )
 
 selectionString = '(event%{nJobs}=={job}&&abs(lep_pdgId)=={flavour}&&{kinematic})'.format( nJobs=args.nJobs, job=args.job, flavour='11' if args.flavour=='ele' else '13', kinematic = kinematicSelection)

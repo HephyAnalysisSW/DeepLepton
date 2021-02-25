@@ -11,6 +11,7 @@ from RootTools.core.standard import *
 # DeepLepton
 from DeepLepton.Tools.user import skim_directory 
 
+#TODO commented samples ned step 1 redone
 DY  = { 2016:['DYJetsToLL_M50_LO',
               'DYJetsToLL_M50_LO_ext2',
               'DYJetsToLL_M50_ext2',
@@ -306,7 +307,7 @@ for i_choice, choice in enumerate(choices):
         else:
             setattr( maker.event, "n"+name, getattr( r, "n"+name ) )
             # sorting of SV and candidates
-            n_objs = getattr( r, "n"+name )
+            n_objs = getattr( r, "n"+name ) # Error is caused, index i out of range in line 322
 
             # obtain sorting values as list ( [val, i_val], ...) and sort descending wrt. to val (ascending for deltaR). 
             

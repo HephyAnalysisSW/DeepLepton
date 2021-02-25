@@ -23,8 +23,8 @@
 #done python step1_select.py  --version v1 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample DYJetsToLL_M5to50_HT100to200 #SPLIT2
 #done python step1_select.py  --version v1 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample DYJetsToLL_M5to50_HT100to200 #SPLIT2
 
-#done python step1_select.py  --version v1 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample DYJetsToLL_M5to50_HT100to200_ext1 #SPLIT18
-#done python step1_select.py  --version v1 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample DYJetsToLL_M5to50_HT100to200_ext1 #SPLIT18
+python step1_select.py --version v1 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample DYJetsToLL_M5to50_HT100to200_ext #SPLIT20
+python step1_select.py --version v1 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample DYJetsToLL_M5to50_HT100to200_ext #SPLIT20
 
 #done python step1_select.py  --version v1 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample DYJetsToLL_M5to50_HT200to400 #SPLIT3
 #done python step1_select.py  --version v1 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample DYJetsToLL_M5to50_HT200to400 #SPLIT3

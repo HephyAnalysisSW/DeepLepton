@@ -237,17 +237,13 @@ for v in read_variables:
     else:
         variables.append( TreeVariable.fromString( v ) )
 
-print(variables)
-print(map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables ))
-print(variables == map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables ))
-exit(1)
 #Loop over samples
 for leptonClass in leptonClasses:
     logger.info( "Class %s", leptonClass['name'] )
     leptonClass['Entries'] = leptonClass['sample'].chain.GetEntries(selectionString)
     logger.info( "flavour %s class %s entries %i", args.flavour, leptonClass['name'], leptonClass['Entries'] )
     leptonClass['reader'] = leptonClass['sample'].treeReader( \
-        variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables ),
+        variables = variables, #map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables ),
         selectionString = selectionString
         )
 

@@ -189,6 +189,8 @@ elif args.sampleSelection == "all":
     sampleNonPrompt = getInput( Top[args.year]+QCD[args.flavour][args.year], "NonPrompt")
     sampleFake      = getInput( Top[args.year]+QCD[args.flavour][args.year], "Fake")
 
+nMax = 500
+
 if args.small:
     for s in [ samplePrompt, sampleNonPrompt, sampleFake ]: 
         s.reduceFiles( to = 2 )
@@ -212,7 +214,7 @@ for l in prompt['sample'].chain.GetListOfLeaves():
         if not structure.has_key(vector_name):
             structure[vector_name] = [ vector_branch_declaration ]
         else:
-            structure[vector_name].append(vector_branch_declaration )
+            structure[vector_name].append( vector_branch_declaration )
     else:
         structure[''].append( (l.GetName(), shortTypeDict[l.GetTypeName()]))
 
@@ -228,15 +230,25 @@ for key, value in structure.iteritems():
         write_variables.append( key+'[%s]'% (','.join(map( lambda v: '/'.join(v), value )) ) )
         read_variables.append( 'n'+key+'/I' )
 
+variables = []
+for v in read_variables:
+    if v.startswith("SV") or v.startswith("pfCand"):
+        variables.append(VectorTreeVariable.fromString( v, nMax=nMax ) )
+    else:
+        variables.append( TreeVariable.fromString( v ) )
+
+print(variables)
+print(map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables ))
+print(variables == map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables ))
+exit(1)
 #Loop over samples
 for leptonClass in leptonClasses:
     logger.info( "Class %s", leptonClass['name'] )
     leptonClass['Entries'] = leptonClass['sample'].chain.GetEntries(selectionString)
     logger.info( "flavour %s class %s entries %i", args.flavour, leptonClass['name'], leptonClass['Entries'] )
-
     leptonClass['reader'] = leptonClass['sample'].treeReader( \
-        variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables),
-        selectionString = selectionString 
+        variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables ),
+        selectionString = selectionString
         )
 
 # decide on whether we write all events or balance the output
@@ -307,7 +319,7 @@ for i_choice, choice in enumerate(choices):
         else:
             setattr( maker.event, "n"+name, getattr( r, "n"+name ) )
             # sorting of SV and candidates
-            n_objs = getattr( r, "n"+name ) # Error is caused, index i out of range in line 322
+            n_objs = min( nMax, getattr( r, "n"+name ) )
 
             # obtain sorting values as list ( [val, i_val], ...) and sort descending wrt. to val (ascending for deltaR). 
             
@@ -319,7 +331,7 @@ for i_choice, choice in enumerate(choices):
                     sort_vals.sort(key=lambda v:-v[0])
                 #print name, args.SV_sorting, sort_vals 
             elif name.startswith('pfCand_'):
-                sort_vals = [ ( getattr( r, "%s_%s"%(name, args.pfCand_sorting) )[i], i) for i in range( n_objs ) ]
+                sort_vals = [ ( getattr( r, "%s_%s"%(name, args.pfCand_sorting) )[i], i) for i in range( n_objs ) ] 
                 if args.pfCand_sorting=='deltaR':
                     sort_vals.sort()
                 else: 

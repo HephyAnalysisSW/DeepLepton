@@ -1,0 +1,6 @@
+#! /bin/sh
+
+#! /bin/bash
+
+export PYTHONPATH=$SAVEPYTHONPATH
+/usr/local/bin/condor_submit "$@"

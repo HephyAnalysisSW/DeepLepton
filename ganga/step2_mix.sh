@@ -1,6 +1,6 @@
 #! /bin/sh -x 
 #
-# Run step2_mix.py on the grid
+# Run step1_select.py on the grid
 #
 # Dietrich Liko, March 2021
 
@@ -19,8 +19,8 @@ cmsenv
 popd > /dev/null
 
 pwd
-echo "Running step2 select"
-python $CMSSW_VERSION/src/DeepLepton/preprocessing/step2_mix.py "$@"
+echo "Running step1 select"
+python $CMSSW_VERSION/src/DeepLepton/preprocessing/step1_select.py "$@"
 
 for path in $(find . -name "*.root")
 do

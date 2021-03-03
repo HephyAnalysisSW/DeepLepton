@@ -240,7 +240,7 @@ while reader.run():
         for pf_flavour in pf_flavours:
             if pf_flavour == 'muon' and args.flavor=='muo': 
                 cands = filter( lambda c: deltaR2(c, lep) > 0.000225 dR_PF**2, sorted_cands[pf_flavour] ) #cands )
-            if pf_flavour == 'electron' and args.flavor=='ele':
+            elif pf_flavour == 'electron' and args.flavor=='ele':
                 cands = filter( lambda c: deltaR2(c, lep) > 0.000225 dR_PF**2, sorted_cands[pf_flavour] ) #cands )
             #cands = filter( lambda c: deltaR2(c, lep) < dR_PF**2, sorted_cands[pf_flavour] )
             for cand in cands:

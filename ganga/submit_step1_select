@@ -107,11 +107,12 @@ except KeyError:
 if socket.getfqdn() == 'login-el7.uscms.org':
     userid = pwd.getpwuid( os.getuid() )[ 0 ]
     scratch_dir = f'/home/{userid}'
-try:
-    scratch_dir = os.environ['SCRATCHDIR'] 
-except KeyError:
-    print ( 'CLIP env varaible SCRATCHDIR is not set.')
-    sys.exit()
+else:
+    try:
+        scratch_dir = os.environ['SCRATCHDIR'] 
+    except KeyError:
+        print ( 'CLIP env varaible SCRATCHDIR is not set.')
+        sys.exit()
 
 # get all samples from the DB
 

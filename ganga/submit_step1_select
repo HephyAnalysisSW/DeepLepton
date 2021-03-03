@@ -10,6 +10,7 @@
 
 import argparse
 import os
+import pwd
 import sys
 import sqlite3
 from pathlib import Path
@@ -17,6 +18,8 @@ from collections import namedtuple
 import socket
 import tempfile
 import tarfile
+import subprocess
+import json
 
 def parse_args():
 
@@ -41,7 +44,7 @@ def parse_args():
 
 def get_samples(db_file):
 
-    db = sqlite3.connect(f'file://{db_file}?mode=ro', uri=True)
+    db = sqlite3.connect(str(db_file))
 
     sql = 'SELECT name, count(*) AS \'nr_files\' FROM fileCache GROUP BY name;'
 
@@ -76,6 +79,15 @@ def make_tarball(cmssw_base,scratch_dir):
         
     return tmpfile
 
+def get_nickname():
+
+    capath = os.environ['X509_CERT_DIR'] if 'X509_CERT_DIR' in os.environ else '/etc/grid-security/certificates'
+    proxy  = os.environ['X509_USER_PROXY'] if 'X509_USER_PROXY' in os.environ else '/tmp/x509up_u%d' % os.getuid()
+    url = 'https://cms-cric.cern.ch/api/accounts/user/query/?json&preset=whoami'
+    cmd = [ '/usr/bin/curl', '-sS', '--capath', capath, '--cert', proxy, '--key', proxy, url ]
+    output = subprocess.run(cmd, stdout=subprocess.PIPE).stdout
+    return json.loads(output.decode('utf8'))['result'][0]['login']
+
 # main program
 
 opts = parse_args()
@@ -92,6 +104,9 @@ except KeyError:
 
 # CLIP environment
 
+if socket.getfqdn() == 'login-el7.uscms.org':
+    userid = pwd.getpwuid( os.getuid() )[ 0 ]
+    scratch_dir = f'/home/{userid}'
 try:
     scratch_dir = os.environ['SCRATCHDIR'] 
 except KeyError:
@@ -100,7 +115,7 @@ except KeyError:
 
 # get all samples from the DB
 
-if socket.fqdn() == 'login-el7.uscms.org':
+if socket.getfqdn() == 'login-el7.uscms.org':
     db_dir = Path.home()
 else:
     try:
@@ -110,6 +125,8 @@ else:
         print ( 'Cannot determine Sample DB directory' )
         sys.exit(1)
     db_dir = Path(dbDir)
+
+nickname = get_nickname()
 
 db_file = db_dir / 'DB_Summer16_DeepLepton.sql::memory:?cache=shared'
 all_samples = get_samples(db_file)

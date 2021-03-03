@@ -25,8 +25,11 @@ else:
     ov = False
 
 # DB
-from Samples.Tools.config import dbDir
-dbFile = dbDir+'/DB_Summer16_DeepLepton.sql'
+if 'CONDOR' in os.environ:
+    dbFile = 'DB_Summer16_DeepLepton.sql'
+else:
+    from Samples.Tools.config import dbDir
+    dbFile = dbDir+'/DB_Summer16_DeepLepton.sql'
 
 logger.info("Using db file: %s", dbFile)
 

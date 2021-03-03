@@ -1,13 +1,6 @@
-#! /bin/sh -x
-#
-# WTF
-#
-# Dietrich Liko, March 2021
+#! /bin/sh
 
-for name in `awk '/^transfer_input_files/ { split($3,a,","); print a[1] }' $2`
-do
-   sed -i -E '/^for inFile/ s/\/[\/A-Za-z0-9.]+\///g' $name
-done
+#! /bin/bash
 
 export PYTHONPATH=$SAVEPYTHONPATH
 /usr/local/bin/condor_submit "$@"

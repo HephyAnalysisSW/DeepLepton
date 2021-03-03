@@ -4,7 +4,7 @@
 #
 # Example:
 #
-#   ganga submit_step2_mix --version=v2 --year=2016 --flavor=muo --small
+#   ganga submit_step2_mix --version=v1 --year=2016 --small
 #
 # Dietrich Liko, March 2021
 
@@ -25,27 +25,47 @@ def parse_args():
     import argparse
     ap = argparse.ArgumentParser(description = 'Submit step1_select usimng Ganga')
 
-    ap.add_argument('--year',                  action='store',                     type=int,   choices=[2016,2017],    required = True,               help="Which year?")
-    ap.add_argument('--logLevel',              action='store',         nargs='?',              choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'],     default='INFO',                     help="Log level for logging")
-    ap.add_argument('--sample',                action='store',         nargs='?',  type=str,                           default='WZTo3LNu',            help="List of samples to be post-processed, given as CMG component name")
-    ap.add_argument('--version',               action='store',         nargs='?',  type=str,  required = True,                                        help="Version for output directory")
-    ap.add_argument('--flavour',               action='store',                     type=str,   choices=['ele','muo'],    required = True,             help="Which flavour?")
-    ap.add_argument('--sampleSelection',       action='store',                     type=str,   choices=['DYvsQCD', 'Top', 'all'],           required = True,             help="Which flavour?")
-    ap.add_argument('--small',                 action='store_true',                                                                                   help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
-    ap.add_argument('--ptSelectionStep1',      action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection in step1?")
-    ap.add_argument('--ptSelection',           action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection for step2?")
-    ap.add_argument('--ratio',                 action='store',                     type=str,   choices=['balanced', 'unbalanced'], required = True,   help="Which signal to background ratio?")
-    ap.add_argument('--SV_sorting',            action='store',                     type=str,   choices=['pt', 'ptRel', 'deltaR'], default ='pt',      help="How to sort SVs?")
-    ap.add_argument('--pfCand_sorting',        action='store',                     type=str,   choices=['pt', 'ptRel', 'deltaR'], default ='ptRel',   help="How to sort pfCands?")
+    ap.add_argument('--year',                        action='store',                     type=int,   choices=[2016,2017],    required = True,               help="Which year?")
+    ap.add_argument('--logLevel',                    action='store',         nargs='?',              choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'],     default='INFO',                     help="Log level for logging")
+    ap.add_argument('--sample',                      action='store',         nargs='?',  type=str,                           default='WZTo3LNu',            help="List of samples to be post-processed, given as CMG component name")
+    ap.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,                                        help="Version for output directory")
+    ap.add_argument('--flavour',                     action='store',                     type=str,   choices=['ele','muo'],    required = True,             help="Which flavour?")
+    ap.add_argument('--sampleSelection',             action='store',                     type=str,   choices=['DYvsQCD', 'Top', 'all'],           required = True,             help="Which flavour?")
+    ap.add_argument('--small',                       action='store_true',                                                                                   help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
+    ap.add_argument('--ptSelectionStep1',            action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection in step1?")
+    ap.add_argument('--ptSelection',                 action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection for step2?")
+    ap.add_argument('--ratio',                       action='store',                     type=str,   choices=['balanced', 'unbalanced'], required = True,   help="Which signal to background ratio?")
+    ap.add_argument('--SV_sorting',                  action='store',                     type=str,   choices=['pt', 'ptRel', 'deltaR'], default ='pt',      help="How to sort SVs?")
+    ap.add_argument('--pfCand_sorting',              action='store',                     type=str,   choices=['pt', 'ptRel', 'deltaR'], default ='ptRel',   help="How to sort pfCands?")
 
-    ap.add_argument('--nJobs',                 action='store',         nargs='?',  type=int,                           default=1,                     help="Maximum number of simultaneous jobs.")
+    ap.add_argument('--max-files',             action='store', type=int, default=0)
     ap.add_argument('--dry-run',               action='store_true', default=False)
     ap.add_argument('--condor',                action='store_true', default=False)
-    ap.add_argument('--slurm-qos',             action='store', type=str, default='rapid')
-    ap.add_argument('--skims',                 action='store', type=str, default='skims')
+    ap.add_argument('--slurm-qos',             action='store', type=str, default='short')
 
     return ap.parse_args()
 
+def get_samples(db_file):
+
+    db = sqlite3.connect(str(db_file))
+
+    sql = 'SELECT name, count(*) AS \'nr_files\' FROM fileCache GROUP BY name;'
+
+    Sample = namedtuple('Sample', ['name', 'nr_files'])
+    return [ Sample(r[0],r[1]) for r in db.execute(sql) ]
+
+def splitter(samples,max_files):
+
+    sj_args = []
+    for s in samples:
+        if max_files > 0 and s.nr_files > max_files:
+            nr_jobs = s.nr_files // max_files + 1
+            for j in range(nr_jobs):
+                sj_args.append(['--sample', s.name, '--nrjobs', nr_jobs, '--job', j+1] )
+        else:
+            sj_args.append(['--sample', s.name])
+    
+    return sj_args
 
 def make_tarball(cmssw_base,scratch_dir):
 
@@ -97,7 +117,39 @@ else:
         print ( 'CLIP env varaible SCRATCHDIR is not set.')
         sys.exit()
 
+# get all samples from the DB
+
+if socket.getfqdn() == 'login-el7.uscms.org':
+    db_dir = Path.home()
+else:
+    try:
+        sys.path.append( str(Path(cmssw_base) / 'python') )
+        from Samples.Tools.config import dbDir
+    except ImportError:
+        print ( 'Cannot determine Sample DB directory' )
+        sys.exit(1)
+    db_dir = Path(dbDir)
+
 nickname = get_nickname()
+
+db_file = db_dir / 'DB_Summer16_DeepLepton.sql::memory:?cache=shared'
+all_samples = get_samples(db_file)
+
+# process special sample names ALL, DY, QCD and T
+
+if opts.sample == 'ALL':
+    samples = all_samples
+elif opts.sample == 'DY':
+    samples = [ s for s in all_samples if s.name.startswith('DYJetsToLL_') ]
+elif opts.sample == 'QCD':
+    samples = [ s for s in all_samples if s.name.startswith('QCD_') ]
+elif opts.sample == 'T':
+    samples = [ s for s in all_samples if s.name.startswith('T') or s.name.startswith('ST_')]
+else:
+    samples = [ s for s in all_samples if s.name == opts.sample ]
+    if len(samples) == 0:
+        print ( f'Sample {opts.sample} not found.')
+        sys.exit(1)
 
 # Create the tarball
 
@@ -106,8 +158,7 @@ tarball = make_tarball(cmssw_base, scratch_dir)
 # Prepare the batch job
 
 job = Job()
-job.name = 'step2'
-version = opts.version+'_small' if opts.small else opts.version
+job.name = 'step1_sel'
 job.comment = f'{opts.version} {opts.year} {opts.flavour} {opts.ptSelection} {opts.sample}'
 
 # Application
@@ -117,7 +168,7 @@ job.application.exe = File( str( Path(cmssw_base) / 'src/DeepLepton/ganga/step1_
 job.application.env = {
     'CMSSW_VERSION' : cmssw_version,
     'SCRAM_ARCH' : scram_arch,
-    'SKIMSDIR' : f'root://eos.grid.vbc.ac.at//store/user/{nickname}/{opts.skim}'
+    'SKIMSDIR' : f'root://eos.grid.vbc.ac.at//store/user/{nickname}/skims'
 }
 
 if not opts.condor:
@@ -131,29 +182,23 @@ if not opts.condor:
     job.application.env['X509_USER_PROXY'] = user_proxy
 
 job.application.args=[]
-   
+
 args = [ 
     '--logLevel', opts.logLevel,
     '--year', opts.year,
-    '--sample, opts.sample,
-    '--version', opts.version,
     '--flavour', opts.flavour,
-    '--sampleSelection', opts.sampleSelection,
-    '--ptSelectionStep1', opts.ptSelectionStep1,
-    '--ptSelection', opts.ptSelection,
-    '--ratio', opts.ratio,
-    '--SV_sorting', opts.SV_sorting,
-    '--pfCand_sorting', opts.pfCand_sorting,
-    '--nJobs', opts.nJobs  
+    '--version', opts.version,
+    '--ptSelection', opts.ptSelection
 ]
 if opts.small:
     args.append('--small')
+if opts.muFromTauArePrompt:
+    args.append('--muFromTauArePrompt')
 
 # Splitter
 
-if opts.NJobs>1:
-    job.splitter = ArgSplitter()
-    job.splitter.args = [ args + [ '--job', j ] for j in range(opts.nJobs) ]
+job.splitter = ArgSplitter()
+job.splitter.args = [ args + sj_args for sj_args in splitter(samples, opts.max_files)]
 
 # Inputsandbox
 

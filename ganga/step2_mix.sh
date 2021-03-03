@@ -1,6 +1,6 @@
 #! /bin/sh -x 
 #
-# Run step2_mix.py on the grid
+# Run step1_select.py on the grid
 #
 # Dietrich Liko, March 2021
 

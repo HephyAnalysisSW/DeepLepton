@@ -1,0 +1,240 @@
+# submit_step2_mix
+#
+# Run step2_mix.py on the grid
+#
+# Example:
+#
+#   ganga submit_step2_mix --version=v1 --year=2016 --small
+#
+# Dietrich Liko, March 2021
+
+import argparse
+import os
+import pwd
+import sys
+import sqlite3
+from pathlib import Path
+from collections import namedtuple
+import socket
+import tempfile
+import tarfile
+import subprocess
+import json
+
+def parse_args():
+
+    import argparse
+    ap = argparse.ArgumentParser(description = 'Submit step1_select usimng Ganga')
+
+    ap.add_argument('--year',                        action='store',                     type=int,   choices=[2016,2017],    required = True,               help="Which year?")
+    ap.add_argument('--logLevel',                    action='store',         nargs='?',              choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'],     default='INFO',                     help="Log level for logging")
+    ap.add_argument('--sample',                      action='store',         nargs='?',  type=str,                           default='WZTo3LNu',            help="List of samples to be post-processed, given as CMG component name")
+    ap.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,                                        help="Version for output directory")
+    ap.add_argument('--flavour',                     action='store',                     type=str,   choices=['ele','muo'],    required = True,             help="Which flavour?")
+    ap.add_argument('--sampleSelection',             action='store',                     type=str,   choices=['DYvsQCD', 'Top', 'all'],           required = True,             help="Which flavour?")
+    ap.add_argument('--small',                       action='store_true',                                                                                   help="Run the file on a small sample (for test purpose), bool flag set to True if used")        
+    ap.add_argument('--ptSelectionStep1',            action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection in step1?")
+    ap.add_argument('--ptSelection',                 action='store',                     type=str,   default = "pt_5_-1",                                   help="Which ptSelection for step2?")
+    ap.add_argument('--ratio',                       action='store',                     type=str,   choices=['balanced', 'unbalanced'], required = True,   help="Which signal to background ratio?")
+    ap.add_argument('--SV_sorting',                  action='store',                     type=str,   choices=['pt', 'ptRel', 'deltaR'], default ='pt',      help="How to sort SVs?")
+    ap.add_argument('--pfCand_sorting',              action='store',                     type=str,   choices=['pt', 'ptRel', 'deltaR'], default ='ptRel',   help="How to sort pfCands?")
+
+    ap.add_argument('--max-files',             action='store', type=int, default=0)
+    ap.add_argument('--dry-run',               action='store_true', default=False)
+    ap.add_argument('--condor',                action='store_true', default=False)
+    ap.add_argument('--slurm-qos',             action='store', type=str, default='short')
+
+    return ap.parse_args()
+
+def get_samples(db_file):
+
+    db = sqlite3.connect(str(db_file))
+
+    sql = 'SELECT name, count(*) AS \'nr_files\' FROM fileCache GROUP BY name;'
+
+    Sample = namedtuple('Sample', ['name', 'nr_files'])
+    return [ Sample(r[0],r[1]) for r in db.execute(sql) ]
+
+def splitter(samples,max_files):
+
+    sj_args = []
+    for s in samples:
+        if max_files > 0 and s.nr_files > max_files:
+            nr_jobs = s.nr_files // max_files + 1
+            for j in range(nr_jobs):
+                sj_args.append(['--sample', s.name, '--nrjobs', nr_jobs, '--job', j+1] )
+        else:
+            sj_args.append(['--sample', s.name])
+    
+    return sj_args
+
+def make_tarball(cmssw_base,scratch_dir):
+
+    src_filter = lambda t: None if  os.path.basename(t.name) in ['.git', 'data', 'examples'] else t
+        
+    tmpfile = Path(tempfile.mkdtemp(prefix='ganga_', dir=scratch_dir)) / 'userarea.tar'
+    with tarfile.open(tmpfile, mode='w') as tar:
+        tar.add(Path( cmssw_base ) / 'src', 'src', recursive=True, filter=src_filter)
+        for d in ['lib', 'biglib', 'module', 'python', 'cfipython']:
+            path = Path( cmssw_base ) / d
+            if path.exists():
+                tar.add( Path(cmssw_base) / d, d, recursive=True)
+
+        
+    return tmpfile
+
+def get_nickname():
+
+    capath = os.environ['X509_CERT_DIR'] if 'X509_CERT_DIR' in os.environ else '/etc/grid-security/certificates'
+    proxy  = os.environ['X509_USER_PROXY'] if 'X509_USER_PROXY' in os.environ else '/tmp/x509up_u%d' % os.getuid()
+    url = 'https://cms-cric.cern.ch/api/accounts/user/query/?json&preset=whoami'
+    cmd = [ '/usr/bin/curl', '-sS', '--capath', capath, '--cert', proxy, '--key', proxy, url ]
+    output = subprocess.run(cmd, stdout=subprocess.PIPE).stdout
+    return json.loads(output.decode('utf8'))['result'][0]['login']
+
+# main program
+
+opts = parse_args()
+
+# CMS environment
+
+try:
+    cmssw_version = os.environ['CMSSW_VERSION']
+    cmssw_base = os.environ['CMSSW_BASE']
+    scram_arch = os.environ['SCRAM_ARCH']
+except KeyError:
+    print ( 'CMS env variables not set' )
+    sys.exit()
+
+# CLIP environment
+
+if socket.getfqdn() == 'login-el7.uscms.org':
+    userid = pwd.getpwuid( os.getuid() )[ 0 ]
+    scratch_dir = f'/home/{userid}'
+else:
+    try:
+        scratch_dir = os.environ['SCRATCHDIR'] 
+    except KeyError:
+        print ( 'CLIP env varaible SCRATCHDIR is not set.')
+        sys.exit()
+
+# get all samples from the DB
+
+if socket.getfqdn() == 'login-el7.uscms.org':
+    db_dir = Path.home()
+else:
+    try:
+        sys.path.append( str(Path(cmssw_base) / 'python') )
+        from Samples.Tools.config import dbDir
+    except ImportError:
+        print ( 'Cannot determine Sample DB directory' )
+        sys.exit(1)
+    db_dir = Path(dbDir)
+
+nickname = get_nickname()
+
+db_file = db_dir / 'DB_Summer16_DeepLepton.sql::memory:?cache=shared'
+all_samples = get_samples(db_file)
+
+# process special sample names ALL, DY, QCD and T
+
+if opts.sample == 'ALL':
+    samples = all_samples
+elif opts.sample == 'DY':
+    samples = [ s for s in all_samples if s.name.startswith('DYJetsToLL_') ]
+elif opts.sample == 'QCD':
+    samples = [ s for s in all_samples if s.name.startswith('QCD_') ]
+elif opts.sample == 'T':
+    samples = [ s for s in all_samples if s.name.startswith('T') or s.name.startswith('ST_')]
+else:
+    samples = [ s for s in all_samples if s.name == opts.sample ]
+    if len(samples) == 0:
+        print ( f'Sample {opts.sample} not found.')
+        sys.exit(1)
+
+# Create the tarball
+
+tarball = make_tarball(cmssw_base, scratch_dir)
+
+# Prepare the batch job
+
+job = Job()
+job.name = 'step1_sel'
+job.comment = f'{opts.version} {opts.year} {opts.flavour} {opts.ptSelection} {opts.sample}'
+
+# Application
+
+job.application = Executable()
+job.application.exe = File( str( Path(cmssw_base) / 'src/DeepLepton/ganga/step1_select.sh' ) )
+job.application.env = {
+    'CMSSW_VERSION' : cmssw_version,
+    'SCRAM_ARCH' : scram_arch,
+    'SKIMSDIR' : f'root://eos.grid.vbc.ac.at//store/user/{nickname}/skims'
+}
+
+if not opts.condor:
+    try:
+        user_proxy = os.environ['X509_USER_PROXY']
+    except KeyError:
+        user_proxy = '/tmp/x509up_u%s' % os.getuid()
+    if user_proxy.startswith('/tmp/'):
+        print ( 'X509 user proxy has to be on shared file system ')
+        sys.exit(1)
+    job.application.env['X509_USER_PROXY'] = user_proxy
+
+job.application.args=[]
+
+args = [ 
+    '--logLevel', opts.logLevel,
+    '--year', opts.year,
+    '--flavour', opts.flavour,
+    '--version', opts.version,
+    '--ptSelection', opts.ptSelection
+]
+if opts.small:
+    args.append('--small')
+if opts.muFromTauArePrompt:
+    args.append('--muFromTauArePrompt')
+
+# Splitter
+
+job.splitter = ArgSplitter()
+job.splitter.args = [ args + sj_args for sj_args in splitter(samples, opts.max_files)]
+
+# Inputsandbox
+
+job.inputsandbox.append(File(str(tarball)))
+if opts.condor:
+    job.inputsandbox.append(File(str(db_file)))
+
+# Backend
+
+condor_host = 'login-el7.uscms.org'
+if opts.condor:
+    cdr = Condor()
+    cdr.spool = False
+    cdr.shared_filesystem = False
+    cdr.cdf_options = {'+DESIRED_Sites' : '"T2_AT_Vienna"'}
+    if socket.getfqdn() == condor_host:
+        job.backend = cdr
+    else:
+        job.backend = Remote()
+        job.backend.host = condor_host
+        job.remote_backend = cdr
+
+else:
+    job.backend = Slurm()
+    job.backend.extraopts = f'--qos {opts.slurm_qos} -J step1'
+
+
+if opts.dry_run:
+        print ( job )
+
+        for a in job.splitter.args:
+            print ( a )
+
+        del job
+else:
+    job.submit()
+
+tarball.unlink()

@@ -216,7 +216,7 @@ if opts.condor:
     else:
         job.backend = Remote()
         job.backend.host = condor_host
-        job.remote_backend = c
+        job.remote_backend = cdr
 
 else:
     job.backend = Slurm()

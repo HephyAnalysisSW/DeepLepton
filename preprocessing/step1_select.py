@@ -238,11 +238,11 @@ while reader.run():
 
         # write vector with PF candidates
         for pf_flavour in pf_flavours:
+            cands = filter( lambda c: deltaR2(c, lep) < dR_PF**2, sorted_cands[pf_flavour] )
             if pf_flavour == 'muon' and args.flavor=='muo': 
-                cands = filter( lambda c: deltaR2(c, lep) > 0.000225 dR_PF**2, sorted_cands[pf_flavour] ) #cands )
+                cands = filter( lambda c: deltaR2(c, lep) > 0.000225 dR_PF**2, cands ) # 0.000225 = 0.015**2
             elif pf_flavour == 'electron' and args.flavor=='ele':
-                cands = filter( lambda c: deltaR2(c, lep) > 0.000225 dR_PF**2, sorted_cands[pf_flavour] ) #cands )
-            #cands = filter( lambda c: deltaR2(c, lep) < dR_PF**2, sorted_cands[pf_flavour] )
+                cands = filter( lambda c: deltaR2(c, lep) > 0.000225 dR_PF**2, cands )
             for cand in cands:
                 cand["ptRel"]  = ptRel  (cand, lep)
                 cand["deltaR"] = deltaR2(cand, lep)

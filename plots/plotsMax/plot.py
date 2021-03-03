@@ -159,13 +159,13 @@ plots.append(Plot(name      = "lep_sip3d",
 plots.append(Plot(name      = "lep_dxy",
                   texX      = 'dxy', texY = 'Number of Events ',
                   attribute = lambda event, sample: event.lep_dxy,
-                  binning   = [100,0,5],
+                  binning   = [100,-5,5],# -0.05,0.05
                   ))
 
 plots.append(Plot(name      = "lep_dz",
                   texX      = 'dz', texY = 'Number of Events ',
                   attribute = lambda event, sample: event.lep_dz,
-                  binning   = [100,0,50],
+                  binning   = [100,-50,50], # -0.1,0.1
                   ))
 
 plots.append(Plot(name      = "lep_charge",

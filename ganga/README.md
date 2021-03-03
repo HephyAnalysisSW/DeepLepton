@@ -19,6 +19,7 @@ Download and install the SW
 
     cmsrel CMSSW_10_2_18
     cd CMSSW_10_2_18/src
+    cmsenv
     git clone https://github.com/HephyAnalysisSW/DeepLepton -b grid
     git clone https://github.com/HephyAnalysisSW/Samples
     git clone https://github.com/HephyAnalysisSW/RootTools
@@ -56,9 +57,11 @@ Create ganga config and
 
     ganga -g
 
-Change SCRIPT_PATH in .gangarc
+Add add following additions to .gangarc
 
-    SCRIPTS_PATH = Ganga/scripts:/home/user/CMSSW_10_2_18/src/DeepLepton/ganga
+    SCRIPTS_PATH = Ganga/scripts:/home/<user>/CMSSW_10_2_18/src/DeepLepton/ganga
+
+    gangadir = /scratch/<user>/gangadir
 
 Copy the samples DB to from CLIP to login-el7.uscms.org. This has to be initiated from the login node of CLIP
 due to connectivity issue.
@@ -69,6 +72,7 @@ Download and install the SW
 
     cmsrel CMSSW_10_2_18
     cd CMSSW_10_2_18/src
+    cmsenv
     git clone https://github.com/HephyAnalysisSW/DeepLepton -b grid
     git clone https://github.com/HephyAnalysisSW/Samples
     git clone https://github.com/HephyAnalysisSW/RootTools
@@ -81,7 +85,7 @@ Create the VOMS proxy
 
 Submit jobs
 
-    ganga sublit_step1_select --version=v1 --year=2016 --condor --samples ALL
+    ganga submit_step1_select --version=v1 --year=2016 --samples ALL --condor
 
 
     

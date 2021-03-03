@@ -10,7 +10,6 @@
 
 import argparse
 import os
-import pwd
 import sys
 import sqlite3
 from pathlib import Path
@@ -18,8 +17,6 @@ from collections import namedtuple
 import socket
 import tempfile
 import tarfile
-import subprocess
-import json
 
 def parse_args():
 
@@ -28,7 +25,7 @@ def parse_args():
 
     ap.add_argument('--logLevel',              action='store',         nargs='?',              choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'],     default='INFO',                     help="Log level for logging")
     ap.add_argument('--year',                  action='store',                     type=int,   choices=[2016,2017],    required = True,                    help="Which year?")
-    ap.add_argument('--flavour',               action='store',                     type=str,   choices=['muo', 'ele', 'all'], default='all',                      help="muo or ele?")
+    ap.add_argument('--flavour',               action='store',                     type=str,   choices=['muo', 'ele'], default='muo',                      help="muo or ele?")
     ap.add_argument('--sample',                action='store',         nargs='?',  type=str,                           default='TGG',                      help="Sample to be post-processed")
     ap.add_argument('--small',                 action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
     ap.add_argument('--version',               action='store',         nargs='?',  type=str,  required = True,        help="Version for output directory")
@@ -38,37 +35,29 @@ def parse_args():
     ap.add_argument('--max-files',             action='store', type=int, default=0)
     ap.add_argument('--dry-run',               action='store_true', default=False)
     ap.add_argument('--condor',                action='store_true', default=False)
-    ap.add_argument('--slurm-qos',             action='store', type=str, default='rapid')
-    ap.add_argument('--skims',                 action='store', type=str, default='skims')
+    ap.add_argument('--slurm-qos',             action='store', type=str, default='short')
 
     return ap.parse_args()
 
 def get_samples(db_file):
 
-    db = sqlite3.connect(str(db_file))
+    db = sqlite3.connect(f'file://{db_file}?mode=ro', uri=True)
 
     sql = 'SELECT name, count(*) AS \'nr_files\' FROM fileCache GROUP BY name;'
 
     Sample = namedtuple('Sample', ['name', 'nr_files'])
     return [ Sample(r[0],r[1]) for r in db.execute(sql) ]
 
-def splitter(samples,max_files,flavour):
-
-    if flavour == 'all':
-        flavours = [ 'muo', 'ele']
-    else:
-        flavours = [ flavour ]
+def splitter(samples,max_files):
 
     sj_args = []
     for s in samples:
         if max_files > 0 and s.nr_files > max_files:
             nr_jobs = s.nr_files // max_files + 1
             for j in range(nr_jobs):
-                for f in flavours:
-                    sj_args.append(['--sample', s.name, '--flavour', f, '--nrjobs', nr_jobs, '--job', j+1] )
+                sj_args.append(['--sample', s.name, '--nrjobs', nr_jobs, '--job', j+1] )
         else:
-            for f in flavours:
-                sj_args.append(['--sample', s.name, '--flavour', f])
+            sj_args.append(['--sample', s.name])
     
     return sj_args
 
@@ -87,15 +76,6 @@ def make_tarball(cmssw_base,scratch_dir):
         
     return tmpfile
 
-def get_nickname():
-
-    capath = os.environ['X509_CERT_DIR'] if 'X509_CERT_DIR' in os.environ else '/etc/grid-security/certificates'
-    proxy  = os.environ['X509_USER_PROXY'] if 'X509_USER_PROXY' in os.environ else '/tmp/x509up_u%d' % os.getuid()
-    url = 'https://cms-cric.cern.ch/api/accounts/user/query/?json&preset=whoami'
-    cmd = [ '/usr/bin/curl', '-sS', '--capath', capath, '--cert', proxy, '--key', proxy, url ]
-    output = subprocess.run(cmd, stdout=subprocess.PIPE).stdout
-    return json.loads(output.decode('utf8'))['result'][0]['login']
-
 # main program
 
 opts = parse_args()
@@ -112,19 +92,15 @@ except KeyError:
 
 # CLIP environment
 
-if socket.getfqdn() == 'login-el7.uscms.org':
-    userid = pwd.getpwuid( os.getuid() )[ 0 ]
-    scratch_dir = f'/home/{userid}'
-else:
-    try:
-        scratch_dir = os.environ['SCRATCHDIR'] 
-    except KeyError:
-        print ( 'CLIP env varaible SCRATCHDIR is not set.')
-        sys.exit()
+try:
+    scratch_dir = os.environ['SCRATCHDIR'] 
+except KeyError:
+    print ( 'CLIP env varaible SCRATCHDIR is not set.')
+    sys.exit()
 
 # get all samples from the DB
 
-if socket.getfqdn() == 'login-el7.uscms.org':
+if socket.fqdn() == 'login-el7.uscms.org':
     db_dir = Path.home()
 else:
     try:
@@ -135,9 +111,7 @@ else:
         sys.exit(1)
     db_dir = Path(dbDir)
 
-nickname = get_nickname()
-
-db_file = db_dir / 'DB_Summer16_DeepLepton.sql'
+db_file = db_dir / 'DB_Summer16_DeepLepton.sql::memory:?cache=shared'
 all_samples = get_samples(db_file)
 
 # process special sample names ALL, DY, QCD and T
@@ -163,9 +137,8 @@ tarball = make_tarball(cmssw_base, scratch_dir)
 # Prepare the batch job
 
 job = Job()
-job.name = 'step1'
-version = opts.version+'_small' if opts.small else opts.version
-job.comment = f'{version} {opts.year} {opts.flavour} {opts.ptSelection} {opts.sample}'
+job.name = 'step1_sel'
+job.comment = f'{opts.version} {opts.year} {opts.flavour} {opts.ptSelection} {opts.sample}'
 
 # Application
 
@@ -174,12 +147,10 @@ job.application.exe = File( str( Path(cmssw_base) / 'src/DeepLepton/ganga/step1_
 job.application.env = {
     'CMSSW_VERSION' : cmssw_version,
     'SCRAM_ARCH' : scram_arch,
-    'SKIMSDIR' : f'root://eos.grid.vbc.ac.at//store/user/{nickname}/{opts.skim}'
+    'SKIMSDIR' : f'root://eos.grid.vbc.ac.at//store/user/{nickname}/skims'
 }
 
-if opts.condor:
-    job.application.env['SAMPLES_DBDIR'] = '.'
-else:
+if not opts.condor:
     try:
         user_proxy = os.environ['X509_USER_PROXY']
     except KeyError:
@@ -194,6 +165,7 @@ job.application.args=[]
 args = [ 
     '--logLevel', opts.logLevel,
     '--year', opts.year,
+    '--flavour', opts.flavour,
     '--version', opts.version,
     '--ptSelection', opts.ptSelection
 ]
@@ -205,7 +177,7 @@ if opts.muFromTauArePrompt:
 # Splitter
 
 job.splitter = ArgSplitter()
-job.splitter.args = [ args + sj_args for sj_args in splitter(samples, opts.max_files, opts.flavour)]
+job.splitter.args = [ args + sj_args for sj_args in splitter(samples, opts.max_files)]
 
 # Inputsandbox
 
@@ -220,16 +192,13 @@ if opts.condor:
     cdr = Condor()
     cdr.spool = False
     cdr.shared_filesystem = False
-    cdr.cdf_options = {
-        '+DESIRED_Sites' : '"T2_AT_Vienna"',
-        'transfer_output_files': '""'
-        }
+    cdr.cdf_options = {'+DESIRED_Sites' : '"T2_AT_Vienna"'}
     if socket.getfqdn() == condor_host:
-        job.backend = cdr
+        job.backend = c
     else:
         job.backend = Remote()
         job.backend.host = condor_host
-        job.remote_backend = cdr
+        job.remote_backend = c
 
 else:
     job.backend = Slurm()

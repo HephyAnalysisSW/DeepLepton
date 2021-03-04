@@ -168,7 +168,9 @@ job.application.env = {
     'SKIMSDIR' : f'root://eos.grid.vbc.ac.at//store/user/{nickname}/skims'
 }
 
-if not opts.condor:
+if opts.condor:
+    job.application.env['SAMPLES_DBDIR'] = '.'
+else:
     try:
         user_proxy = os.environ['X509_USER_PROXY']
     except KeyError:
@@ -210,7 +212,10 @@ if opts.condor:
     cdr = Condor()
     cdr.spool = False
     cdr.shared_filesystem = False
-    cdr.cdf_options = {'+DESIRED_Sites' : '"T2_AT_Vienna"'}
+    cdr.cdf_options = {
+        '+DESIRED_Sites' : '"T2_AT_Vienna"',
+        'transfer_output_files': ''
+        }
     if socket.getfqdn() == condor_host:
         job.backend = cdr
     else:

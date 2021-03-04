@@ -67,7 +67,7 @@ logger.debug( "Files to be run over:\n%s", "\n".join(sample.files) )
 if options.small:
     sample.reduceFiles(to=1)
 #output directory
-if 'SLURM_JOB_ID' in os.environ:
+if 'SLURM_JOBID' in os.environ:
     output_directory = os.path.join( os.getcwd(), options.version+('_small' if options.small else ''), 'step1', str(options.year) ) 
 else:
     from DeepLepton.Tools.user import skim_directory

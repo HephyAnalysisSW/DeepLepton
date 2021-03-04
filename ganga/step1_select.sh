@@ -19,7 +19,7 @@ cmsenv
 popd > /dev/null
 
 echo "Running step2 select"
-python $CMSSW_VERSION/src/DeepLepton/preprocessing/step2_mix.py "$@"
+python $CMSSW_VERSION/src/DeepLepton/preprocessing/step1_select.py "$@"
 
 for path in $(find . -name "*.root")
 do

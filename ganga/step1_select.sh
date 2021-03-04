@@ -6,6 +6,7 @@
 
 echo "Setting up CMS environment"
 source /cvmfs/cms.cern.ch/cmsset_default.sh
+export SAMPLES_DBDIR=$PWD
 
 echo "Setting up CMS release $CMSSW_VERSION for $SCRAM_ARCH"
 cmsrel $CMSSW_VERSION
@@ -18,7 +19,6 @@ pushd $CMSSW_VERSION/src > /dev/null
 cmsenv
 popd > /dev/null
 
-pwd
 echo "Running step2 select"
 python $CMSSW_VERSION/src/DeepLepton/preprocessing/step2_mix.py "$@"
 

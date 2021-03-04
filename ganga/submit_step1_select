@@ -214,7 +214,7 @@ if opts.condor:
     cdr.shared_filesystem = False
     cdr.cdf_options = {
         '+DESIRED_Sites' : '"T2_AT_Vienna"',
-        'transfer_output_files': ''
+        'transfer_output_files': '""'
         }
     if socket.getfqdn() == condor_host:
         job.backend = cdr

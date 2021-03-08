@@ -34,7 +34,6 @@ outfiles_path = "/scratch-cbe/users/maximilian.moser/DeepLepton/Train/training_d
 path_pred = "/scratch-cbe/users/maximilian.moser/DeepLepton/Train/training_dense3/"
 
 variables = ["prob_isPrompt/F", "lep_isPromptId_Training/I"]
-#var = ["lep_isPromptId_Training/F"]
 
 # read outfiles
 logger.info('Getting filenames')
@@ -45,13 +44,9 @@ for f in open(outfiles_path, "r"):
     if ".root" in f:
         if f.endswith("\n"):
             ff = f[:-1]
-        #outfiles.append(ff)
         truth_file   = ff[5:]
         files_pred.append(os.path.join(path_pred, ff))
         files_truth.append(os.path.join(path_truth, truth_file))
-
-#print(files_truth)
-#print(files_pred)
 
 logger.info('Reading Samples')
 
@@ -72,7 +67,6 @@ pred    = []
 truth   = []
 while reader.run():
     r = reader.event
-    #print(r.prob_isPrompt, r.lep_isPromptId_Training)
     pred.append(r.prob_isPrompt)
     truth.append(r.lep_isPromptId_Training)
 
@@ -81,5 +75,8 @@ logger.info('End Reader')
 fpr, tpr, _ = roc_curve(truth, pred)
 
 gr = ROOT.TGraph(len(fpr), array.array('d', fpr), array.array('d', tpr))
+c1 = ROOT.TCanvas("c1", "L", 200,10,600,400)
+gr.Draw()
+c1.SaveAs(os.path.join(plot_directory, 'roc_test.png'))
 
 

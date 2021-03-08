@@ -8,8 +8,7 @@ import random
 # RootTools
 from RootTools.core.standard import *
 
-# DeepLepton
-from DeepLepton.Tools.user import skim_directory 
+
 
 #TODO commented samples ned step 1 redone
 DY  = { 2016:['DYJetsToLL_M50_LO',
@@ -158,6 +157,13 @@ logger  = logger.get_logger(args.logLevel, logFile = None)
 import RootTools.core.logger as logger_rt
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None )
 
+if 'SLURM_JOBID' in os.environ:
+    skim_directory = os.environ['SKIMSDIR'] 
+    outputDir = os.path.join( os.getcwd(), args.version + ("_small" if args.small else ""), "step2", str(args.year), args.flavour, args.ptSelection, args.sampleSelection)
+else:
+    from DeepLepton.Tools.user import skim_directory
+    outputDir = os.path.join( skim_directory, args.version + ("_small" if args.small else ""), "step2", str(args.year), args.flavour, args.ptSelection, args.sampleSelection)
+
 #pt selection option for different pt sub selection of ptSelection in step1
 pt_threshold = (float(args.ptSelection.split('_')[1]), float(args.ptSelection.split('_')[2]))
 kinematicSelection = 'lep_pt>{pt_min}'.format( pt_min=pt_threshold[0] ) if pt_threshold[1]<0 else 'lep_pt>{pt_min}&&lep_pt<={pt_max}'.format( pt_min=pt_threshold[0], pt_max=pt_threshold[1] )
@@ -168,10 +174,16 @@ random.seed(100) # Otherwise file shuffling not deterministic!
 def getInput( sub_directories, class_name):
     assert len(sub_directories)>0, "sub_directories can not be empty!"
     inputPath = os.path.join( skim_directory, args.version, "step1", str(args.year), args.flavour, class_name, args.ptSelectionStep1)
-    sample = Sample.fromDirectory( 
-        name = class_name, 
-        directory = [os.path.join( inputPath, s ) for s in sub_directories], 
-        treeName = 'tree', selectionString=selectionString)
+    if skim_directory.startswith('root:'):
+        sample = Sample.fromSEDirectory( 
+            name = class_name, 
+            directory = [os.path.join( inputPath, s ) for s in sub_directories], 
+            treeName = 'tree', selectionString=selectionString)
+    else:
+        sample = Sample.fromDirectory( 
+            name = class_name, 
+            directory = [os.path.join( inputPath, s ) for s in sub_directories], 
+            treeName = 'tree', selectionString=selectionString)
     random.shuffle( sample.files )
     return sample
 
@@ -259,8 +271,6 @@ random.shuffle(choices)
 n_maxfileentries    = 100000
 n_current_entries   = 0
 n_file              = 0
-
-outputDir = os.path.join( skim_directory, args.version + ("_small" if args.small else ""), "step2", str(args.year), args.flavour, args.ptSelection, args.sampleSelection)
 
 try:
     os.makedirs(outputDir)

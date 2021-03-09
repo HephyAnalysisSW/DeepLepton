@@ -78,7 +78,6 @@ Top = { 2016:['TTTo2L2Nu_noSC_pow',
               'TTWJetsToQQ_NLO',
               'TTZToLLNuNu_NLO_ext2',
               'TTZToLLNuNu_NLO_ext3',
-              'TTZToLL_M1to10_NLO',
               'TTZToQQ_NLO',
               'TGG',], 
         2017:[], 
@@ -230,12 +229,19 @@ for key, value in structure.iteritems():
         write_variables.append( key+'[%s]'% (','.join(map( lambda v: '/'.join(v), value )) ) )
         read_variables.append( 'n'+key+'/I' )
 
-variables = []
+variables_r = []
 for v in read_variables:
     if v.startswith("SV") or v.startswith("pfCand"):
-        variables.append(VectorTreeVariable.fromString( v, nMax=nMax ) )
+        variables_r.append(VectorTreeVariable.fromString( v, nMax=nMax ) )
     else:
-        variables.append( TreeVariable.fromString( v ) )
+        variables_r.append( TreeVariable.fromString( v ) )
+
+variables_w = []
+for v in read_variables:
+    if v.startswith("SV") or v.startswith("pfCand"):
+        variables_w.append(VectorTreeVariable.fromString( v, nMax=nMax ) )
+    else:
+        variables_w.append( TreeVariable.fromString( v ) )
 
 #Loop over samples
 for leptonClass in leptonClasses:
@@ -243,7 +249,7 @@ for leptonClass in leptonClasses:
     leptonClass['Entries'] = leptonClass['sample'].chain.GetEntries(selectionString)
     logger.info( "flavour %s class %s entries %i", args.flavour, leptonClass['name'], leptonClass['Entries'] )
     leptonClass['reader'] = leptonClass['sample'].treeReader( \
-        variables = variables, #map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables ),
+        variables = variables_r, #map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables ),
         selectionString = selectionString
         )
 
@@ -272,7 +278,7 @@ def make_maker( n_file ):
     outfile = ROOT.TFile.Open(os.path.join( outputDir, 'modulo_'+str(args.job)+'_trainfile_%i.root'%n_file ), 'recreate')
     outfile.cd()
     maker = TreeMaker( sequence  = [ ],
-        variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, write_variables),
+        variables = variables_w, #map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, write_variables),
         treeName = 'tree')
     tmp_directory.cd()
     maker.outfile = outfile

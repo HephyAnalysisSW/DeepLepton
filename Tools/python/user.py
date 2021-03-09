@@ -2,7 +2,8 @@ import os
 
 if os.environ['USER'] in ['robert.schoefbeck']:
     #plot_directory   = "/afs/hephy.at/user/r/rschoefbeck/www/DeepLepton/"
-    skim_directory   = "/scratch-cbe/users/robert.schoefbeck/DeepLepton/"
+    #skim_directory   = "/scratch-cbe/users/robert.schoefbeck/DeepLepton/"
+    skim_directory   = "/eos/vbc/user/maximilian.moser/DeepLepton"
     #data_directory   = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
 
 if os.environ['USER'] in ['gmoertl']:

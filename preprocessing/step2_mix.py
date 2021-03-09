@@ -167,10 +167,13 @@ random.seed(100) # Otherwise file shuffling not deterministic!
 def getInput( sub_directories, class_name):
     assert len(sub_directories)>0, "sub_directories can not be empty!"
     inputPath = os.path.join( skim_directory, args.version, "step1", str(args.year), args.flavour, class_name, args.ptSelectionStep1)
+    # prepend redirector for /eos/ paths
     sample = Sample.fromDirectory( 
         name = class_name, 
         directory = [os.path.join( inputPath, s ) for s in sub_directories], 
-        treeName = 'tree', selectionString=selectionString)
+        treeName = 'tree', selectionString=selectionString,
+        redirector = "root://eos.grid.vbc.ac.at/" if inputPath.startswith('/eos/') else None,
+        )
     random.shuffle( sample.files )
     return sample
 

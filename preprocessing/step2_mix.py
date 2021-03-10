@@ -8,8 +8,6 @@ import random
 # RootTools
 from RootTools.core.standard import *
 
-
-
 #TODO commented samples ned step 1 redone
 DY  = { 2016:['DYJetsToLL_M50_LO',
               'DYJetsToLL_M50_LO_ext2',
@@ -174,8 +172,8 @@ random.seed(100) # Otherwise file shuffling not deterministic!
 def getInput( sub_directories, class_name):
     assert len(sub_directories)>0, "sub_directories can not be empty!"
     inputPath = os.path.join( skim_directory, args.version, "step1", str(args.year), args.flavour, class_name, args.ptSelectionStep1)
-    if skim_directory.startswith('root:'):
-        sample = Sample.fromSEDirectory( 
+    if skim_directory.startswith('/store'):
+        sample = Sample.fromEOSDirectory( 
             name = class_name, 
             directory = [os.path.join( inputPath, s ) for s in sub_directories], 
             treeName = 'tree', selectionString=selectionString)
@@ -192,7 +190,7 @@ if args.sampleSelection == "DYvsQCD":
     samplePrompt    = getInput( DY[args.year], "Prompt")
     sampleNonPrompt = getInput( QCD[args.flavour][args.year], "NonPrompt")
     sampleFake      = getInput( QCD[args.flavour][args.year], "Fake")
-elif args.sampleSelection == "TT":
+elif args.sampleSelection == "Top":
     samplePrompt    = getInput( Top[args.year], "Prompt")
     sampleNonPrompt = getInput( Top[args.year], "NonPrompt")
     sampleFake      = getInput( Top[args.year], "Fake")

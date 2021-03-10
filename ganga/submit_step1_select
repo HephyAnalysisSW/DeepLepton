@@ -174,7 +174,7 @@ job.application.exe = File( str( Path(cmssw_base) / 'src/DeepLepton/ganga/step1_
 job.application.env = {
     'CMSSW_VERSION' : cmssw_version,
     'SCRAM_ARCH' : scram_arch,
-    'SKIMSDIR' : f'root://eos.grid.vbc.ac.at//store/user/{nickname}/{opts.skim}'
+    'SKIMSDIR' : f'/store/user/{nickname}/{opts.skims}'
 }
 
 if opts.condor:
@@ -189,8 +189,6 @@ else:
         sys.exit(1)
     job.application.env['X509_USER_PROXY'] = user_proxy
 
-job.application.args=[]
-
 args = [ 
     '--logLevel', opts.logLevel,
     '--year', opts.year,
@@ -202,6 +200,7 @@ if opts.small:
 if opts.muFromTauArePrompt:
     args.append('--muFromTauArePrompt')
 
+job.application.args = args
 # Splitter
 
 job.splitter = ArgSplitter()

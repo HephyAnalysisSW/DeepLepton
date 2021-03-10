@@ -27,5 +27,5 @@ python $CMSSW_VERSION/src/DeepLepton/preprocessing/step1_select.py "$@"
 
 for path in $(find . -name "*.root")
 do
-    xrdcp -f -C adler32 $path $SKIMSDIR/$path
+    xrdcp -f -C adler32 $path root://eos.grid.vbc.ac.at/$SKIMSDIR/$path
 done

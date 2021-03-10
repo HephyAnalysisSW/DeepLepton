@@ -19,10 +19,10 @@ cmsenv
 popd > /dev/null
 
 pwd
-echo "Running step1 select"
+echo "Running step2 mix"
 python $CMSSW_VERSION/src/DeepLepton/preprocessing/step2_mix.py "$@"
 
 for path in $(find . -name "*.root")
 do
-    xrdcp -f -C adler32 $path $SKIMSDIR/$path
+    xrdcp -f -C adler32 $path root://eos.grid.vbc.ac.at/$SKIMSDIR/$path
 done

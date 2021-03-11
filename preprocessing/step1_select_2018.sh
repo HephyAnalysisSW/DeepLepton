@@ -19,22 +19,7 @@
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample DYJetsToLL_M50_HT800to1200_LO #SPLIT55
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample DYJetsToLL_M50_HT1200to2500_LO #SPLIT12
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample DYJetsToLL_M50_HT2500toInf_LO #SPLIT12
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt15to20 #SPLIT66
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt20to30 #SPLIT226
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt30to50 #SPLIT255
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt50to80 #SPLIT169
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt80to120 #SPLIT6
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt80to120_ext1 #SPLIT236
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt120to170 #SPLIT9
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt120to170_ext1 #SPLIT191
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt170to300 #SPLIT322
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt300to470 #SPLIT14
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt300to470_ext1 #SPLIT367
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt470to600 #SPLIT10
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt470to600_ext1 #SPLIT272
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt600to800 #SPLIT211
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt800to1000 #SPLIT234
-#python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_Mu_pt1000toInf #SPLIT137
+
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_EMEnriched_pt20to30 #SPLIT92
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_EMEnriched_pt30to50 #SPLIT103
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_EMEnriched_pt50to80 #SPLIT80
@@ -48,6 +33,7 @@
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_bcToE_pt80to170 #SPLIT194
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_bcToE_pt170to250 #SPLIT132
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample QCD_bcToE_pt250toInf #SPLIT179
+
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_schannel_LO #SPLIT176
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tchannel_antitop_4f_pow #SPLIT656
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tchannel_top_4f_pow #SPLIT1198
@@ -55,6 +41,7 @@
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_top_pow #SPLIT92
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tWll_LO #SPLIT11
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tWnunu_LO #SPLIT5
+
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TGJets_lep_NLO #SPLIT73
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TT_LO #SPLIT155
 #python step1_select.py --version v2 --year 2018 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TT_dilep_NLO #SPLIT43
@@ -96,6 +83,7 @@
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample DYJetsToLL_M50_HT800to1200_LO #SPLIT55
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample DYJetsToLL_M50_HT1200to2500_LO #SPLIT12
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample DYJetsToLL_M50_HT2500toInf_LO #SPLIT12
+
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_Mu_pt15to20 #SPLIT66
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_Mu_pt20to30 #SPLIT226
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_Mu_pt30to50 #SPLIT255
@@ -112,19 +100,7 @@
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_Mu_pt600to800 #SPLIT211
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_Mu_pt800to1000 #SPLIT234
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_Mu_pt1000toInf #SPLIT137
-#python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_EMEnriched_pt20to30 #SPLIT92
-#python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_EMEnriched_pt30to50 #SPLIT103
-#python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_EMEnriched_pt50to80 #SPLIT80
-#python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_EMEnriched_pt80to120 #SPLIT86
-#python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_EMEnriched_pt120to170 #SPLIT69
-#python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_EMEnriched_pt170to300 #SPLIT38
-#python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_EMEnriched_pt300toInf #SPLIT26
-#python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_bcToE_pt15tp20 #SPLIT54
-#python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_bcToE_pt20to30 #SPLIT97
-#python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_bcToE_pt30to80 #SPLIT168
-#python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_bcToE_pt80to170 #SPLIT194
-#python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_bcToE_pt170to250 #SPLIT132
-#python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample QCD_bcToE_pt250toInf #SPLIT179
+
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample ST_schannel_LO #SPLIT176
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample ST_tchannel_antitop_4f_pow #SPLIT656
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample ST_tchannel_top_4f_pow #SPLIT1198
@@ -132,6 +108,7 @@
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample ST_tW_top_pow #SPLIT92
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample ST_tWll_LO #SPLIT11
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample ST_tWnunu_LO #SPLIT5
+
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample TGJets_lep_NLO #SPLIT73
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample TT_LO #SPLIT155
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample TT_dilep_NLO #SPLIT43
@@ -153,3 +130,4 @@
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample TTHH_LO #SPLIT6
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample TTZZ_LO #SPLIT7
 #python step1_select.py --version v2 --year 2018 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1   --sample TTTT_NLO #SPLIT50
+

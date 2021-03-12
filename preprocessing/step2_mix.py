@@ -192,7 +192,7 @@ elif args.sampleSelection == "all":
     sampleNonPrompt = getInput( Top[args.year]+QCD[args.flavour][args.year], "NonPrompt")
     sampleFake      = getInput( Top[args.year]+QCD[args.flavour][args.year], "Fake")
 
-nMax = 500
+nMax = 500 # For the read and write buffer
 
 if args.small:
     for s in [ samplePrompt, sampleNonPrompt, sampleFake ]: 
@@ -233,19 +233,21 @@ for key, value in structure.iteritems():
         write_variables.append( key+'[%s]'% (','.join(map( lambda v: '/'.join(v), value )) ) )
         read_variables.append( 'n'+key+'/I' )
 
-variables_r = []
+variables = []
 for v in read_variables:
     if v.startswith("SV") or v.startswith("pfCand"):
-        variables_r.append(VectorTreeVariable.fromString( v, nMax=nMax ) )
+        variables.append(VectorTreeVariable.fromString( v, nMax=nMax ) )
     else:
-        variables_r.append( TreeVariable.fromString( v ) )
+        variables.append( TreeVariable.fromString( v ) )
+read_variables = variables
 
-variables_w = []
-for v in read_variables:
+variables = []
+for v in write_variables:
     if v.startswith("SV") or v.startswith("pfCand"):
-        variables_w.append(VectorTreeVariable.fromString( v, nMax=nMax ) )
+        variables.append(VectorTreeVariable.fromString( v, nMax=nMax ) )
     else:
-        variables_w.append( TreeVariable.fromString( v ) )
+        variables.append( TreeVariable.fromString( v ) )
+write_variables = variables
 
 #Loop over samples
 for leptonClass in leptonClasses:
@@ -253,7 +255,7 @@ for leptonClass in leptonClasses:
     leptonClass['Entries'] = leptonClass['sample'].chain.GetEntries(selectionString)
     logger.info( "flavour %s class %s entries %i", args.flavour, leptonClass['name'], leptonClass['Entries'] )
     leptonClass['reader'] = leptonClass['sample'].treeReader( \
-        variables = variables_r, #map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables ),
+        variables = read_variables, #map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables ),
         selectionString = selectionString
         )
 
@@ -282,7 +284,7 @@ def make_maker( n_file ):
     outfile = ROOT.TFile.Open(os.path.join( outputDir, 'modulo_'+str(args.job)+'_trainfile_%i.root'%n_file ), 'recreate')
     outfile.cd()
     maker = TreeMaker( sequence  = [ ],
-        variables = variables_w, #map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, write_variables),
+        variables = write_variables, #map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, write_variables),
         treeName = 'tree')
     tmp_directory.cd()
     maker.outfile = outfile

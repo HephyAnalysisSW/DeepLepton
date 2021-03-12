@@ -191,7 +191,7 @@ elif args.sampleSelection == "all":
     sampleNonPrompt = getInput( Top[args.year]+QCD[args.flavour][args.year], "NonPrompt")
     sampleFake      = getInput( Top[args.year]+QCD[args.flavour][args.year], "Fake")
 
-nMax = 500
+nMax = 500 # For the read and write buffer
 
 if args.small:
     for s in [ samplePrompt, sampleNonPrompt, sampleFake ]: 
@@ -232,19 +232,21 @@ for key, value in structure.iteritems():
         write_variables.append( key+'[%s]'% (','.join(map( lambda v: '/'.join(v), value )) ) )
         read_variables.append( 'n'+key+'/I' )
 
-variables_r = []
+variables = []
 for v in read_variables:
     if v.startswith("SV") or v.startswith("pfCand"):
-        variables_r.append(VectorTreeVariable.fromString( v, nMax=nMax ) )
+        variables.append(VectorTreeVariable.fromString( v, nMax=nMax ) )
     else:
-        variables_r.append( TreeVariable.fromString( v ) )
+        variables.append( TreeVariable.fromString( v ) )
+read_variables = variables
 
-variables_w = []
-for v in read_variables:
+variables = []
+for v in write_variables:
     if v.startswith("SV") or v.startswith("pfCand"):
-        variables_w.append(VectorTreeVariable.fromString( v, nMax=nMax ) )
+        variables.append(VectorTreeVariable.fromString( v, nMax=nMax ) )
     else:
-        variables_w.append( TreeVariable.fromString( v ) )
+        variables.append( TreeVariable.fromString( v ) )
+write_variables = variables
 
 #Loop over samples
 for leptonClass in leptonClasses:

@@ -172,7 +172,8 @@ def getInput( sub_directories, class_name):
         name = class_name, 
         directory = [os.path.join( inputPath, s ) for s in sub_directories], 
         treeName = 'tree', selectionString=selectionString,
-        redirector = "root://eos.grid.vbc.ac.at/" if inputPath.startswith('/eos/') else None, #root
+        redirector = "root://eos.grid.vbc.ac.at/" if inputPath.startswith('/eos/') else None,
+        skipCheck = True
         )
     random.shuffle( sample.files )
     return sample

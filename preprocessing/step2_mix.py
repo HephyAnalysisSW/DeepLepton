@@ -254,7 +254,7 @@ for leptonClass in leptonClasses:
     leptonClass['Entries'] = leptonClass['sample'].chain.GetEntries(selectionString)
     logger.info( "flavour %s class %s entries %i", args.flavour, leptonClass['name'], leptonClass['Entries'] )
     leptonClass['reader'] = leptonClass['sample'].treeReader( \
-        variables = variables_r, #map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables ),
+        variables = read_variables, #map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables ),
         selectionString = selectionString
         )
 
@@ -283,7 +283,7 @@ def make_maker( n_file ):
     outfile = ROOT.TFile.Open(os.path.join( outputDir, 'modulo_'+str(args.job)+'_trainfile_%i.root'%n_file ), 'recreate')
     outfile.cd()
     maker = TreeMaker( sequence  = [ ],
-        variables = variables_w, #map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, write_variables),
+        variables = write_variables, #map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, write_variables),
         treeName = 'tree')
     tmp_directory.cd()
     maker.outfile = outfile

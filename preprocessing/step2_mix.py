@@ -172,7 +172,7 @@ def getInput( sub_directories, class_name):
         name = class_name, 
         directory = [os.path.join( inputPath, s ) for s in sub_directories], 
         treeName = 'tree', selectionString=selectionString,
-        redirector = "root://eos.grid.vbc.ac.at/" if inputPath.startswith('/eos/') else None,
+        redirector = "root://eos.grid.vbc.ac.at/" if inputPath.startswith('/eos/') else None, #root
         )
     random.shuffle( sample.files )
     return sample
@@ -190,6 +190,7 @@ elif args.sampleSelection == "all":
     samplePrompt    = getInput( Top[args.year]+DY[args.year],  "Prompt")
     sampleNonPrompt = getInput( Top[args.year]+QCD[args.flavour][args.year], "NonPrompt")
     sampleFake      = getInput( Top[args.year]+QCD[args.flavour][args.year], "Fake")
+
 
 nMax = 500 # For the read and write buffer
 

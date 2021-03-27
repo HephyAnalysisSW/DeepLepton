@@ -1,10 +1,10 @@
 import ROOT
 ROOT.gROOT.SetBatch(True)
 from math import sqrt, cos, sin, pi, cosh
+import Analysis.Tools.syncer as syncer
 from RootTools.core.standard import *
 import os
 from copy import deepcopy
-import Analysis.Tools.syncer as syncer
 from DeepLepton.Tools.user import plot_directory
 import uproot
 import pandas
@@ -29,9 +29,9 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 
 
-path_truth = "/eos/vbc/user/maximilian.moser/DeepLepton/v1/step2/2016/muo/pt_3.5_-1/DYvsQCD/"
-outfiles_path = "/scratch-cbe/users/maximilian.moser/DeepLepton/Train/training_dense3/outfiles.txt"
-path_pred = "/scratch-cbe/users/maximilian.moser/DeepLepton/Train/training_dense3/"
+path_truth = "/eos/vbc/user/maximilian.moser/DeepLepton/v2/step2/2016/muo/pt_3.5_-1/DYvsQCD/"
+outfiles_path = "/scratch-cbe/users/maximilian.moser/DeepLepton/Train/training_test2/outfiles.txt"
+path_pred = "/scratch-cbe/users/maximilian.moser/DeepLepton/Train/training_test2/"
 
 variables = ["prob_isPrompt/F", "lep_isPromptId_Training/I"]
 
@@ -45,38 +45,50 @@ for f in open(outfiles_path, "r"):
         if f.endswith("\n"):
             ff = f[:-1]
         truth_file   = ff[5:]
-        files_pred.append(os.path.join(path_pred, ff))
-        files_truth.append(os.path.join(path_truth, truth_file))
+        f_pred  = os.path.join(path_pred, ff)
+        f_truth = os.path.join(path_truth, truth_file)
+        files_pred.append(f_pred)
+        files_truth.append(f_truth)
+        if args.small:
+            break
 
-logger.info('Reading Samples')
-
-SampleTruth = Sample.fromFiles("truth", files_truth, treeName='tree')
-SamplePred  = Sample.fromFiles("pred", files_pred, treeName='tree')
-
-logger.info('Friending Samples')
-Sample = deepcopy(SampleTruth)
-Sample.addFriend(SamplePred, treeName='tree')
-
-
-logger.info('Start Reader')
-reader = Sample.treeReader(variables=variables)
-
-reader.start()
-counter = 0
 pred    = []
 truth   = []
-while reader.run():
-    r = reader.event
-    pred.append(r.prob_isPrompt)
-    truth.append(r.lep_isPromptId_Training)
 
-logger.info('End Reader')
+for i in range(len(files_truth)):
+    logger.info("Reading Sample %i of %i"%(i+1, len(files_truth)))
+    
+    SampleTruth = Sample.fromFiles("truth", files_truth[i], treeName='tree')
+    SamplePred  = Sample.fromFiles("pred", files_pred[i], treeName='tree')
+    Sample = deepcopy(SampleTruth)
+    Sample.addFriend(SamplePred, treeName='tree')
+    
+    reader = Sample.treeReader(variables=variables)
+    reader.start()
 
+    while reader.run():
+        r = reader.event
+        pred.append(r.prob_isPrompt)
+        truth.append(r.lep_isPromptId_Training)
+         
 fpr, tpr, _ = roc_curve(truth, pred)
 
 gr = ROOT.TGraph(len(fpr), array.array('d', fpr), array.array('d', tpr))
-c1 = ROOT.TCanvas("c1", "L", 200,10,600,400)
+c1 = ROOT.TCanvas("c1", "L", 200,100,1000,1000)
+
+c1.SetTitle("ROC-Curve")
+
+gr.GetXaxis().SetTitle("False Positive Rate")
+gr.GetYaxis().SetTitle("True Positive Rate")
+
+#gr.SetLineWidth(2)
+
+gr.GetXaxis().SetLimits(0,1)
+gr.GetYaxis().SetLimits(0,1)
+gr.SetTitle("ROC-Curve")
 gr.Draw()
-c1.SaveAs(os.path.join(plot_directory, 'roc_test.png'))
+c1.Print(os.path.join(plot_directory, 'roc/roc_test.png'))
+
+
 
 

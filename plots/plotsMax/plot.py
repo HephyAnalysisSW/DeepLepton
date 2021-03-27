@@ -7,6 +7,8 @@ from copy import deepcopy
 
 import Analysis.Tools.syncer as syncer
 
+import time
+
 # StopsDilepton
 from DeepLepton.Tools.user import plot_directory
 #plot_directory = "/users/maximilian.moser/Plots/lep_pt"
@@ -28,16 +30,21 @@ import RootTools.core.logger as logger_rt
 logger    = logger.get_logger(   args.logLevel, logFile = None)
 logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
+redirector = "root://eos.grid.vbc.ac.at/"
+
 directory = [
-        "/eos/vbc/user/maximilian.moser/DeepLepton/v1/step2/2016/muo/pt_3.5_-1/DYvsQCD/",
+        "/eos/vbc/user/maximilian.moser/DeepLepton/v2/step2/2016/muo/pt_3.5_-1/DYvsQCD/",
         ]
 
+t0 = time.time()
 data_sample = Sample.fromDirectory(
         "step2",
         #directory = "/scratch-cbe/users/maximilian.moser/DeepLepton/v1_small/step1/2016/muo/Fake/pt_5_-1/DYJetsToLL_M50_LO/", 
         directory = directory,
         treeName  = "tree"
         )
+
+logger.info("%i files", len(data_sample.files))
 
 if args.small:
     data_sample.reduceFiles( to = 4 )
@@ -97,6 +104,7 @@ read_variables = [
                   "npfCand_photon/I",
                   "npfCand_electron/I",
                   "npfCand_muon/I",
+                  "nSV/I",
                  ]
 
 
@@ -162,10 +170,22 @@ plots.append(Plot(name      = "lep_dxy",
                   binning   = [100,-5,5],# -0.05,0.05
                   ))
 
+plots.append(Plot(name      = "lep_dxy_zoom",
+                  texX      = 'dxy', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_dxy,
+                  binning   = [100,-0.05,0.05],# -5,5
+                  ))
+
 plots.append(Plot(name      = "lep_dz",
                   texX      = 'dz', texY = 'Number of Events ',
                   attribute = lambda event, sample: event.lep_dz,
                   binning   = [100,-50,50], # -0.1,0.1
+                  ))
+
+plots.append(Plot(name      = "lep_dz_zoom",
+                  texX      = 'dz', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_dz,
+                  binning   = [100,-1,1], # -0.1,0.1
                   ))
 
 plots.append(Plot(name      = "lep_charge",
@@ -177,7 +197,7 @@ plots.append(Plot(name      = "lep_charge",
 plots.append(Plot(name      = "lep_dxyErr",
                   texX      = 'dxyErr', texY = 'Number of Events ',
                   attribute = lambda event, sample: event.lep_dxyErr,
-                  binning   = [100,0,2],
+                  binning   = [100,0,1],
                   ))
 
 plots.append(Plot(name      = "lep_dzErr",
@@ -306,13 +326,17 @@ plots.append(Plot(name      = "npfCand_muon",
                   binning   = [10,0,10],
                   ))
 
-
+plots.append(Plot(name      = "nSV",
+                  texX      = 'nSV', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.nSV,
+                  binning   = [10,0,20],
+                  ))
 
 plotting.fill(plots, read_variables = read_variables)
 
 for plot in plots:
     plotting.draw(plot, 
-                  plot_directory = plot_directory, #os.path.join(plot_directory, args.plot_directory),
+                  plot_directory = os.path.join(plot_directory, "2016_muo_DYvsQCD_v2"),#args.plot_directory),
                   ratio          = None, 
                   logX           = False, 
                   logY           = True,
@@ -321,5 +345,7 @@ for plot in plots:
                   #legend         = "auto"
                   #drawObjects    = drawObjects( )
                   copyIndexPHP   = True,
-                  extensions     = ["png"]
+                  extensions     = ["png", "pdf", "root"]
                                               )
+
+logger.info("%f s per file, %f total", (time.time()-t0)/len(samplePrompt.files), time.time()-t0)

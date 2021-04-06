@@ -11,7 +11,6 @@ from RootTools.core.standard import *
 # DeepLepton
 from DeepLepton.Tools.user import skim_directory 
 
-#TODO commented samples ned step 1 redone
 DY  = { 2016:['DYJetsToLL_M50_LO',
               'DYJetsToLL_M50_LO_ext2',
               'DYJetsToLL_M50_ext2',
@@ -55,7 +54,6 @@ Top = { 2016:['TTTo2L2Nu_noSC_pow',
               'ST_tchannel_top_4f_pow_CP5',
               'ST_tW_antitop_NoFullyHad_5f_pow',
               'ST_tW_antitop_5f_pow_ext1',
-              'ST_tW_antitop_5f_pow',
               'ST_tW_antitop_5f_pow_CP5',
               'ST_tW_top_NoFullyHad_5f_pow',
               'ST_tW_top_NoFullyHad_5f_pow_ext',
@@ -79,7 +77,8 @@ Top = { 2016:['TTTo2L2Nu_noSC_pow',
               'TTZToLLNuNu_NLO_ext2',
               'TTZToLLNuNu_NLO_ext3',
               'TTZToQQ_NLO',
-              'TGG',], 
+              'TGG',
+              ], 
         2017:[], 
         2018:[]}
 
@@ -168,6 +167,8 @@ def getInput( sub_directories, class_name):
     assert len(sub_directories)>0, "sub_directories can not be empty!"
     inputPath = os.path.join( skim_directory, args.version, "step1", str(args.year), args.flavour, class_name, args.ptSelectionStep1)
     # prepend redirector for /eos/ paths
+    for s in sub_directories:
+        logger.debug("Sample %s", s)
     sample = Sample.fromDirectory( 
         name = class_name, 
         directory = [os.path.join( inputPath, s ) for s in sub_directories], 
@@ -178,12 +179,14 @@ def getInput( sub_directories, class_name):
     random.shuffle( sample.files )
     return sample
 
+logger.info("Getting Filenames")
+
 #settings
 if args.sampleSelection == "DYvsQCD":
     samplePrompt    = getInput( DY[args.year], "Prompt")
     sampleNonPrompt = getInput( QCD[args.flavour][args.year], "NonPrompt")
     sampleFake      = getInput( QCD[args.flavour][args.year], "Fake")
-elif args.sampleSelection == "TT":
+elif args.sampleSelection == "Top":
     samplePrompt    = getInput( Top[args.year], "Prompt")
     sampleNonPrompt = getInput( Top[args.year], "NonPrompt")
     sampleFake      = getInput( Top[args.year], "Fake")
@@ -250,6 +253,8 @@ for v in write_variables:
         variables.append( TreeVariable.fromString( v ) )
 write_variables = variables
 
+logger.info("Counting Samples and constructing the Reader")
+
 #Loop over samples
 for leptonClass in leptonClasses:
     logger.info( "Class %s", leptonClass['name'] )
@@ -290,6 +295,8 @@ def make_maker( n_file ):
     tmp_directory.cd()
     maker.outfile = outfile
     return maker
+
+logger.info("Starting Readers")
 
 #start all readers
 for leptonClass in leptonClasses:

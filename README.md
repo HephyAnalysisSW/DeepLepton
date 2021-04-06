@@ -53,8 +53,8 @@ git clone https://github.com/HephyAnalysisSW/DeepLepton-Training
 ##  select node, container, and environment (container)
 
 ```
-srun --partition=g --reservation=interactive --qos=medium --time 08:00:00 --pty bash # for GPU
-srun --reservation=interactive --qos=medium --time 08:00:00 --pty bash # for CPU
+srun --partition=g --gres=gpu:V100 --reservation=interactive --qos=medium --time 12:00:00 --mem=32G --pty bash # for GPU
+srun --reservation=interactive --qos=medium --time 08:00:00 --mem=64G --cpus-per-task=10 --pty bash # for CPU
 
 cd DeepLepton-Training
 singularity run /scratch-cbe/users/dietrich.liko/deepjetcore3-latest.sif /bin/bash #for CPU
@@ -69,7 +69,11 @@ convertFromSource.py -i <input>/<filename>.txt -o output_directory -c TrainDataD
 ```
 ``input`` is the path to the folder with input root files, i.e. the output from step2 above, and ``<filename>.txt`` is a txt file that contains the filenames of the input training files including ``.root`` and excluding the path.
 
+Alternatively convertjob.sh can be used to submit the conversion to the batch system with ``sbatch convertjob.sh`` 
+
 # DeepLepton training 
 ```
 python3 Train/deepLepton_Muons_biLSTM_splitDense_elu_reference.py <input>/dataCollection.djcdc <output>/<training>
 ```
+
+Again, trainjob.sh can be used to run the training on the batch system. This is recommended for long trainings.

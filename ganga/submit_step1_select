@@ -28,7 +28,7 @@ def parse_args():
 
     ap.add_argument('--logLevel',              action='store',         nargs='?',              choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'],     default='INFO',                     help="Log level for logging")
     ap.add_argument('--year',                  action='store',                     type=int,   choices=[2016,2017],    required = True,                    help="Which year?")
-    ap.add_argument('--flavour',               action='store',                     type=str,   choices=['muo', 'ele'], default='muo',                      help="muo or ele?")
+    ap.add_argument('--flavour',               action='store',                     type=str,   choices=['muo', 'ele', 'all'], default='all',                      help="muo or ele?")
     ap.add_argument('--sample',                action='store',         nargs='?',  type=str,                           default='TGG',                      help="Sample to be post-processed")
     ap.add_argument('--small',                 action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
     ap.add_argument('--version',               action='store',         nargs='?',  type=str,  required = True,        help="Version for output directory")
@@ -38,7 +38,8 @@ def parse_args():
     ap.add_argument('--max-files',             action='store', type=int, default=0)
     ap.add_argument('--dry-run',               action='store_true', default=False)
     ap.add_argument('--condor',                action='store_true', default=False)
-    ap.add_argument('--slurm-qos',             action='store', type=str, default='short')
+    ap.add_argument('--slurm-qos',             action='store', type=str, default='rapid')
+    ap.add_argument('--skims',                 action='store', type=str, default='skims')
 
     return ap.parse_args()
 
@@ -51,16 +52,23 @@ def get_samples(db_file):
     Sample = namedtuple('Sample', ['name', 'nr_files'])
     return [ Sample(r[0],r[1]) for r in db.execute(sql) ]
 
-def splitter(samples,max_files):
+def splitter(samples,max_files,flavour):
+
+    if flavour == 'all':
+        flavours = [ 'muo', 'ele']
+    else:
+        flavours = [ flavour ]
 
     sj_args = []
     for s in samples:
         if max_files > 0 and s.nr_files > max_files:
             nr_jobs = s.nr_files // max_files + 1
             for j in range(nr_jobs):
-                sj_args.append(['--sample', s.name, '--nrjobs', nr_jobs, '--job', j+1] )
+                for f in flavours:
+                    sj_args.append(['--sample', s.name, '--flavour', f, '--nrjobs', nr_jobs, '--job', j+1] )
         else:
-            sj_args.append(['--sample', s.name])
+            for f in flavours:
+                sj_args.append(['--sample', s.name, '--flavour', f])
     
     return sj_args
 
@@ -129,7 +137,7 @@ else:
 
 nickname = get_nickname()
 
-db_file = db_dir / 'DB_Summer16_DeepLepton.sql::memory:?cache=shared'
+db_file = db_dir / 'DB_Summer16_DeepLepton.sql'
 all_samples = get_samples(db_file)
 
 # process special sample names ALL, DY, QCD and T
@@ -155,8 +163,9 @@ tarball = make_tarball(cmssw_base, scratch_dir)
 # Prepare the batch job
 
 job = Job()
-job.name = 'step1_sel'
-job.comment = f'{opts.version} {opts.year} {opts.flavour} {opts.ptSelection} {opts.sample}'
+job.name = 'step1'
+version = opts.version+'_small' if opts.small else opts.version
+job.comment = f'{version} {opts.year} {opts.flavour} {opts.ptSelection} {opts.sample}'
 
 # Application
 
@@ -165,7 +174,7 @@ job.application.exe = File( str( Path(cmssw_base) / 'src/DeepLepton/ganga/step1_
 job.application.env = {
     'CMSSW_VERSION' : cmssw_version,
     'SCRAM_ARCH' : scram_arch,
-    'SKIMSDIR' : f'root://eos.grid.vbc.ac.at//store/user/{nickname}/skims'
+    'SKIMSDIR' : f'root://eos.grid.vbc.ac.at//store/user/{nickname}/{opts.skim}'
 }
 
 if opts.condor:
@@ -185,7 +194,6 @@ job.application.args=[]
 args = [ 
     '--logLevel', opts.logLevel,
     '--year', opts.year,
-    '--flavour', opts.flavour,
     '--version', opts.version,
     '--ptSelection', opts.ptSelection
 ]
@@ -197,7 +205,7 @@ if opts.muFromTauArePrompt:
 # Splitter
 
 job.splitter = ArgSplitter()
-job.splitter.args = [ args + sj_args for sj_args in splitter(samples, opts.max_files)]
+job.splitter.args = [ args + sj_args for sj_args in splitter(samples, opts.max_files, opts.flavour)]
 
 # Inputsandbox
 

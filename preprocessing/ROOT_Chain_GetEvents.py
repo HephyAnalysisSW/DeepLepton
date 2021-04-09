@@ -3,6 +3,9 @@ import os
 import subprocess
 import random
 
+# Selection string: eg Job 0 of 50:
+selectionString = "(event%50==0&&abs(lep_pdgId)==flavour"
+
 redirector =  "root://eos.grid.vbc.ac.at/"
 
 Samples = [   'TTTo2L2Nu_noSC_pow',
@@ -94,12 +97,12 @@ for f in filesFake:
     chainFake.AddFile(f)
 
 print("Getting Prompt Entries")
-print(chainPrompt.GetEntries())
+print(chainPrompt.GetEntries(selectionString))
 
 print("Getting NonPrompt Entries")
-print(chainNonPrompt.GetEntries())
+print(chainNonPrompt.GetEntries(selectionString))
 
 print("Getting Fake Entries")
-print(chainFake.GetEntries())
+print(chainFake.GetEntries(selectionString))
 
 

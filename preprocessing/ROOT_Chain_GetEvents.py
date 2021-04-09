@@ -4,7 +4,7 @@ import subprocess
 import random
 
 # Selection string: eg Job 0 of 50:
-selectionString = "(event%50==0&&abs(lep_pdgId)==flavour"
+selectionString = "(event%50)==0&&abs(lep_pdgId)==flavour"
 
 redirector =  "root://eos.grid.vbc.ac.at/"
 

@@ -3,8 +3,8 @@ import os
 import subprocess
 import random
 
-# Selection string: eg Job 0 of 50:
-selectionString = "(event%50)==0&&abs(lep_pdgId)==flavour"
+# Selection string: eg Job 0 of 50, muons:
+selectionString = "(event%50)==0&&abs(lep_pdgId)==13"
 
 redirector =  "root://eos.grid.vbc.ac.at/"
 

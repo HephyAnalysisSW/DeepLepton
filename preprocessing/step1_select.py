@@ -8,7 +8,6 @@ from math import *
 from RootTools.core.standard import *
 
 # DeepLepton
-from DeepLepton.Tools.user import skim_directory
 from DeepLepton.Tools.helpers import getCollection, deltaR, deltaR2
 
 # parser
@@ -68,7 +67,11 @@ logger.debug( "Files to be run over:\n%s", "\n".join(sample.files) )
 if options.small:
     sample.reduceFiles(to=1)
 #output directory
-output_directory = os.path.join( skim_directory, options.version+('_small' if options.small else ''), 'step1', str(options.year) ) 
+if 'SKIMSDIR' in os.environ:
+    output_directory = os.path.join( options.version+('_small' if options.small else ''), 'step1', str(options.year) ) 
+else:
+    from DeepLepton.Tools.user import skim_directory
+    output_directory = os.path.join( skim_directory, options.version+('_small' if options.small else ''), 'step1', str(options.year) ) 
 
 
 if options.muFromTauArePrompt:

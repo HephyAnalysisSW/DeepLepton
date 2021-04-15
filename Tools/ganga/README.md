@@ -32,17 +32,21 @@ on the service available.
 ***
 ## 2. Preparations on the login node
 
-Define __ganga__ command in your `.bashrc`
+Define __ganga__ command in your `.bashrc` and add a fix
+for an incompatibility between cmsconnect and ganga
 ```bash
 alias ganga='/cvmfs/ganga.cern.ch/Ganga/install/LATEST/bin/ganga'
+export SAVEPYTHONPATH=$PYTHONPATH
 export PATH="~/.local/bin:$PATH"
 ```
 
-To avoid a conflict between ganga and the HTCondor installation
+And put a shim into `~/.local/bin`
+
 ```
 mkdir -p ~/.local/bin
-curl -sL -o ~/.local/bin/condor_submit 
-
+curl -sL https://raw.githubusercontent.com/HephyAnalysisSW/DeepLepton/2.0/Tools/ganga/condor-submit \
+    -o ~/.local/bin/condor_submit 
+chmod +x ~/.local/bin/condor_submit
 ```
 
 ***

@@ -30,13 +30,14 @@ There is also [much more information](https://ci-connect.atlassian.net/wiki/spac
 on the service available. 
 
 ***
-## 2. Preparations on the login node
+## 2. Preparations on the CMSCONNECT login node
 
 Define __ganga__ command in your `.bashrc` and add a fix
 for an incompatibility between cmsconnect and ganga
 ```bash
 alias ganga='/cvmfs/ganga.cern.ch/Ganga/install/LATEST/bin/ganga'
 export SAVEPYTHONPATH=$PYTHONPATH
+unset PYTHONPATH
 export PATH="~/.local/bin:$PATH"
 ```
 
@@ -44,10 +45,21 @@ And put a shim into `~/.local/bin`
 
 ```
 mkdir -p ~/.local/bin
-curl -sL https://raw.githubusercontent.com/HephyAnalysisSW/DeepLepton/2.0/Tools/ganga/condor-submit \
-    -o ~/.local/bin/condor_submit 
+cd .local/bin
+curl -sLO https://raw.githubusercontent.com/HephyAnalysisSW/DeepLepton/newgrid/Tools/ganga/condor_submit
 chmod +x ~/.local/bin/condor_submit
+cd -
 ```
+
+Create `.gangarc`
+```bash
+ganga -g
+```
+and set 
+```bash
+gangadir = /stash/user/<name>/gangadir
+```
+
 
 ***
 ## 3. Submitting the job with HTCondor to CLIP
@@ -76,10 +88,17 @@ cd DeepLepton/Tools/ganga
 ganga submit_step1 --version v1 --year 2016 --flavour all --sample TGG --small
 ```
 
-Use ganga interactively to verify the job status.
+Use ganga interactively to verify the job status. Some useful commands
+
+* `ganga` - Start ganga interactive
+* `jobs` - list the status of all jobs
+* `jobs(1).subjobs` - list the status of all subjobs generated
+* `j=jobs("1.0")` - variable `j` references subjob 0 of job 0
+* `ls $j.outputdir` - job output
+* `less $j.outputdir/stdout` - view the stdout of the job (after the job has finished)
 
 ```bash
-ganga
+
 jobs
 jobs(3).subjobs
 ```
@@ -93,7 +112,7 @@ ls /eos/vbc/experiments/user/<nickname>/skims
 ```
 
 ***
-## 3. Submitting jobs with SLURM on CLIP
+## 4. Submitting jobs with SLURM on CLIP
 
 Similar preparations on CLIP.
 
@@ -119,72 +138,3 @@ The output can be found at
 ```
 /eos/vbs/experiments/cms/store/user/<nickname>/skims
 ```
-
-## Using CMSCONNECT
-
-You gave to regsiter yourself following the instructions on https://connect.uscms.org/signup
-I used my CERN login to register und choose the same username as on lxplus.
-
-After follow thew Quick Start https://ci-connect.atlassian.net/wiki/spaces/CMS/overview
-and copy the certificates
-
-```bash
-copy_certificates
-```
-
-Prepare the environment on `login-el7.uscms.org` by adding following to `.bash_profile`
-
-```bash
-alias ganga='/usr/bin/env -u PYTHONPATH /cvmfs/ganga.cern.ch/Ganga/install/LATEST/bin/ganga'
-export PATH=/home/<user>/bin:$PATH
-export SAVEPYTHONPATH=$PYTHONPATH
-```
-
-Create `$HOME/bin` and add the file 
-```bash
-curl https://raw.githubusercontent.com/HephyAnalysisSW/DeepLepton/grid/ganga/condor_submit -o $HOME/bin/condor_submit
-chmod +x $HOME/bin/condor_submit
-```
-
-Create ganga config and 
-```bash
-ganga -g
-```
-
-Add add following additions to `.gangarc`
-
-```bash
-SCRIPTS_PATH = Ganga/scripts:/home/<user>/CMSSW_10_2_18/src/DeepLepton/ganga
-
-gangadir = /scratch/<user>/gangadir
-```
-
-Copy the samples DB to from CLIP to `login-el7.uscms.org`. This has to be initiated from the login node of CLIP
-due to connectivity issue.
-```bash
-scp ~/caches/Samples/DB_Summer16_DeepLepton.sql::memory:?cache=shared <user>@login-el7.uscms.org:
-```
-
-Download and install the software
-
-```bash
-cmsrel CMSSW_10_2_18
-cd CMSSW_10_2_18/src
-cmsenv
-git clone https://github.com/HephyAnalysisSW/DeepLepton -b grid
-git clone https://github.com/HephyAnalysisSW/Samples
-git clone https://github.com/HephyAnalysisSW/RootTools
-git clone https://github.com/HephyAnalysisSW/Analysis
-scram b -j9 
-```
-
-Create the VOMS proxy
-```bash
-voms-proxy-init -voms cms -valid 192:0
-```
-
-Finally submit jobs
-
-```bash
-ganga submit_step1_select --version=v1 --year=2016 --samples ALL --condor
-```    

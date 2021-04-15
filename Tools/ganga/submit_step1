@@ -45,8 +45,8 @@ def main():
     all_samples = get_samples(db_file)
 
     # grid nickname
-    #nickname = find_nickname()
-    nickname = 'liko'
+    # nickname = find_nickname()
+    nickname = "liko"
 
     # process special sample names ALL, DY, QCD and T
 

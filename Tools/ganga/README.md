@@ -76,6 +76,11 @@ git clone https://github.com/HephyAnalysisSW/Analysis
 scram b -j9 
 ```
 
+Copy your samples DB from `cbe.vbc.ac.at` to `login-el7.uscms.org`
+```
+scp "~/caches/Samples/DB_Summer16_DeepLepton.sql::memory:?cache=share" login-el7.uscms.org:DB_Summer16_DeepLepton.sql
+```
+
 Create the proxy
 ```bash
 voms-proxy-init -voms cms -rfc -valid 192:0

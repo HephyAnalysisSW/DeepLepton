@@ -1,23 +1,54 @@
-# Running DeepLepton Jobs using ganga
+# Running DeepLepton Jobs with CMSCONNET
 
-Ganga is a modular too for Job Management on the Grid and Local Batch System
+[CMSCONNECT](https://connect.uscms.org) provides access to the HTCondor based grid infrastucture
+of CMS, which is usually hidden from the user by CRAB.
 
-https://ganga.readthedocs.io/en/latest/
+[Ganga](https://ganga.readthedocs.io/en/latest/) is a modular tool for Job Management on the Grid and Local Batch System
 
 Two modes have been implemented, both running jobs at CLIP. 
 
-* Using the local batch system Slurm
-* Using the Grid using CMSCONNECT and Condor 
+* Submit jobs to the grid using CMSCONNECT 
+* Using the local batch system SLURM (for testing)
 
-## Using Slurm
+***
+## 1. Preparations for CMSCONNECT
 
-Prepare the environment  by adding following alias to `.bashrc`
+Singup at https://connect.uscms.org and wait that your request will
+be processed. You will have to provide a ssh-key to give you
+access to the login node (for me only a rsa key worked).
+
+Login to 
 
 ```bash
-alias ganga='/cvmfs/ganga.cern.ch/Ganga/install/LATEST/bin/ganga'
+ssh -l <username> login-el7.uscms.org
 ```
 
-Download and install the software
+To allow ganga to submit jobs, you have to upload your grid certificate,
+as described in documentation.
+
+There is also [much more information](https://ci-connect.atlassian.net/wiki/spaces/CMS/overview) 
+on the service available. 
+
+***
+## 2. Preparations on the login node
+
+Define __ganga__ command in your `.bashrc`
+```bash
+alias ganga='/cvmfs/ganga.cern.ch/Ganga/install/LATEST/bin/ganga'
+export PATH="~/.local/bin:$PATH"
+```
+
+To avoid a conflict between ganga and the HTCondor installation
+```
+mkdir -p ~/.local/bin
+curl -sL -o ~/.local/bin/condor_submit 
+
+```
+
+***
+## 3. Submitting the job with HTCondor to CLIP
+
+Install the software
 ```bash
 cmsrel CMSSW_10_2_18
 cd CMSSW_10_2_18/src
@@ -29,15 +60,55 @@ git clone https://github.com/HephyAnalysisSW/Analysis
 scram b -j9 
 ```
 
+Create the proxy
+```bash
+voms-proxy-init -voms cms -rfc -valid 192:0
+```
+
+Submit a test job
+```bash
+cd DeepLepton/Tools/ganga
+
+ganga submit_step1 --version v1 --year 2016 --flavour all --sample TGG --small
+```
+
+Use ganga interactively to verify the job status.
+
+```bash
+ganga
+jobs
+jobs(3).subjobs
+```
+
+The job log files are stored in the Ganga workspace
+
+The skim files can be found on EOS
+
+```bash
+ls /eos/vbc/experiments/user/<nickname>/skims
+```
+
+***
+## 3. Submitting jobs with SLURM on CLIP
+
+Similar preparations on CLIP.
+
+```bash
+alias ganga='/cvmfs/ganga.cern.ch/Ganga/install/LATEST/bin/ganga'
+```
+
 Create the VOMS proxy and save it securely on the shared file system
 ```bash
+mkdir ~/private
+chmod 700 ~/private
 voms-proxy-init -voms cms -valid 192:0 -out ~/private/proxy
 export X509_USER_PROXY=$HOME/private/proxy
 ```
 
 Run the jobs
 ```bash
-ganga submit_step1 --version=v1 --year=2016 --small --sample ALL
+cd DeepLepton/Tools/ganga
+ganga submit_step1 --version v1 --year 2016 --flavour all --sample TGG --small
 ```
 
 The output can be found at

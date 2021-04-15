@@ -173,7 +173,7 @@ def cms_environment():
     env_filename = cmssw_base.joinpath(".SCRAM/Environment")
     try:
         with env_filename.open("r") as env_file:
-            env = {k: v for (k, v) in (line.split("=") for line in env_file)}
+            env = {k: v for (k, v) in (l.strip().split("=") for l in env_file)}
     except RuntimeError:
         print(f"Cannot read { env_filename }")
         sys.exit(1)

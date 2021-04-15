@@ -1,8 +1,10 @@
-#! /bin/bash -x 
+#! /bin/bash
 #
 # Run step1_select.py on the grid
 #
 # Dietrich Liko, March 2021
+
+set -x
 
 echo "Setting up CMS environment"
 if [ -z "$CMS_PATH" ]; then
@@ -11,14 +13,14 @@ if [ -z "$CMS_PATH" ]; then
 fi
 
 echo "Setting up CMS release $CMSSW_VERSION for $SCRAM_ARCH"
-cmsrel "$CMSSW_VERSION"
+scramv1 project CMSSW "$CMSSW_VERSION"
 
 echo "Extracting userarea"
 tar xf userarea.tar -C "$CMSSW_VERSION"
 
 echo "Setting CMS environment"
 cd "$CMSSW_VERSION"/src || exit
-cmsenv
+eval $(scramv1 runtime -sh)
 cd - || exit 
 
 echo "Running step1 select"

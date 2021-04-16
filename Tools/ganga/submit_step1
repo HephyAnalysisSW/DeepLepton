@@ -17,6 +17,7 @@ import socket
 import sqlite3
 import subprocess
 import sys
+import re
 import tarfile
 import tempfile
 from collections import namedtuple
@@ -46,6 +47,8 @@ def main():
 
     # grid nickname
     # nickname = find_nickname()
+    # grid nickname is broken ...
+    # https://its.cern.ch/jira/browse/CRIC-171
     nickname = "liko"
 
     # process special sample names ALL, DY, QCD and T
@@ -53,12 +56,11 @@ def main():
     if opts.sample == "ALL":
         samples = all_samples
     elif opts.sample == "DY":
-        samples = [s for s in all_samples if s.name.startswith("DYJetsToLL_")]
+        samples = [s for s in all_samples if re.match("DYJetsToLL_",s.name,re.I)]
     elif opts.sample == "QCD":
-        samples = [s for s in all_samples if s.name.startswith("QCD_")]
+        samples = [s for s in all_samples if re.match("QCD_",s.name,re.I)]
     elif opts.sample == "T":
-        samples = [s for s in all_samples if s.name.startswith("T")]
-        samples += [s for s in all_samples if s.name.startswith("ST_")]
+        samples = [s for s in all_samples if re.match("T|ST_",s.name,re.I)]
     else:
         samples = [s for s in all_samples if s.name == opts.sample]
         if len(samples) == 0:
@@ -205,7 +207,7 @@ def find_scratch_dir(condor):
 
     if condor:
         userid = pwd.getpwuid(os.getuid())[0]
-        scratch_dir = f"/home/{userid}"
+        scratch_dir = "/tmp"
     else:
         try:
             scratch_dir = os.environ["SCRATCHDIR"]

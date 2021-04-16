@@ -7,7 +7,7 @@
 while read -r name 
 do
    sed -i -E '/^for inFile/ s/\/[\/A-Za-z0-9.]+\///g' "$name"
-done < <(awk '/^transfer_input_files/ { split($3,a,","); print a[1] }' $2)
+done < <(awk '/^transfer_input_files/ { split($3,a,","); print a[1] }' "$2")
 
 export PYTHONPATH=$SAVEPYTHONPATH
 /usr/local/bin/condor_submit "$@"

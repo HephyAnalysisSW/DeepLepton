@@ -13,7 +13,7 @@ Two modes have been implemented, both running jobs at CLIP.
 ***
 ## 1. Preparations for CMSCONNECT
 
-Singup at https://connect.uscms.org and wait that your request will
+Signup at https://connect.uscms.org and wait that your request will
 be processed. You will have to provide a ssh-key to give you
 access to the login node (for me only a rsa key worked).
 
@@ -46,7 +46,7 @@ And put a shim into `~/.local/bin`
 ```
 mkdir -p ~/.local/bin
 cd .local/bin
-curl -sLO https://raw.githubusercontent.com/HephyAnalysisSW/DeepLepton/newgrid/Tools/ganga/condor_submit
+curl -sLO https://raw.githubusercontent.com/HephyAnalysisSW/DeepLepton/2.0/Tools/ganga/condor_submit
 chmod +x ~/.local/bin/condor_submit
 cd -
 ```
@@ -108,9 +108,9 @@ jobs
 jobs(3).subjobs
 ```
 
-The job log files are stored in the Ganga workspace
+The job log files are stored in the Ganga workspace (even if the jobs run in Vienna)
 
-The skim files can be found on EOS
+The skim files can be found on EOS (so you can check from `cbe.vbc.ac.at`)
 
 ```bash
 ls /eos/vbc/experiments/user/<nickname>/skims

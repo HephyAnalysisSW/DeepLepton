@@ -43,11 +43,11 @@ def main():
     db_dir = find_db_dir(cmssw_base, opts.condor)
 
     if opts.year == 2016:
-        db_file = get_dbfile(opts.year) / "DB_Summer16_DeepLepton.sql"
+        db_file = db_dir / "DB_Summer16_DeepLepton.sql"
     elif opts.year == 2017:
-        db_file = get_dbfile(opts.year) / "DB_Fall17_DeepLepton.sql"
+        db_file = db_dir / "DB_Fall17_DeepLepton.sql"
     elif opts.year == 2018:
-        db_file = get_dbfile(opts.year) / "DB_Autumn18_DeepLepton.sql"   
+        db_file = db_dir / "DB_Autumn18_DeepLepton.sql"   
     all_samples = get_samples(db_file)
 
     # grid nickname

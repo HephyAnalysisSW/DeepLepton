@@ -44,6 +44,10 @@ maxN = 2 if options.small else None
 # Load samples
 if options.year == 2016:
     from DeepLepton.Samples.nanoAOD_PFCands_Summer16 import *
+elif options.year == 2017:
+    from DeepLepton.Samples.nanoAOD_PFCands_Fall17 import *
+elif options.year == 2018:
+    from DeepLepton.Samples.nanoAOD_PFCands_Autumn18 import *
 else:
     raise NotImplementedError
 

@@ -11,6 +11,7 @@ from RootTools.core.standard import *
 from DeepLepton.Tools.user import skim_directory
 from DeepLepton.Tools.helpers import getCollection, deltaR, deltaR2
 
+print('parsing')
 # parser
 def get_parser():
     ''' Argument parser for post-processing module.
@@ -26,7 +27,7 @@ def get_parser():
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                          help="Run only job i")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
-    argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,        help="Version for output directory")
+    argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  default='v2',         help="Version for output directory")
     argParser.add_argument('--ptSelection',                 action='store',         nargs='?',  type=str,  default='pt_5_-1',      help="pt selection of leptons")
     argParser.add_argument('--muFromTauArePrompt',    action='store_true',        help="Consider muons from tau leptons as prompt")        
 
@@ -202,7 +203,7 @@ for leptonClass_name, leptonClass in leptonClasses.iteritems():
 from keras.models import load_model
 model = load_model("/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_rH_2/training_20/KERAS_model.h5")
 #TODO: fix keras and tensorflow version to same as in training
-
+sys.exit(1)
 global_branches = [
             'lep_pt', 'lep_eta', 'lep_phi',
             'lep_mediumId',

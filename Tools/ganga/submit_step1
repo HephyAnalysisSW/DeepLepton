@@ -355,7 +355,7 @@ def splitter(samples, max_files, flavour):
                             s.name,
                             "--flavour",
                             f,
-                            "--nrjobs",
+                            "--nJobs",
                             nr_jobs,
                             "--job",
                             j + 1,

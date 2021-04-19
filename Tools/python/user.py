@@ -29,3 +29,6 @@ if os.environ['USER'] in ['tbrueckler']:
     data_directory   = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
     cache_directory  = "/afs/hephy.at/data/cms03/tbrueckler/CompressedStops/caches_valid/"
 
+if os.environ['USER'] in ['benjamin.wilhelmy']:
+    plot_directory   = "/mnt/hephy/cms/benjamin.wilhelmy/www/"
+    skim_directory   = "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/"

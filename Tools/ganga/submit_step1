@@ -143,7 +143,6 @@ def main():
         cdr.cdf_options = {
             "+DESIRED_Sites": '"T2_AT_Vienna"',
             "transfer_output_files": '""',
-            "+SingularityImage" : "cvmfs/singularity.opensciencegrid.org/opensciencegrid/osg-3.3-wn-el7:latest",
         }
         job.backend = cdr
     else:

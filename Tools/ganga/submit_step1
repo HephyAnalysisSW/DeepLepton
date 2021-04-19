@@ -224,7 +224,7 @@ def find_db_dir(cmssw_base, condor):
     """Find sample DB on different clusters"""
 
     if condor:
-        db_dir = pathlib.Path.home()
+        db_dir = pathlib.Path.home()/ 'caches/Samples'
     else:
         try:
             sys.path.append(str(cmssw_base / "python"))

@@ -47,23 +47,22 @@ def main():
     elif opts.year == 2017:
         db_file = db_dir / "DB_Fall17_DeepLepton.sql::memory:?cache=shared"
     elif opts.year == 2018:
-        db_file = db_dir / "DB_Autumn18_DeepLepton.sql::memory:?cache=shared"   
+        db_file = db_dir / "DB_Autumn18_DeepLepton.sql::memory:?cache=shared"
     all_samples = get_samples(db_file)
 
     # grid nickname
     nickname = find_nickname()
-
 
     # process special sample names ALL, DY, QCD and T
 
     if opts.sample == "ALL":
         samples = all_samples
     elif opts.sample == "DY":
-        samples = [s for s in all_samples if re.match("DYJetsToLL_",s.name,re.I)]
+        samples = [s for s in all_samples if re.match("DYJetsToLL_", s.name, re.I)]
     elif opts.sample == "QCD":
-        samples = [s for s in all_samples if re.match("QCD_",s.name,re.I)]
+        samples = [s for s in all_samples if re.match("QCD_", s.name, re.I)]
     elif opts.sample == "T":
-        samples = [s for s in all_samples if re.match("T|ST_",s.name,re.I)]
+        samples = [s for s in all_samples if re.match("T|ST_", s.name, re.I)]
     else:
         samples = [s for s in all_samples if s.name == opts.sample]
         if len(samples) == 0:
@@ -86,7 +85,9 @@ def main():
     # Application
 
     job.application = Executable()
-    job.application.exe = File(str(cmssw_base / "src/DeepLepton/Tools/ganga/step1_select.sh"))
+    job.application.exe = File(
+        str(cmssw_base / "src/DeepLepton/Tools/ganga/step1_select.sh")
+    )
     job.application.env = {
         "CMSSW_VERSION": cmssw_version,
         "SCRAM_ARCH": cmssw_arch,
@@ -189,7 +190,7 @@ def cms_environment():
 
     # The architecure is give by the other entry in the .SCRAM directory
     cmssw_arch = None
-    for child in cmssw_base.joinpath('.SCRAM').iterdir():
+    for child in cmssw_base.joinpath(".SCRAM").iterdir():
         if child.name in ["Environment"]:
             continue
         if cmssw_arch is not None:
@@ -224,7 +225,7 @@ def find_db_dir(cmssw_base, condor):
     """Find sample DB on different clusters"""
 
     if condor:
-        db_dir = pathlib.Path.home()/ 'caches/Samples'
+        db_dir = pathlib.Path.home() / "caches/Samples"
     else:
         try:
             sys.path.append(str(cmssw_base / "python"))
@@ -328,11 +329,11 @@ def get_samples(db_file):
     """Read the samples from the sqlite DB"""
 
     db = sqlite3.connect(str(db_file))
-
     sql = "SELECT name, count(*) AS 'nr_files' FROM fileCache GROUP BY name;"
-
+    # first letter uppercase
+    first_up = lambda x: x[0].upper() + x[1:]
     Sample = namedtuple("Sample", ["name", "nr_files"])
-    return [Sample(r[0], r[1]) for r in db.execute(sql)]
+    return [Sample(first_up(r[0]), r[1]) for r in db.execute(sql)]
 
 
 def splitter(samples, max_files, flavour):
@@ -392,11 +393,10 @@ def make_tarball(cmssw_base, scratch_dir):
 def find_nickname():
     """get the CMS nickname from the cric database"""
 
-
     gridname_file = pathlib.Path("~/.grid_username").expanduser()
 
     if gridname_file.exists():
-        with gridname_file.open('r') as f:
+        with gridname_file.open("r") as f:
             gridname = f.read().strip()
 
     else:
@@ -422,24 +422,23 @@ def find_nickname():
             output = subprocess.check_output(cmd, encoding="utf8")
             gridname = json.loads(output)["result"][0]["login"]
         except subprocess.CalledProcessError as err:
-            if err.returncode != 35: 
-                print ( err )
+            if err.returncode != 35:
+                print(err)
                 sys.exit(1)
             gridname = ""
         except KeyError:
             gridname = ""
         finally:
             if not gridname:
-                print ( 'Could not determine grid username from certificate.' )
-                gridname = input('Enter grid username : ')
+                print("Could not determine grid username from certificate.")
+                gridname = input("Enter grid username : ")
             if not gridname:
                 sys.exit()
 
-        with gridname_file.open('w') as f:
+        with gridname_file.open("w") as f:
             f.write(gridname)
 
     return gridname
-
 
 
 # ganga does not support the __main__ trick ...

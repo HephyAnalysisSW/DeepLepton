@@ -1,0 +1,419 @@
+# submit_step1
+#
+# Run step1_select.py on the grid
+#
+# Example:
+#
+#   ganga submit_step1 --version=v1 --year=2016 --small --samples=TT
+#
+# Dietrich Liko, March 2021
+
+import argparse
+import json
+import os
+import pathlib
+import pwd
+import socket
+import sqlite3
+import subprocess
+import sys
+import re
+import tarfile
+import tempfile
+from collections import namedtuple
+
+CMSCONNECT_HOST = "login-el7.uscms.org"
+
+
+def main():
+    """Prepare ganga job and submit"""
+
+    opts = parse_args()
+
+    # CMS environment
+
+    cmssw_base, cmssw_version, cmssw_arch = cms_environment()
+
+    # SCRATCH directory
+
+    scratch_dir = find_scratch_dir(opts.condor)
+
+    # get all samples from the DB
+
+    db_dir = find_db_dir(cmssw_base, opts.condor)
+
+    if opts.year == 2016:
+        db_file = db_dir / "DB_Summer16_DeepLepton.sql"
+    elif opts.year == 2017:
+        db_file = db_dir / "DB_Fall17_DeepLepton.sql"
+    elif opts.year == 2018:
+        db_file = db_dir / "DB_Autumn18_DeepLepton.sql"   
+    all_samples = get_samples(db_file)
+
+    # grid nickname
+    # nickname = find_nickname()
+    # grid nickname is broken ...
+    # https://its.cern.ch/jira/browse/CRIC-171
+    nickname = "liko"
+
+    # process special sample names ALL, DY, QCD and T
+
+    if opts.sample == "ALL":
+        samples = all_samples
+    elif opts.sample == "DY":
+        samples = [s for s in all_samples if re.match("DYJetsToLL_",s.name,re.I)]
+    elif opts.sample == "QCD":
+        samples = [s for s in all_samples if re.match("QCD_",s.name,re.I)]
+    elif opts.sample == "T":
+        samples = [s for s in all_samples if re.match("T|ST_",s.name,re.I)]
+    else:
+        samples = [s for s in all_samples if s.name == opts.sample]
+        if len(samples) == 0:
+            print(f"Sample {opts.sample} not found.")
+            sys.exit(1)
+
+    # Create the tarball
+
+    tarball = make_tarball(cmssw_base, scratch_dir)
+
+    # Prepare the batch job
+
+    job = Job()
+    job.name = "step1"
+    version = opts.version + "_small" if opts.small else opts.version
+    job.comment = (
+        f"{version} {opts.year} {opts.flavour} {opts.ptSelection} {opts.sample}"
+    )
+
+    # Application
+
+    job.application = Executable()
+    job.application.exe = File(str(cmssw_base / "src/DeepLepton/Tools/ganga/step1_select.sh"))
+    job.application.env = {
+        "CMSSW_VERSION": cmssw_version,
+        "SCRAM_ARCH": cmssw_arch,
+        "SKIMSDIR": f"/store/user/{nickname}/{opts.skims}",
+    }
+
+    if opts.condor:
+        # for Condor the database is send with the sandbox
+        job.application.env["SAMPLES_DBDIR"] = "."
+    else:
+        # for SLURM submission the user proxy has to be on shared file system
+        try:
+            user_proxy = os.environ["X509_USER_PROXY"]
+        except KeyError:
+            user_proxy = "/tmp/x509up_u%s" % os.getuid()
+        if user_proxy.startswith("/tmp/"):
+            print("X509 user proxy has to be on shared file system ")
+            sys.exit(1)
+        job.application.env["X509_USER_PROXY"] = user_proxy
+
+    args = [
+        "--logLevel",
+        opts.logLevel,
+        "--year",
+        opts.year,
+        "--version",
+        opts.version,
+        "--ptSelection",
+        opts.ptSelection,
+    ]
+    if opts.small:
+        args.append("--small")
+    if opts.muFromTauArePrompt:
+        args.append("--muFromTauArePrompt")
+
+    job.application.args = args
+
+    # Splitter: for each subjob additional arguments perform the splitting
+    job.splitter = ArgSplitter()
+    job.splitter.args = [
+        args + sa for sa in splitter(samples, opts.max_files, opts.flavour)
+    ]
+
+    # Inputsandbox
+    job.inputsandbox.append(File(str(tarball)))
+    if opts.condor:
+        job.inputsandbox.append(File(str(db_file)))
+
+    # Backend
+    if opts.condor:
+        cdr = Condor()
+        cdr.spool = False
+        cdr.shared_filesystem = False
+        cdr.cdf_options = {
+            "+DESIRED_Sites": '"T2_AT_Vienna"',
+            "transfer_output_files": '""',
+        }
+        job.backend = cdr
+
+    else:
+        job.backend = Slurm()
+        job.backend.extraopts = f"--qos {opts.slurm_qos} -J step1"
+
+    if opts.dry_run:
+        print(job)
+
+        for a in job.splitter.args:
+            print(a)
+
+        del job
+    else:
+        job.submit()
+
+    tarball.unlink()
+
+
+def cms_environment():
+    """determine CMSSW environment from SCRAM."""
+
+    # look for the scram directory
+    cmssw_base = pathlib.Path.cwd()
+    while not cmssw_base.joinpath(".SCRAM").exists():
+        if cmssw_base.parent == cmssw_base.anchor:
+            print("No CMSSW Area")
+            sys.exit(1)
+        cmssw_base = cmssw_base.parent
+
+    # read the CMSSW_VERSION for the .SCRAM/Environment file
+    env_filename = cmssw_base.joinpath(".SCRAM/Environment")
+    try:
+        with env_filename.open("r") as env_file:
+            env = {k: v for (k, v) in (l.strip().split("=") for l in env_file)}
+    except RuntimeError:
+        print(f"Cannot read { env_filename }")
+        sys.exit(1)
+    try:
+        cmssw_version = env["SCRAM_PROJECTVERSION"]
+    except KeyError:
+        print("Cannot determine CMSSW version")
+        sys.exit(1)
+
+    # The architecure is give by the other entry in the .SCRAM directory
+    cmssw_arch = None
+    for child in cmssw_base.joinpath('.SCRAM').iterdir():
+        if child.name in ["Environment"]:
+            continue
+        if cmssw_arch is not None:
+            print("CMSSW architecture is not unique")
+            sys.exit(1)
+        cmssw_arch = child.name
+
+    if cmssw_arch is None:
+        print("Could not determine CMSSW architecture")
+        sys.exit(1)
+
+    return cmssw_base, cmssw_version, cmssw_arch
+
+
+def find_scratch_dir(condor):
+    """Find the scratch dir on different clusters"""
+
+    if condor:
+        userid = pwd.getpwuid(os.getuid())[0]
+        scratch_dir = "/tmp"
+    else:
+        try:
+            scratch_dir = os.environ["SCRATCHDIR"]
+        except KeyError:
+            print("CLIP env varaible SCRATCHDIR is not set.")
+            sys.exit(1)
+
+    return scratch_dir
+
+
+def find_db_dir(cmssw_base, condor):
+    """Find sample DB on different clusters"""
+
+    if condor:
+        db_dir = pathlib.Path.home()
+    else:
+        try:
+            sys.path.append(str(cmssw_base / "python"))
+            from Samples.Tools.config import dbDir
+        except ImportError:
+            print("Cannot determine Sample DB directory")
+            sys.exit(1)
+        db_dir = pathlib.Path(dbDir)
+
+    return db_dir
+
+
+def parse_args():
+    """Get job parameter."""
+
+    ap = argparse.ArgumentParser(description="Submit step1_select using Ganga")
+
+    ap.add_argument(
+        "--logLevel",
+        action="store",
+        nargs="?",
+        choices=[
+            "CRITICAL",
+            "ERROR",
+            "WARNING",
+            "INFO",
+            "DEBUG",
+            "TRACE",
+            "NOTSET",
+            "SYNC",
+        ],
+        default="INFO",
+        help="Log level for logging",
+    )
+    ap.add_argument(
+        "--year",
+        action="store",
+        type=int,
+        choices=[2016, 2017, 2018],
+        required=True,
+        help="Which year?",
+    )
+    ap.add_argument(
+        "--flavour",
+        action="store",
+        type=str,
+        choices=["muo", "ele", "all"],
+        default="all",
+        help="muo or ele?",
+    )
+    ap.add_argument(
+        "--sample",
+        action="store",
+        nargs="?",
+        type=str,
+        default="TGG",
+        help="Sample to be post-processed",
+    )
+    ap.add_argument(
+        "--small",
+        action="store_true",
+        help=(
+            "Run the file on a small sample (for test purpose),"
+            "bool flag set to True if used"
+        ),
+    )
+    ap.add_argument(
+        "--version",
+        action="store",
+        nargs="?",
+        type=str,
+        required=True,
+        help="Version for output directory",
+    )
+    ap.add_argument(
+        "--ptSelection",
+        action="store",
+        nargs="?",
+        type=str,
+        default="pt_5_-1",
+        help="pt selection of leptons",
+    )
+    ap.add_argument(
+        "--muFromTauArePrompt",
+        action="store_true",
+        help="Consider muons from tau leptons as prompt",
+    )
+
+    ap.add_argument("--max-files", action="store", type=int, default=0)
+    ap.add_argument("--dry-run", action="store_true", default=False)
+    ap.add_argument("--slurm-qos", action="store", type=str, default="rapid")
+    ap.add_argument("--skims", action="store", type=str, default="skims")
+
+    opts = ap.parse_args()
+    opts.condor = socket.getfqdn() == CMSCONNECT_HOST
+
+    return opts
+
+
+def get_samples(db_file):
+    """Read the samples from the sqlite DB"""
+
+    db = sqlite3.connect(str(db_file))
+
+    sql = "SELECT name, count(*) AS 'nr_files' FROM fileCache GROUP BY name;"
+
+    Sample = namedtuple("Sample", ["name", "nr_files"])
+    return [Sample(r[0], r[1]) for r in db.execute(sql)]
+
+
+def splitter(samples, max_files, flavour):
+    """Perform job splitting"""
+
+    if flavour == "all":
+        flavours = ["muo", "ele"]
+    else:
+        flavours = [flavour]
+
+    sj_args = []
+    for s in samples:
+        if max_files > 0 and s.nr_files > max_files:
+            nr_jobs = s.nr_files // max_files + 1
+            for j in range(nr_jobs):
+                for f in flavours:
+                    sj_args.append(
+                        [
+                            "--sample",
+                            s.name,
+                            "--flavour",
+                            f,
+                            "--nrjobs",
+                            nr_jobs,
+                            "--job",
+                            j + 1,
+                        ]
+                    )
+        else:
+            for f in flavours:
+                sj_args.append(["--sample", s.name, "--flavour", f])
+
+    return sj_args
+
+
+def make_tarball(cmssw_base, scratch_dir):
+    """Wrap up the user area"""
+
+    src_filter = (
+        lambda t: None
+        if os.path.basename(t.name) in [".git", "data", "examples"]
+        else t
+    )
+
+    tmpdir = tempfile.mkdtemp(prefix="ganga_", dir=scratch_dir)
+    tmpfile = pathlib.Path(tmpdir).joinpath("userarea.tar")
+    with tarfile.open(tmpfile, mode="w") as tar:
+        tar.add(cmssw_base / "src", "src", recursive=True, filter=src_filter)
+        for d in ["lib", "biglib", "module", "python", "cfipython"]:
+            path = cmssw_base / d
+            if path.exists():
+                tar.add(path, d, recursive=True)
+
+    return tmpfile
+
+
+def find_nickname():
+    """get the CMS nickname from the cric database"""
+
+    capath = os.environ.get("X509_CERT_DIR", "/etc/grid-security/certificates")
+    proxy = os.environ.get("X509_USER_PROXY", f"/tmp/x509up_u{os.getuid()}")
+
+    url = "https://cms-cric.cern.ch/api/accounts/user/query/?json&preset=whoami"
+    cmd = [
+        "/usr/bin/curl",
+        "-sS",
+        "--capath",
+        capath,
+        "--cert",
+        proxy,
+        "--key",
+        proxy,
+        url,
+    ]
+    output = subprocess.check_output(cmd, encoding="utf8")
+    return json.loads(output)["result"][0]["login"]
+
+
+# ganga does not support the __main__ trick ...
+
+main()

@@ -43,18 +43,16 @@ def main():
     db_dir = find_db_dir(cmssw_base, opts.condor)
 
     if opts.year == 2016:
-        db_file = db_dir / "DB_Summer16_DeepLepton.sql"
+        db_file = db_dir / "DB_Summer16_DeepLepton.sql::memory:?cache=shared"
     elif opts.year == 2017:
-        db_file = db_dir / "DB_Fall17_DeepLepton.sql"
+        db_file = db_dir / "DB_Fall17_DeepLepton.sql::memory:?cache=shared"
     elif opts.year == 2018:
-        db_file = db_dir / "DB_Autumn18_DeepLepton.sql"   
+        db_file = db_dir / "DB_Autumn18_DeepLepton.sql::memory:?cache=shared"   
     all_samples = get_samples(db_file)
 
     # grid nickname
-    # nickname = find_nickname()
-    # grid nickname is broken ...
-    # https://its.cern.ch/jira/browse/CRIC-171
-    nickname = "liko"
+    nickname = find_nickname()
+
 
     # process special sample names ALL, DY, QCD and T
 
@@ -145,9 +143,9 @@ def main():
         cdr.cdf_options = {
             "+DESIRED_Sites": '"T2_AT_Vienna"',
             "transfer_output_files": '""',
+            "+SingularityImage" : "cvmfs/singularity.opensciencegrid.org/opensciencegrid/osg-3.3-wn-el7:latest",
         }
         job.backend = cdr
-
     else:
         job.backend = Slurm()
         job.backend.extraopts = f"--qos {opts.slurm_qos} -J step1"
@@ -395,23 +393,54 @@ def make_tarball(cmssw_base, scratch_dir):
 def find_nickname():
     """get the CMS nickname from the cric database"""
 
-    capath = os.environ.get("X509_CERT_DIR", "/etc/grid-security/certificates")
-    proxy = os.environ.get("X509_USER_PROXY", f"/tmp/x509up_u{os.getuid()}")
 
-    url = "https://cms-cric.cern.ch/api/accounts/user/query/?json&preset=whoami"
-    cmd = [
-        "/usr/bin/curl",
-        "-sS",
-        "--capath",
-        capath,
-        "--cert",
-        proxy,
-        "--key",
-        proxy,
-        url,
-    ]
-    output = subprocess.check_output(cmd, encoding="utf8")
-    return json.loads(output)["result"][0]["login"]
+    gridname_file = pathlib.Path("~/.grid_username").expanduser()
+
+    if gridname_file.exists():
+        with gridname_file.open('r') as f:
+            gridname = f.read().strip()
+
+    else:
+
+        capath = os.environ.get("X509_CERT_DIR", "/etc/grid-security/certificates")
+        proxy = os.environ.get("X509_USER_PROXY", f"/tmp/x509up_u{os.getuid()}")
+
+        url = "https://cms-cric.cern.ch/api/accounts/user/query/?json&preset=whoami"
+        cmd = [
+            "/usr/bin/curl",
+            "-sS",
+            "--capath",
+            capath,
+            "--cert",
+            proxy,
+            "--key",
+            proxy,
+            url,
+        ]
+        # grid nickname is broken ... we try it anyway
+        # https://its.cern.ch/jira/browse/CRIC-171
+        try:
+            output = subprocess.check_output(cmd, encoding="utf8")
+            gridname = json.loads(output)["result"][0]["login"]
+        except subprocess.CalledProcessError as err:
+            if err.returncode != 35: 
+                print ( err )
+                sys.exit(1)
+            gridname = ""
+        except KeyError:
+            gridname = ""
+        finally:
+            if not gridname:
+                print ( 'Could not determine grid username from certificate.' )
+                gridname = input('Enter grid username : ')
+            if not gridname:
+                sys.exit()
+
+        with gridname_file.open('w') as f:
+            f.write(gridname)
+
+    return gridname
+
 
 
 # ganga does not support the __main__ trick ...

@@ -25,7 +25,7 @@ else:
     ov = False
 
 # DB
-from Samples.Tools.config import dbDir
+from DeepLepton.Tools.user import dbDir
 dbFile = dbDir+'/DB_Summer16_DeepLepton.sql'
 
 logger.info("Using db file: %s", dbFile)

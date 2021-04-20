@@ -5,6 +5,7 @@ if os.environ['USER'] in ['robert.schoefbeck']:
     #skim_directory   = "/scratch-cbe/users/robert.schoefbeck/DeepLepton/"
     skim_directory   = "/eos/vbc/user/maximilian.moser/DeepLepton"
     #data_directory   = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
+    dbDir           = "/users/maximilian.moser/caches/Samples/"
 
 if os.environ['USER'] in ['maximilian.moser']:     
     plot_directory   = "/scratch-cbe/users/maximilian.moser/www/DeepLepton/"
@@ -12,6 +13,7 @@ if os.environ['USER'] in ['maximilian.moser']:
     #skim_directory   = "/scratch-cbe/users/maximilian.moser/DeepLepton/"
     skim_directory   = "/eos/vbc/user/maximilian.moser/DeepLepton"
     #data_directory   = "/afs/hephy.at/data/mmoser/cmgTuples/"
+    dbDir           = "/users/maximilian.moser/caches/Samples/"
 
 if os.environ['USER'] in ['gmoertl']:
     plot_directory   = "/afs/hephy.at/user/g/gmoertl/www/"
@@ -32,3 +34,4 @@ if os.environ['USER'] in ['tbrueckler']:
 if os.environ['USER'] in ['benjamin.wilhelmy']:
     plot_directory   = "/mnt/hephy/cms/benjamin.wilhelmy/www/"
     skim_directory   = "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/"
+    dbDir           = "/users/maximilian.moser/caches/Samples/"

@@ -45,9 +45,8 @@ maxN = 2 if options.small else None
 
 
 #load keras model
-from keras.models import load_model
-model = load_model("/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_rH_2/training_20/KERAS_model.h5")
-#TODO: fix keras and tensorflow version to same as in training
+#TODO: from keras.models import load_model
+#TODO: model = load_model("/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_rH_2/training_20/KERAS_model.h5")
 
 
 # Load samples
@@ -133,7 +132,7 @@ new_variables+= ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "l
 ############### out_variables
 out_variables = ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "lep_isNotPromptId_Training/I", "lep_isFakeId_Training/I"]
 out_variables += ["lep_pt/F", "lep_eta/F", "lep_probPrompt/F", "lep_probNonPrompt/F", "lep_probFake/F", "lep_probNotPrompt/F"]
-out_variables += ["event/l"]
+out_variables += ["event/l", "lep_mvaTTH/F"]
 
 for pf_flavour in pf_flavours:
     # per PFCandidate flavor, add a counter and a vector with all pf candidate variables
@@ -153,7 +152,7 @@ def fill_vector_collection( event, collection_name, collection_varnames, objects
                     obj[var] = float(obj[var])
                 getattr(event, collection_name+"_"+var)[i_obj] = obj[var]
 
-# Reader 
+# Reader .TODO fix
 reader = sample.treeReader( \
     variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables),
     selectionString = "&&".join(skimConds)
@@ -335,7 +334,6 @@ while reader.run():
             sv["deltaR"] = deltaR2(sv, lep)
             
         #fill_vector_collection( maker.event, 'SV', SV_varnames + ['ptRel', 'deltaR'], SV, nMax = 100 )
-        # TODO: Sort pfCands and SVs
         # make sure that predicted are in the right Order
         
         # Globals:
@@ -394,9 +392,18 @@ while reader.run():
 
         toPredict = [ [ gb, nb, cb, pb, eb, mb, sv ] ]
 
-        prediction = model.predict(toPredict)
-        #TODO: Write outvariables
-
+        #TODO: prediction = model.predict(toPredict)
+        
+        maker.event.lep_probPrompt = prediction[0]
+        maker.event.lep_probNonPrompt = prediction[1]
+        maker.event.lep_probFake = prediction[2]
+        maker.event.lep_probNotPrompt = prediciton[1] + prediction[2]
+        
+        maker.event.lep_pt = r.lep_pt
+        maker.event.lep_eta = r.lep_eta
+        
+        # TODO TMVA predicion
+        maker.event.lep_mvaTTH = r.lep_mvaTTH
         maker.fill()
         maker.event.init()
                 

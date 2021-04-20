@@ -27,7 +27,7 @@ def get_parser():
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                          help="Run only job i")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
-    argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  default='v2',         help="Version for output directory")
+    argParser.add_argument('--vers',                     action='store',         nargs='?',  type=str,  default='v2',         help="Version for output directory")
     argParser.add_argument('--ptSelection',                 action='store',         nargs='?',  type=str,  default='pt_5_-1',      help="pt selection of leptons")
     argParser.add_argument('--muFromTauArePrompt',    action='store_true',        help="Consider muons from tau leptons as prompt")        
 
@@ -42,6 +42,13 @@ import RootTools.core.logger as _logger_rt
 logger_rt = _logger_rt.get_logger(options.logLevel, logFile = None )
 
 maxN = 2 if options.small else None
+
+
+#load keras model
+from keras.models import load_model
+model = load_model("/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_rH_2/training_20/KERAS_model.h5")
+#TODO: fix keras and tensorflow version to same as in training
+
 
 # Load samples
 if options.year == 2016:
@@ -69,7 +76,7 @@ logger.debug( "Files to be run over:\n%s", "\n".join(sample.files) )
 if options.small:
     sample.reduceFiles(to=1)
 #output directory
-output_directory = os.path.join( skim_directory, options.version+('_small' if options.small else ''), 'step1', str(options.year) ) 
+output_directory = os.path.join( skim_directory, options.vers+('_small' if options.small else ''), 'step1', str(options.year) ) 
 
 
 if options.muFromTauArePrompt:
@@ -198,12 +205,6 @@ for leptonClass_name, leptonClass in leptonClasses.iteritems():
     leptonClass['maker']      = maker 
     leptonClass['maker'].start()
 """
-
-#load keras model
-from keras.models import load_model
-model = load_model("/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_rH_2/training_20/KERAS_model.h5")
-#TODO: fix keras and tensorflow version to same as in training
-sys.exit(1)
 global_branches = [
             'lep_pt', 'lep_eta', 'lep_phi',
             'lep_mediumId',
@@ -248,6 +249,9 @@ def ptRel(cand, lep):
     a = ROOT.TVector3(cos(lep['phi']),sin(lep['phi']),sinh(lep['eta']))
     o = ROOT.TLorentzVector(cand['pt']*cos(cand['phi']), cand['pt']*sin(cand['phi']),cand['pt']*sinh(cand['eta']),cand['pt']*cosh(cand['eta']),)
     return o.Perp(a)
+
+sys.exit(1)
+
 
 reader.start()
 counter=0

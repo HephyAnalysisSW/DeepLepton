@@ -26,5 +26,9 @@ cd - || exit
 echo "Running step1 select"
 
 python "$CMSSW_VERSION/src/DeepLepton/preprocessing/step1_select.py" "$@"
+rc=$?
+
 
 find . -name "*.root" -exec xrdcp -f -C adler32:print {} "root://eos.grid.vbc.ac.at/$SKIMSDIR/{}" \;
+
+exit $rc

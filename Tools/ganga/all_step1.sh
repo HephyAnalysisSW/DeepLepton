@@ -5,6 +5,6 @@ for sample in 'QCD' 'DY' 'T'
 do
     for flavour in 'ele' 'muo'
     do
-       "$ganga" submit_step1 --version v1 --flavour "$flavour" --sample "$sample" "$@"
+       "$ganga" submit_step1 --version v2 --flavour "$flavour" --sample "$sample" "$@"
     done
 done

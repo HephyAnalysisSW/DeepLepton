@@ -45,8 +45,9 @@ maxN = 2 if options.small else None
 
 
 #load keras model
-from keras.models import load_model
-model = load_model("/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_rH_2/training_20/KERAS_model.h5")
+#from keras.models import load_model
+import tensorflow as tf
+model = tf.keras.models.load_model("/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_rH_2/training_20/KERAS_model.h5")
 
 
 # Load samples
@@ -153,22 +154,9 @@ def fill_vector_collection( event, collection_name, collection_varnames, objects
                 getattr(event, collection_name+"_"+var)[i_obj] = obj[var]
 
 # Reader .TODO fix
-print(read_variables)
-
-variables = []
-for v in read_variables:
-    if type(v) == type(" "):
-        if v.startswith("SV") or v.startswith("pfCand") or v.startswith("Muon") or v.startswith("Electron"):
-            variables.append(VectorTreeVariable.fromString( v, nMax=500 ) )
-        else:
-            variables.append( TreeVariable.fromString( v ) )
-    else:
-        variables.append(v)
-read_variables = variables
-print(read_variables)
 
 reader = sample.treeReader( \
-    variables = read_variables,#map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables),
+    variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables),
     selectionString = "&&".join(skimConds)
     )
 
@@ -263,7 +251,17 @@ def ptRel(cand, lep):
     o = ROOT.TLorentzVector(cand['pt']*cos(cand['phi']), cand['pt']*sin(cand['phi']),cand['pt']*sinh(cand['eta']),cand['pt']*cosh(cand['eta']),)
     return o.Perp(a)
 
-sys.exit(1)
+def branches(pfC,pfC_flav_branches, npfC, n=-2): # n = -2 for pfCand, -1 for SV
+    nb = []
+    for cand in pfC:
+        n = [cand[b.split("_")[-1]] for b in pfC_flav_branches]
+        nb.append(n)
+    nb.sort(key=lambda n: n[-2])
+    zeros = [0. for i in range(len(pfC_flav_branches))]
+    for i in range(npfC - len(pfC)]):
+        nb.append(zeros)
+    nb = np.asarray([nb]).astype(np.float32)
+    return nb
 
 
 reader.start()
@@ -304,8 +302,10 @@ while reader.run():
     for lep in leps:
         #now decide which maker to use
         maker = new_maker # only use this one maker
-    
-        genPartFlav = ord(lep['genPartFlav'])
+        try:
+            genPartFlav = ord(lep['genPartFlav'])
+        except:
+            continue
         #for leptonClass in leptonClasses.values():
         #    if leptonClass['selector'](genPartFlav):
         #        maker = leptonClass['maker']
@@ -361,62 +361,80 @@ while reader.run():
             n = [cand[b.split("_")[-1]] for b in pfCand_neutral_branches]
             nb.append(n)
         nb.sort(key=lambda n: n[-2])
-        nb.append(list(np.zeros((npfCand_neutral, len(pfCand_neutral_branches)))))
-        nb = nb[:npfCand_neutral]
+        zeros = [0. for i in range(len(pfCand_neutral_branches))]
+        for i in range(npfCand_neutral - len(pfCands["neutral"])):
+            nb.append(zeros)
+        nb = np.asarray([nb]).astype(np.float32)
         
         cb = []
         for cand in pfCands["charged"]:
             n = [cand[b.split("_")[-1]] for b in pfCand_charged_branches]
             cb.append(n)
         cb.sort(key=lambda n: n[-2])
-        nb.append(list(np.zeros((npfCand_charged, len(pfCand_charged_branches)))))
-        nb = nb[:npfCand_charged]
+        cb.append(list(np.zeros((npfCand_charged, len(pfCand_charged_branches)))))
+        cb = cb[:npfCand_charged]
         
         pb = []
         for cand in pfCands["photon"]:
             n = [cand[b.split("_")[-1]] for b in pfCand_photon_branches]
             pb.append(n)
         pb.sort(key=lambda n: n[-2])
-        nb.append(list(np.zeros((npfCand_photon, len(pfCand_photon_branches)))))
-        nb = nb[:npfCand_photon]
+        pb.append(list(np.zeros((npfCand_photon, len(pfCand_photon_branches)))))
+        pb = pb[:npfCand_photon]
 
         eb = []
         for cand in pfCands["electron"]:
             n = [cand[b.split("_")[-1]] for b in pfCand_electron_branches]
             eb.append(n)
         eb.sort(key=lambda n: n[-2])
-        nb.append(list(np.zeros((npfCand_electron, len(pfCand_electron_branches)))))
-        nb = nb[:npfCand_electron]
+        eb.append(list(np.zeros((npfCand_electron, len(pfCand_electron_branches)))))
+        eb = eb[:npfCand_electron]
 
         mb = []
         for cand in pfCands["muon"]:
             n = [cand[b.split("_")[-1]] for b in pfCand_muon_branches]
             mb.append(n)
         mb.sort(key=lambda n: n[-2])
-        nb.append(list(np.zeros((npfCand_muon, len(pfCand_muon_branches)))))
-        nb = nb[:npfCand_muon]
+        mb.append(list(np.zeros((npfCand_muon, len(pfCand_muon_branches)))))
+        mb = mb[:npfCand_muon]
         
         sv = []
         for v in SV:
             n = [v[b.split("_")[-1]] for b in SV_branches]
             sv.append(n)
         sv.sort(key=lambda n: n[-1])    
-        nb.append(list(np.zeros((nSV, len(SV_branches)))))
-        nb = nb[:nSV]
+        #sv.append(list(np.zeros((nSV, len(SV_branches)))))
+        #sv = sv[:nSV]
 
-        toPredict = [ [ gb, nb, cb, pb, eb, mb, sv ] ]
+        #toPredict = np.asarray( [ gb, nb, cb, pb, eb, mb, sv ] )
+        #toPredict = toPredict.astype(np.float32)
+        toPredict = [ gb, nb, cb, pb, eb, mb, sv ]
+        #gb = np.expand_dims(np.asarray(gb), -1)
+        
+        #print(np.shape(np.asarray(gb)))
 
-        #TODO: prediction = model.predict(toPredict)
+        #for i in model.inputs:
+        #    print(i.shape, i.dtype)
+        tp = []
+        for x in toPredict:
+        #    print(np.shape(x))
+            #print(np.shape(np.expand_dims(np.asarray(x), -1)))
+            #tp.append(np.expand_dims(np.asarray(x), -1))
+            tp.append(np.asarray(x))
+        #for x in tp:
+        #    print(np.shape(x), x)
         
-        maker.event.lep_probPrompt = prediction[0]
-        maker.event.lep_probNonPrompt = prediction[1]
-        maker.event.lep_probFake = prediction[2]
-        maker.event.lep_probNotPrompt = prediciton[1] + prediction[2]
+        #prediction = model.predict(tp)
         
-        maker.event.lep_pt = r.lep_pt
-        maker.event.lep_eta = r.lep_eta
+        #maker.event.lep_probPrompt = prediction[0]
+        #maker.event.lep_probNonPrompt = prediction[1]
+        #maker.event.lep_probFake = prediction[2]
+        #maker.event.lep_probNotPrompt = prediciton[1] + prediction[2]
         
-        maker.event.lep_mvaTTH = r.lep_mvaTTH
+        maker.event.lep_pt = lep["pt"]
+        maker.event.lep_eta = lep["eta"]
+        
+        maker.event.lep_mvaTTH = lep["mvaTTH"]
         
         maker.fill()
         maker.event.init()
@@ -427,8 +445,7 @@ while reader.run():
             break
 
 logger.info("Writing trees.")
-for leptonClass in leptonClasses.values():
-    #leptonClass['maker'].tree.Write()
-    leptonClass['outfile'].Write()
-    leptonClass['outfile'].Close()
-    logger.info( "Written %s", leptonClass['outfilename'])
+#leptonClass['maker'].tree.Write()
+outfile.Write()
+outfile.Close()
+logger.info( "Written %s", leptonClass['outfilename'])

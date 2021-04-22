@@ -45,8 +45,8 @@ maxN = 2 if options.small else None
 
 
 #load keras model
-#TODO: from keras.models import load_model
-#TODO: model = load_model("/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_rH_2/training_20/KERAS_model.h5")
+from keras.models import load_model
+model = load_model("/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_rH_2/training_20/KERAS_model.h5")
 
 
 # Load samples
@@ -153,8 +153,22 @@ def fill_vector_collection( event, collection_name, collection_varnames, objects
                 getattr(event, collection_name+"_"+var)[i_obj] = obj[var]
 
 # Reader .TODO fix
+print(read_variables)
+
+variables = []
+for v in read_variables:
+    if type(v) == type(" "):
+        if v.startswith("SV") or v.startswith("pfCand") or v.startswith("Muon") or v.startswith("Electron"):
+            variables.append(VectorTreeVariable.fromString( v, nMax=500 ) )
+        else:
+            variables.append( TreeVariable.fromString( v ) )
+    else:
+        variables.append(v)
+read_variables = variables
+print(read_variables)
+
 reader = sample.treeReader( \
-    variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables),
+    variables = read_variables,#map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables),
     selectionString = "&&".join(skimConds)
     )
 
@@ -402,8 +416,8 @@ while reader.run():
         maker.event.lep_pt = r.lep_pt
         maker.event.lep_eta = r.lep_eta
         
-        # TODO TMVA predicion
         maker.event.lep_mvaTTH = r.lep_mvaTTH
+        
         maker.fill()
         maker.event.init()
                 

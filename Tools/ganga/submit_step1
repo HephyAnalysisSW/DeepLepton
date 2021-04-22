@@ -58,7 +58,7 @@ def main():
 
     all_samples = get_samples(db_file)
     the_samples = get_samples_from_def(samples_def,opts.sample)
-    samples = [ s for s in all_samples if s in the_samples ]
+    samples = [ s for s in all_samples if s.name in the_samples ]
 
     # Create the tarball
 

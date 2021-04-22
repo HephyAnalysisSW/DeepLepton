@@ -58,7 +58,7 @@ def main():
 
     all_samples = get_samples(db_file)
     the_samples = get_samples_from_def(samples_def,opts.sample)
-    samples = [ s for s in all_samples if s in the_samples ]
+    samples = [ s for s in all_samples if s.name in the_samples ]
 
     # Create the tarball
 
@@ -361,6 +361,7 @@ def splitter(samples, max_files, flavour):
 
     sj_args = []
     for s in samples:
+        print ( s )
         if max_files > 0 and s.nr_files > max_files:
             nr_jobs = s.nr_files // max_files + 1
             for j in range(nr_jobs):

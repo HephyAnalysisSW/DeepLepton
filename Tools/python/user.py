@@ -1,5 +1,9 @@
 import os
 
+if 'SKIMSDIR' in os.environ:
+    skim_directory = os.environ['SKIMSDIR']
+    dbDir = "."
+
 if os.environ['USER'] in ['robert.schoefbeck']:
     #plot_directory   = "/afs/hephy.at/user/r/rschoefbeck/www/DeepLepton/"
     #skim_directory   = "/scratch-cbe/users/robert.schoefbeck/DeepLepton/"

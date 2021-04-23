@@ -1,7 +1,7 @@
 #! /bin/sh -x
 
 ganga='/cvmfs/ganga.cern.ch/Ganga/install/LATEST/bin/ganga'
-for sample in 'QCD1' 'QCD2' 'DY' 'T1' 'T2'
+for sample in 'QCD' 'DY' 'T'
 do
     for flavour in 'ele' 'muo'
     do

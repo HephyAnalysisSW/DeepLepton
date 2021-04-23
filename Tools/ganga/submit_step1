@@ -116,12 +116,6 @@ def main():
 
     job.application.args = args
 
-    # Splitter: for each subjob additional arguments perform the splitting
-    job.splitter = ArgSplitter()
-    job.splitter.args = [
-        args + sa for sa in splitter(samples, opts.max_files, opts.flavour)
-    ]
-
     # Inputsandbox
     job.inputsandbox.append(File(str(tarball)))
     if opts.condor:
@@ -144,12 +138,23 @@ def main():
     if opts.dry_run:
         print(job)
 
-        for a in job.splitter.args:
+        for a in splitter(samples, opts.max_files, opts.flavour):
             print(a)
 
         del job
     else:
-        job.submit()
+        # Splitter: for each subjob additional arguments perform the splitting
+        job.splitter = ArgSplitter()
+        sj_args = splitter(samples, opts.max_files, opts.flavour)
+        max_sj_args = 50
+        while sj_args:
+            job.splitter.args = [
+                args + sa for sa in sj_args[:max_sj_args]
+            ]
+            job.submit()
+            sj_args = sj_args[max_sj_args:]
+            if sj_args:
+                job = job.copy()
 
     tarball.unlink()
 
@@ -342,18 +347,6 @@ def get_samples_from_def(samples_def,sample_name):
 
     if sample_name == 'ALL':
         return all_samples
-    elif sample_name == 'QCD1':
-        l = len(group_samples['QCD']) // 2
-        return group_samples['QCD'][:l]
-    elif sample_name == 'QCD2':
-        l = len(group_samples['QCD']) // 2
-        return group_samples['QCD'][l:]
-    elif sample_name == 'T1':
-        l = len(group_samples['T']) // 2
-        return group_samples['T'][:l]
-    elif sample_name == 'T2':
-        l = len(group_samples['T']) // 2
-        return group_samples['T'][l:]
     elif sample_name in group_samples:
         return group_samples[sample_name]
     elif sample_name in all_samples:
@@ -373,7 +366,6 @@ def splitter(samples, max_files, flavour):
 
     sj_args = []
     for s in samples:
-        print ( s )
         if max_files > 0 and s.nr_files > max_files:
             nr_jobs = s.nr_files // max_files + 1
             for j in range(nr_jobs):

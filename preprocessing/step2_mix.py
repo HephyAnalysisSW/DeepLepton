@@ -61,12 +61,12 @@ Top = { 2016:['TTTo2L2Nu_noSC_pow',
               'ST_tW_top_5f_pow',
               'ST_tW_top_5f_pow_CP5',
               'ST_tWll_5f_LO',
-              'ST_tWnunu_5f_LO',
+              #'ST_tWnunu_5f_LO',
              
               'THQ_LO',
               'THW_LO',
               
-              'TTTT_NLO',
+              #'TTTT_NLO',
               'TTWW_NLO',
               'TTWZ_NLO',
               'TTZZ_NLO',
@@ -256,7 +256,7 @@ write_variables = variables
 
 logger.info("Counting Samples and constructing the Reader")
 
-assert False, ""
+#assert False, ""
 #Loop over samples
 for leptonClass in leptonClasses:
     logger.info( "Class %s", leptonClass['name'] )

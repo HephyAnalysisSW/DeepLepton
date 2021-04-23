@@ -10,91 +10,53 @@ log.write("Logfile")
 log.close()
 
 # Selection string: eg Job 0 of 50, muons:
-#selectionString = "(event%50)==0&&abs(lep_pdgId)==13"
-selectionString = "lep_pt > 10"
+selectionString = "(event%50)==0&&abs(lep_pdgId)==11"
+#selectionString = "lep_pt > 10"
 
 
 redirector =  "root://eos.grid.vbc.ac.at/"
 
-Samples = [   #'TTTo2L2Nu_noSC_pow', #passed
-              #'TTTo2L2Nu_pow_CP5',
-              #'TTTo2L2Nu_pow',
-              #'TTToSemilepton_pow',
-              #'TTToSemilepton_pow_CP5',
+Samples = [   'TTTo2L2Nu_noSC_pow', #passed
+              'TTTo2L2Nu_pow_CP5',
+              'TTTo2L2Nu_pow',
+              'TTToSemilepton_pow',
+              'TTToSemilepton_pow_CP5',
               'TT_pow',
               
-              #'ST_schannel_4f_NLO',
-              #'ST_schannel_4f_CP5',
-              #'ST_tchannel_antitop_4f_pow',
-              #'ST_tchannel_antitop_4f_pow_CP5',
-              #'ST_tchannel_top_4f_pow',
-              #'ST_tchannel_top_4f_pow_CP5',
-              #'ST_tW_antitop_NoFullyHad_5f_pow',
-              #'ST_tW_antitop_5f_pow_ext1',
-              #'ST_tW_antitop_5f_pow_CP5',
-              #'ST_tW_top_NoFullyHad_5f_pow',
-              #'ST_tW_top_NoFullyHad_5f_pow_ext',
-              #'ST_tW_top_5f_pow_ext1',
-              #'ST_tW_top_5f_pow',
-              #'ST_tW_top_5f_pow_CP5',
-              #'ST_tWll_5f_LO',
-              #'ST_tWnunu_5f_LO',
+              'ST_schannel_4f_NLO',
+              'ST_schannel_4f_CP5',
+              'ST_tchannel_antitop_4f_pow',
+              'ST_tchannel_antitop_4f_pow_CP5',
+              'ST_tchannel_top_4f_pow',
+              'ST_tchannel_top_4f_pow_CP5',
+              'ST_tW_antitop_NoFullyHad_5f_pow',
+              'ST_tW_antitop_5f_pow_ext1',
+              'ST_tW_antitop_5f_pow_CP5',
+              'ST_tW_top_NoFullyHad_5f_pow',
+              'ST_tW_top_NoFullyHad_5f_pow_ext',
+              'ST_tW_top_5f_pow_ext1',
+              'ST_tW_top_5f_pow',
+              'ST_tW_top_5f_pow_CP5',
+              'ST_tWll_5f_LO',
+              'ST_tWnunu_5f_LO',
              
-              #'THQ_LO',
-              #'THW_LO',
+              'THQ_LO',
+              'THW_LO',
               
-              #'TTTT_NLO',
-              #'TTWW_NLO',
-              #'TTWZ_NLO',
-              #'TTZZ_NLO',
+              'TTTT_NLO',
+              'TTWW_NLO',
+              'TTWZ_NLO',
+              'TTZZ_NLO',
 
-              #'TTW_LO',
-              #'TTWJetsToLNu_NLO',
-              #'TTWJetsToQQ_NLO',
-              #'TTZToLLNuNu_NLO_ext2',
-              #'TTZToLLNuNu_NLO_ext3',
-              #'TTZToQQ_NLO',
-              #'TGG',
+              'TTW_LO',
+              'TTWJetsToLNu_NLO',
+              'TTWJetsToQQ_NLO',
+              'TTZToLLNuNu_NLO_ext2',
+              'TTZToLLNuNu_NLO_ext3',
+              'TTZToQQ_NLO',
+              'TGG',
               ]
 
-def remove(fileList):
-    blacklist = [
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Prompt/pt_3.5_-1/TTTo2L2Nu_noSC_pow/TTTo2L2Nu_noSC_pow_19.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Prompt/pt_3.5_-1/TTTo2L2Nu_pow/TTTo2L2Nu_pow_46.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/NonPrompt/pt_3.5_-1/TTTo2L2Nu_pow_CP5/TTTo2L2Nu_pow_CP5_127.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Fake/pt_3.5_-1/TTTo2L2Nu_pow_CP5/TTTo2L2Nu_pow_CP5_122.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Fake/pt_3.5_-1/TTTo2L2Nu_pow_CP5/TTTo2L2Nu_pow_CP5_185.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Fake/pt_3.5_-1/TTTo2L2Nu_pow_CP5/TTTo2L2Nu_pow_CP5_192.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Fake/pt_3.5_-1/TTTo2L2Nu_pow_CP5/TTTo2L2Nu_pow_CP5_36.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Fake/pt_3.5_-1/TTTo2L2Nu_pow_CP5/TTTo2L2Nu_pow_CP5_123.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Fake/pt_3.5_-1/TTTo2L2Nu_pow_CP5/TTTo2L2Nu_pow_CP5_186.root',  
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/NonPrompt/pt_3.5_-1/TTTo2L2Nu_pow/TTTo2L2Nu_pow_108.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/NonPrompt/pt_3.5_-1/TTTo2L2Nu_pow/TTTo2L2Nu_pow_136.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/NonPrompt/pt_3.5_-1/TTTo2L2Nu_pow/TTTo2L2Nu_pow_69.root',
-   'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/NonPrompt/pt_3.5_-1/TTToSemilepton_pow/TTToSemilepton_pow_14.root', 
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/NonPrompt/pt_3.5_-1/TTToSemilepton_pow/TTToSemilepton_pow_80.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Fake/pt_3.5_-1/TTToSemilepton_pow/TTToSemilepton_pow_115.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Fake/pt_3.5_-1/TTToSemilepton_pow/TTToSemilepton_pow_129.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Fake/pt_3.5_-1/TTToSemilepton_pow/TTToSemilepton_pow_116.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Fake/pt_3.5_-1/TTToSemilepton_pow/TTToSemilepton_pow_86.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Prompt/pt_3.5_-1/TTToSemilepton_pow_CP5/TTToSemilepton_pow_CP5_234.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Prompt/pt_3.5_-1/TTToSemilepton_pow_CP5/TTToSemilepton_pow_CP5_74.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/NonPrompt/pt_3.5_-1/TTToSemilepton_pow_CP5/TTToSemilepton_pow_CP5_113.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/NonPrompt/pt_3.5_-1/TTToSemilepton_pow_CP5/TTToSemilepton_pow_CP5_197.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Prompt/pt_3.5_-1/TTToSemilepton_pow_CP5/TTToSemilepton_pow_CP5_74.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/NonPrompt/pt_3.5_-1/TTToSemilepton_pow_CP5/TTToSemilepton_pow_CP5_121.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/NonPrompt/pt_3.5_-1/TTToSemilepton_pow_CP5/TTToSemilepton_pow_CP5_148.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/NonPrompt/pt_3.5_-1/TTToSemilepton_pow_CP5/TTToSemilepton_pow_CP5_232.root',
-    'root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/NonPrompt/pt_3.5_-1/TTToSemilepton_pow_CP5/TTToSemilepton_pow_CP5_242.root',
-]
-    blacklist = set(blacklist)
-    toremove = []
-    for f in fileList:
-        if f in blacklist:
-            toremove.append(f)
-    for f in toremove:
-        fileList.remove(f)
-    return fileList
 
 filesPrompt    = []
 filesNonPrompt = []
@@ -102,20 +64,16 @@ filesFake      = []
 
 for s in Samples:
 
-    p = subprocess.Popen( ["xrdfs root://eos.grid.vbc.ac.at/ ls /eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Prompt/pt_3.5_-1/{}/".format(s)], 
+    p = subprocess.Popen( ["xrdfs root://eos.grid.vbc.ac.at/ ls /eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/ele/Prompt/*/{}/".format(s)], 
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
-    n = subprocess.Popen( ["xrdfs root://eos.grid.vbc.ac.at/ ls /eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/NonPrompt/pt_3.5_-1/{}/".format(s)], 
+    n = subprocess.Popen( ["xrdfs root://eos.grid.vbc.ac.at/ ls /eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/ele/NonPrompt/*/{}/".format(s)], 
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
-    a = subprocess.Popen( ["xrdfs root://eos.grid.vbc.ac.at/ ls /eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Fake/pt_3.5_-1/{}/".format(s)], 
+    a = subprocess.Popen( ["xrdfs root://eos.grid.vbc.ac.at/ ls /eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/ele/Fake/*/{}/".format(s)], 
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
 
     filesPrompt    += [ redirector+'/'+f.rstrip("\n") for f in p.stdout.readlines() if f.endswith('.root\n') ]
     filesNonPrompt += [ redirector+'/'+f.rstrip("\n") for f in n.stdout.readlines() if f.endswith('.root\n') ]
     filesFake      += [ redirector+'/'+f.rstrip("\n") for f in a.stdout.readlines() if f.endswith('.root\n') ]
-
-filesPrompt = remove(filesPrompt)
-filesNonPrompt = remove(filesNonPrompt)
-filesFake = remove(filesFake)
 
 
 def testFiles(fileList):
@@ -128,10 +86,10 @@ def testFiles(fileList):
         log.close()
         print(chain.GetEntries(selectionString))
 
-testFiles(filesPrompt)
-testFiles(filesNonPrompt)
+#testFiles(filesPrompt)
+#testFiles(filesNonPrompt)
 testFiles(filesFake)
-
+#sys.exit(1)
 random.shuffle(filesPrompt)
 random.shuffle(filesNonPrompt)
 random.shuffle(filesFake)
@@ -163,10 +121,10 @@ for f in filesFake:
     chainFake.AddFile(f)
 
 print("Getting Prompt Entries")
-print(chainPrompt.GetEntries(selectionString))
+#print(chainPrompt.GetEntries(selectionString))
 
 print("Getting NonPrompt Entries")
-print(chainNonPrompt.GetEntries(selectionString))
+#print(chainNonPrompt.GetEntries(selectionString))
 
 print("Getting Fake Entries")
 print(chainFake.GetEntries(selectionString))

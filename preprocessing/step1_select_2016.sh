@@ -75,124 +75,124 @@
 
 # Top
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTTo2L2Nu_noSC_pow #SPLIT21
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTTo2L2Nu_noSC_pow #SPLIT21
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTTo2L2Nu_noSC_pow #SPLIT21
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTTo2L2Nu_noSC_pow #SPLIT21
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTTo2L2Nu_pow_CP5 #SPLIT195
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTTo2L2Nu_pow_CP5 #SPLIT195
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTTo2L2Nu_pow_CP5 #SPLIT195
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTTo2L2Nu_pow_CP5 #SPLIT195
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTTo2L2Nu_pow #SPLIT145
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTTo2L2Nu_pow #SPLIT145
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTTo2L2Nu_pow #SPLIT145
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTTo2L2Nu_pow #SPLIT145
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTToSemilepton_pow #SPLIT300
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTToSemilepton_pow #SPLIT200
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTToSemilepton_pow #SPLIT300
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTToSemilepton_pow #SPLIT200
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTToSemilepton_pow_CP5 #SPLIT272
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTToSemilepton_pow_CP5 #SPLIT272
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTToSemilepton_pow_CP5 #SPLIT272
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTToSemilepton_pow_CP5 #SPLIT272
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TT_pow #SPLIT140
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TT_pow #SPLIT140
-
-
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_schannel_4f_NLO #SPLIT4
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_schannel_4f_NLO #SPLIT4
-
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_schannel_4f_CP5 #SPLIT26
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_schannel_4f_CP5 #SPLIT26
-
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tchannel_antitop_4f_pow #SPLIT75
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tchannel_antitop_4f_pow #SPLIT75
-
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tchannel_antitop_4f_pow_CP5 #SPLIT57
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tchannel_antitop_4f_pow_CP5 #SPLIT57
-
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tchannel_top_4f_pow #SPLIT125
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tchannel_top_4f_pow #SPLIT125
-
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tchannel_top_4f_pow_CP5 #SPLIT77
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tchannel_top_4f_pow_CP5 #SPLIT77
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TT_pow #SPLIT140
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TT_pow #SPLIT140
 
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_antitop_NoFullyHad_5f_pow #SPLIT6
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_antitop_NoFullyHad_5f_pow #SPLIT6
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_schannel_4f_NLO #SPLIT4
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_schannel_4f_NLO #SPLIT4
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_antitop_5f_pow_ext1 #SPLIT15
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_antitop_5f_pow_ext1 #SPLIT15
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_schannel_4f_CP5 #SPLIT26
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_schannel_4f_CP5 #SPLIT26
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_antitop_5f_pow #SPLIT2
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_antitop_5f_pow #SPLIT2
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tchannel_antitop_4f_pow #SPLIT75
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tchannel_antitop_4f_pow #SPLIT75
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_antitop_5f_pow_CP5 #SPLIT25
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_antitop_5f_pow_CP5 #SPLIT25
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tchannel_antitop_4f_pow_CP5 #SPLIT57
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tchannel_antitop_4f_pow_CP5 #SPLIT57
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_top_NoFullyHad_5f_pow #SPLIT11
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_top_NoFullyHad_5f_pow #SPLIT11
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tchannel_top_4f_pow #SPLIT125
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tchannel_top_4f_pow #SPLIT125
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_top_NoFullyHad_5f_pow_ext #SPLIT6
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_top_NoFullyHad_5f_pow_ext #SPLIT6
-
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_top_5f_pow_ext1 #SPLIT15
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_top_5f_pow_ext1 #SPLIT15
-
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_top_5f_pow #SPLIT3
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_top_5f_pow #SPLIT3
-
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_top_5f_pow_CP5 #SPLIT17
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_top_5f_pow_CP5 #SPLIT17
-
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tWll_5f_LO #SPLIT1
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tWll_5f_LO #SPLIT1
-
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tWnunu_5f_LO #SPLIT1
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tWnunu_5f_LO #SPLIT1
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tchannel_top_4f_pow_CP5 #SPLIT77
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tchannel_top_4f_pow_CP5 #SPLIT77
 
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample THQ_LO #SPLIT10
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample THQ_LO #SPLIT10
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_antitop_NoFullyHad_5f_pow #SPLIT6
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_antitop_NoFullyHad_5f_pow #SPLIT6
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample THW_LO #SPLIT2
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample THW_LO #SPLIT2
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_antitop_5f_pow_ext1 #SPLIT15
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_antitop_5f_pow_ext1 #SPLIT15
 
-##python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample tZq_ll_NLO #SPLIT50
-##python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample tZq_ll_NLO #SPLIT50
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_antitop_5f_pow #SPLIT2
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_antitop_5f_pow #SPLIT2
 
-##python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample tZq_nunu_NLO #SPLIT3
-##python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample tZq_nunu_NLO #SPLIT3
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_antitop_5f_pow_CP5 #SPLIT25
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_antitop_5f_pow_CP5 #SPLIT25
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTTT_NLO #SPLIT1
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTTT_NLO #SPLIT1
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_top_NoFullyHad_5f_pow #SPLIT11
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_top_NoFullyHad_5f_pow #SPLIT11
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTWZ_NLO #SPLIT10
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTWZ_NLO #SPLIT10
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_top_NoFullyHad_5f_pow_ext #SPLIT6
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_top_NoFullyHad_5f_pow_ext #SPLIT6
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTWW_NLO #SPLIT9
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTWW_NLO #SPLIT9
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_top_5f_pow_ext1 #SPLIT15
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_top_5f_pow_ext1 #SPLIT15
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTZZ_NLO #SPLIT10
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTZZ_NLO #SPLIT10
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_top_5f_pow #SPLIT3
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_top_5f_pow #SPLIT3
+
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tW_top_5f_pow_CP5 #SPLIT17
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tW_top_5f_pow_CP5 #SPLIT17
+
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tWll_5f_LO #SPLIT1
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tWll_5f_LO #SPLIT1
+
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ST_tWnunu_5f_LO #SPLIT1
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ST_tWnunu_5f_LO #SPLIT1
+
+
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample THQ_LO #SPLIT10
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample THQ_LO #SPLIT10
+
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample THW_LO #SPLIT2
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample THW_LO #SPLIT2
+
+#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample tZq_ll_NLO #SPLIT50
+#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample tZq_ll_NLO #SPLIT50
+
+#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample tZq_nunu_NLO #SPLIT3
+#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample tZq_nunu_NLO #SPLIT3
+
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTTT_NLO #SPLIT1
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTTT_NLO #SPLIT1
+
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTWZ_NLO #SPLIT10
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTWZ_NLO #SPLIT10
+
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTWW_NLO #SPLIT9
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTWW_NLO #SPLIT9
+
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTZZ_NLO #SPLIT10
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTZZ_NLO #SPLIT10
 
 
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTW_LO #SPLIT20
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTW_LO #SPLIT20
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTW_LO #SPLIT20
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTW_LO #SPLIT20
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTWJetsToLNu_NLO #SPLIT10
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTWJetsToLNu_NLO #SPLIT10
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTWJetsToLNu_NLO #SPLIT10
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTWJetsToLNu_NLO #SPLIT10
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTWJetsToQQ_NLO #SPLIT2
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTWJetsToQQ_NLO #SPLIT2
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTWJetsToQQ_NLO #SPLIT2
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTWJetsToQQ_NLO #SPLIT2
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTZToLLNuNu_NLO_ext2 #SPLIT18
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTZToLLNuNu_NLO_ext2 #SPLIT18
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTZToLLNuNu_NLO_ext2 #SPLIT18
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTZToLLNuNu_NLO_ext2 #SPLIT18
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTZToLLNuNu_NLO_ext3 #SPLIT18
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTZToLLNuNu_NLO_ext3 #SPLIT18
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTZToLLNuNu_NLO_ext3 #SPLIT18
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTZToLLNuNu_NLO_ext3 #SPLIT18
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTZToLL_M1to10_NLO #SPLIT2
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTZToLL_M1to10_NLO #SPLIT2
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTZToLL_M1to10_NLO #SPLIT2
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTZToLL_M1to10_NLO #SPLIT2
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTZToQQ_NLO #SPLIT3
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTZToQQ_NLO #SPLIT3
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TTZToQQ_NLO #SPLIT3
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TTZToQQ_NLO #SPLIT3
 
 #TODO python step1_select.py  --small --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ttZJets_LO #SPLIT27
 #TODO python step1_select.py  --small --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ttZJets_LO #SPLIT27
@@ -203,8 +203,8 @@
 #TODO python step1_select.py  --small --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample ttHTobb_pow #SPLIT8
 #TODO python step1_select.py  --small --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample ttHTobb_pow #SPLIT8
 
-#python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TGG #SPLIT2
-#python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TGG #SPLIT2
+python step1_select.py  --version v2 --year 2016 --flavour ele --logLevel INFO --ptSelection pt_5_-1   --sample TGG #SPLIT2
+python step1_select.py  --version v2 --year 2016 --flavour muo --logLevel INFO --ptSelection pt_3.5_-1 --sample TGG #SPLIT2
 
 
 

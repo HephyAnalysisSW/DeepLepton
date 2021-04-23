@@ -1,10 +1,10 @@
 #! /bin/sh -x
 
 ganga='/cvmfs/ganga.cern.ch/Ganga/install/LATEST/bin/ganga'
-for sample in 'QCD' 'DY' 'T'
+for sample in 'QCD1' 'QCD2' 'DY' 'T1' 'T2'
 do
     for flavour in 'ele' 'muo'
     do
-       "$ganga" submit_step1 --version v1 --flavour "$flavour" --sample "$sample" "$@"
+       "$ganga" submit_step1 --version v2 --flavour "$flavour" --sample "$sample" "$@"
     done
 done

@@ -342,6 +342,18 @@ def get_samples_from_def(samples_def,sample_name):
 
     if sample_name == 'ALL':
         return all_samples
+    elif sample_name == 'QCD1':
+        l = len(group_samples['QCD']) // 2
+        return group_samples['QCD'][:l]
+    elif sample_name == 'QCD2':
+        l = len(group_samples['QCD']) // 2
+        return group_samples['QCD'][l:]
+    elif sample_name == 'T1':
+        l = len(group_samples['T']) // 2
+        return group_samples['T'][:l]
+    elif sample_name == 'T2':
+        l = len(group_samples['T']) // 2
+        return group_samples['T'][l:]
     elif sample_name in group_samples:
         return group_samples[sample_name]
     elif sample_name in all_samples:
@@ -361,6 +373,7 @@ def splitter(samples, max_files, flavour):
 
     sj_args = []
     for s in samples:
+        print ( s )
         if max_files > 0 and s.nr_files > max_files:
             nr_jobs = s.nr_files // max_files + 1
             for j in range(nr_jobs):

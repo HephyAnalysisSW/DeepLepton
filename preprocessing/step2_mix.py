@@ -175,9 +175,10 @@ def getInput( sub_directories, class_name):
         treeName = 'tree', selectionString=selectionString,
         redirector = "root://eos.grid.vbc.ac.at/" if inputPath.startswith('/eos/') else None,
         skipCheck = True
-        )
+        ) 
     random.shuffle( sample.files )
     return sample
+
 
 logger.info("Getting Filenames")
 
@@ -279,7 +280,8 @@ n_maxfileentries    = 100000
 n_current_entries   = 0
 n_file              = 0
 
-outputDir = os.path.join( skim_directory, args.version + ("_small" if args.small else ""), "step2", str(args.year), args.flavour, args.ptSelection, args.sampleSelection)
+outputDir = os.path.join( "/scratch-cbe/users/maximilian.moser/DeepLepton", args.version + ("_small" if args.small else ""), "step2", str(args.year), args.flavour, args.ptSelection, args.sampleSelection)
+
 
 try:
     os.makedirs(outputDir)
@@ -303,6 +305,8 @@ logger.info("Starting Readers")
 for leptonClass in leptonClasses:
     leptonClass['reader'].start()
     leptonClass['counter'] = 0
+
+logger.info('Begin Lepton Loop')
 
 for i_choice, choice in enumerate(choices):
 

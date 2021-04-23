@@ -1,0 +1,2 @@
+Logfileroot://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/ele/Fake/pt_5_-1/TTTo2L2Nu_noSC_pow/TTTo2L2Nu_noSC_pow_0.root
+root://eos.grid.vbc.ac.at///eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/ele/Fake/pt_5_-1/TTTo2L2Nu_noSC_pow/TTTo2L2Nu_noSC_pow_1.root

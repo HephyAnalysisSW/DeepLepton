@@ -115,12 +115,12 @@ SV_varnames         = map( lambda n:n.split('/')[0], SV_vars)
 if options.flavour == 'ele':
     lep_vars = ele_vars 
     if not sample.isData:
-        lep_vars.extend(['genPartFlav/B'])
+        lep_vars.extend(['genPartFlav/b'])
     read_variables.extend(['nElectron/I', 'Electron[%s]'%(",".join(lep_vars))])
 elif options.flavour == 'muo':
     lep_vars = muo_vars 
     if not sample.isData:
-        lep_vars.extend(['genPartFlav/B'])
+        lep_vars.extend(['genPartFlav/b'])
     read_variables.extend(['nMuon/I', 'Muon[%s]'%(",".join(lep_vars))])
 
 lep_varnames = map( lambda n:n.split('/')[0], lep_vars ) 

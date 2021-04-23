@@ -3,7 +3,6 @@ import os
 if 'SKIMSDIR' in os.environ:
     skim_directory = os.environ['SKIMSDIR']
     dbDir = "."
-    return
 
 if os.environ['USER'] in ['robert.schoefbeck']:
     #plot_directory   = "/afs/hephy.at/user/r/rschoefbeck/www/DeepLepton/"

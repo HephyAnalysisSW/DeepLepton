@@ -302,11 +302,7 @@ while reader.run():
     for lep in leps:
         #now decide which maker to use
         maker = new_maker # only use this one maker
-        #try:
-        #print lep['genPartFlav'], type(lep['genPartFlav']), ord(lep['genPartFlav'])
         genPartFlav = ord(lep['genPartFlav'])
-        #except:
-        #    continue
         #for leptonClass in leptonClasses.values():
         #    if leptonClass['selector'](genPartFlav):
         #        maker = leptonClass['maker']

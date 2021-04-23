@@ -66,95 +66,94 @@ def main():
 
     # Prepare the batch job
 
-    job = Job()
-    job.name = "step1"
-    version = opts.version + "_small" if opts.small else opts.version
-    job.comment = (
-        f"{version} {opts.year} {opts.flavour} {opts.ptSelection} {opts.sample}"
-    )
+    max_subjobs = 50
+    subjobs_args = splitter(samples, opts.max_files, opts.flavour)
+    
+    while subjob_args:
 
-    # Application
+        job = Job()
+        job.name = "step1"
+        version = opts.version + "_small" if opts.small else opts.version
+        job.comment = (
+            f"{version} {opts.year} {opts.flavour} {opts.ptSelection} {opts.sample}"
+        )
 
-    job.application = Executable()
-    job.application.exe = File(
-        str(cmssw_base / "src/DeepLepton/Tools/ganga/step1_select.sh")
-    )
-    job.application.env = {
-        "CMSSW_VERSION": cmssw_version,
-        "SCRAM_ARCH": cmssw_arch,
-        "SKIMSDIR": f"/store/user/{nickname}/{opts.skims}",
-    }
+        # Application
 
-    if opts.condor:
-        # for Condor the database is send with the sandbox
-        job.application.env["SAMPLES_DBDIR"] = "."
-    else:
-        # for SLURM submission the user proxy has to be on shared file system
-        try:
-            user_proxy = os.environ["X509_USER_PROXY"]
-        except KeyError:
-            user_proxy = "/tmp/x509up_u%s" % os.getuid()
-        if user_proxy.startswith("/tmp/"):
-            print("X509 user proxy has to be on shared file system ")
-            sys.exit(1)
-        job.application.env["X509_USER_PROXY"] = user_proxy
-
-    args = [
-        "--logLevel",
-        opts.logLevel,
-        "--year",
-        opts.year,
-        "--version",
-        opts.version,
-        "--ptSelection",
-        opts.ptSelection,
-    ]
-    if opts.small:
-        args.append("--small")
-    if opts.muFromTauArePrompt:
-        args.append("--muFromTauArePrompt")
-
-    job.application.args = args
-
-    # Inputsandbox
-    job.inputsandbox.append(File(str(tarball)))
-    if opts.condor:
-        job.inputsandbox.append(File(str(db_file)))
-
-    # Backend
-    if opts.condor:
-        cdr = Condor()
-        cdr.spool = False
-        cdr.shared_filesystem = False
-        cdr.cdf_options = {
-            "+DESIRED_Sites": '"T2_AT_Vienna"',
-            "transfer_output_files": '""',
+        job.application = Executable()
+        job.application.exe = File(
+            str(cmssw_base / "src/DeepLepton/Tools/ganga/step1_select.sh")
+        )
+        job.application.env = {
+            "CMSSW_VERSION": cmssw_version,
+            "SCRAM_ARCH": cmssw_arch,
+            "SKIMSDIR": f"/store/user/{nickname}/{opts.skims}",
         }
-        job.backend = cdr
-    else:
-        job.backend = Slurm()
-        job.backend.extraopts = f"--qos {opts.slurm_qos} -J step1"
 
-    if opts.dry_run:
-        print(job)
+        if opts.condor:
+            # for Condor the database is send with the sandbox
+            job.application.env["SAMPLES_DBDIR"] = "."
+        else:
+            # for SLURM submission the user proxy has to be on shared file system
+            try:
+                user_proxy = os.environ["X509_USER_PROXY"]
+            except KeyError:
+                user_proxy = "/tmp/x509up_u%s" % os.getuid()
+            if user_proxy.startswith("/tmp/"):
+                print("X509 user proxy has to be on shared file system ")
+                sys.exit(1)
+            job.application.env["X509_USER_PROXY"] = user_proxy
 
-        for a in splitter(samples, opts.max_files, opts.flavour):
-            print(a)
+        args = [
+            "--logLevel",
+            opts.logLevel,
+            "--year",
+            opts.year,
+            "--version",
+            opts.version,
+            "--ptSelection",
+            opts.ptSelection,
+        ]
+        if opts.small:
+            args.append("--small")
+        if opts.muFromTauArePrompt:
+            args.append("--muFromTauArePrompt")
 
-        del job
-    else:
-        # Splitter: for each subjob additional arguments perform the splitting
+        # Splitter
         job.splitter = ArgSplitter()
-        sj_args = splitter(samples, opts.max_files, opts.flavour)
-        max_sj_args = 50
-        while sj_args:
-            job.splitter.args = [
-                args + sa for sa in sj_args[:max_sj_args]
-            ]
+        job.splitter.args = [
+                args + sa for sa in subjobs_args[:max_subjobs]
+        ]
+        subjobs_args = subjobs_args[max_subjobs:]
+
+        # Inputsandbox
+        job.inputsandbox.append(File(str(tarball)))
+        if opts.condor:
+            job.inputsandbox.append(File(str(db_file)))
+
+        # Backend
+        if opts.condor:
+            cdr = Condor()
+            cdr.spool = False
+            cdr.shared_filesystem = False
+            cdr.cdf_options = {
+                "+DESIRED_Sites": '"T2_AT_Vienna"',
+                "transfer_output_files": '""',
+            }
+            job.backend = cdr
+        else:
+            job.backend = Slurm()
+            job.backend.extraopts = f"--qos {opts.slurm_qos} -J step1"
+
+        if opts.dry_run:
+            print(job)
+
+            for a in job.splitter.args:
+                print(a)
+
+            del job
+        else:
             job.submit()
-            sj_args = sj_args[max_sj_args:]
-            if sj_args:
-                job = job.copy()
 
     tarball.unlink()
 

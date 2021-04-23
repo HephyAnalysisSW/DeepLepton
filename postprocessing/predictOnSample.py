@@ -118,12 +118,12 @@ SV_varnames         = map( lambda n:n.split('/')[0], SV_vars)
 if options.flavour == 'ele':
     lep_vars = ele_vars 
     if not sample.isData:
-        lep_vars.extend(['genPartFlav/B'])
+        lep_vars.extend(['genPartFlav/b'])
     read_variables.extend(['nElectron/I', 'Electron[%s]'%(",".join(lep_vars))])
 elif options.flavour == 'muo':
     lep_vars = muo_vars 
     if not sample.isData:
-        lep_vars.extend(['genPartFlav/B'])
+        lep_vars.extend(['genPartFlav/b'])
     read_variables.extend(['nMuon/I', 'Muon[%s]'%(",".join(lep_vars))])
 
 lep_varnames = map( lambda n:n.split('/')[0], lep_vars ) 
@@ -258,7 +258,7 @@ def branches(pfC,pfC_flav_branches, npfC, n=-2): # n = -2 for pfCand, -1 for SV
         nb.append(n)
     nb.sort(key=lambda n: n[-2])
     zeros = [0. for i in range(len(pfC_flav_branches))]
-    for i in range(npfC - len(pfC)]):
+    for i in range(npfC - len(pfC)):
         nb.append(zeros)
     nb = np.asarray([nb]).astype(np.float32)
     return nb
@@ -302,10 +302,7 @@ while reader.run():
     for lep in leps:
         #now decide which maker to use
         maker = new_maker # only use this one maker
-        try:
-            genPartFlav = ord(lep['genPartFlav'])
-        except:
-            continue
+        genPartFlav = ord(lep['genPartFlav'])
         #for leptonClass in leptonClasses.values():
         #    if leptonClass['selector'](genPartFlav):
         #        maker = leptonClass['maker']
@@ -354,61 +351,30 @@ while reader.run():
         gb = []
         for b in global_branches:
             gb.append(lep[b.replace("lep_", "")])
-                
-
-        nb = []
-        for cand in pfCands["neutral"]:
-            n = [cand[b.split("_")[-1]] for b in pfCand_neutral_branches]
-            nb.append(n)
-        nb.sort(key=lambda n: n[-2])
-        zeros = [0. for i in range(len(pfCand_neutral_branches))]
-        for i in range(npfCand_neutral - len(pfCands["neutral"])):
-            nb.append(zeros)
-        nb = np.asarray([nb]).astype(np.float32)
         
-        cb = []
-        for cand in pfCands["charged"]:
-            n = [cand[b.split("_")[-1]] for b in pfCand_charged_branches]
-            cb.append(n)
-        cb.sort(key=lambda n: n[-2])
-        cb.append(list(np.zeros((npfCand_charged, len(pfCand_charged_branches)))))
-        cb = cb[:npfCand_charged]
-        
-        pb = []
-        for cand in pfCands["photon"]:
-            n = [cand[b.split("_")[-1]] for b in pfCand_photon_branches]
-            pb.append(n)
-        pb.sort(key=lambda n: n[-2])
-        pb.append(list(np.zeros((npfCand_photon, len(pfCand_photon_branches)))))
-        pb = pb[:npfCand_photon]
+        neutralB = branches(pfCands["neutral"],  pfCand_neutral_branches,  npfCand_neutral, n=-2)
+        chargedB = branches(pfCands["charged"],  pfCand_charged_branches,  npfCand_charged, n=-2)
+        photonB  = branches(pfCands["photon"],   pfCand_photon_branches,   npfCand_neutral, n=-2)
+        electronB= branches(pfCands["electron"], pfCand_electron_branches, npfCand_neutral, n=-2)
+        muonB    = branches(pfCands["muon"],     pfCand_muon_branches,     npfCand_neutral, n=-2)
+        svB      = branches(SV,                  SV_branches,              nSV,             n=-1)                
+        print(neutralB)
+        print(chargedB)
+        print(photonB)
+        print(electronB)
+        print(muonB)
+        print(svB)
+        print(np.shape(neutralB))
+        print(np.shape(chargedB))
+        print(np.shape(photonB))
+        print(np.shape(electronB))
+        print(np.shape(muonB))
+        print(np.shape(svB))
 
-        eb = []
-        for cand in pfCands["electron"]:
-            n = [cand[b.split("_")[-1]] for b in pfCand_electron_branches]
-            eb.append(n)
-        eb.sort(key=lambda n: n[-2])
-        eb.append(list(np.zeros((npfCand_electron, len(pfCand_electron_branches)))))
-        eb = eb[:npfCand_electron]
-
-        mb = []
-        for cand in pfCands["muon"]:
-            n = [cand[b.split("_")[-1]] for b in pfCand_muon_branches]
-            mb.append(n)
-        mb.sort(key=lambda n: n[-2])
-        mb.append(list(np.zeros((npfCand_muon, len(pfCand_muon_branches)))))
-        mb = mb[:npfCand_muon]
-        
-        sv = []
-        for v in SV:
-            n = [v[b.split("_")[-1]] for b in SV_branches]
-            sv.append(n)
-        sv.sort(key=lambda n: n[-1])    
-        #sv.append(list(np.zeros((nSV, len(SV_branches)))))
-        #sv = sv[:nSV]
 
         #toPredict = np.asarray( [ gb, nb, cb, pb, eb, mb, sv ] )
         #toPredict = toPredict.astype(np.float32)
-        toPredict = [ gb, nb, cb, pb, eb, mb, sv ]
+        toPredict = [ gb, neutralB, chargedB, photonB, electronB, muonB, svB ]
         #gb = np.expand_dims(np.asarray(gb), -1)
         
         #print(np.shape(np.asarray(gb)))
@@ -416,15 +382,15 @@ while reader.run():
         #for i in model.inputs:
         #    print(i.shape, i.dtype)
         tp = []
-        for x in toPredict:
+        #for x in toPredict:
         #    print(np.shape(x))
             #print(np.shape(np.expand_dims(np.asarray(x), -1)))
             #tp.append(np.expand_dims(np.asarray(x), -1))
-            tp.append(np.asarray(x))
+        #    tp.append(np.asarray(x))
         #for x in tp:
         #    print(np.shape(x), x)
         
-        #prediction = model.predict(tp)
+        prediction = model.predict(tp)
         
         #maker.event.lep_probPrompt = prediction[0]
         #maker.event.lep_probNonPrompt = prediction[1]

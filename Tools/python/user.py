@@ -1,5 +1,6 @@
 import os
 
+# for GRID
 if 'SKIMSDIR' in os.environ:
     skim_directory = os.environ['SKIMSDIR']
     dbDir = "."
@@ -7,7 +8,7 @@ if 'SKIMSDIR' in os.environ:
 elif os.environ['USER'] in ['robert.schoefbeck']:
     #plot_directory   = "/afs/hephy.at/user/r/rschoefbeck/www/DeepLepton/"
     #skim_directory   = "/scratch-cbe/users/robert.schoefbeck/DeepLepton/"
-    skim_directory   = "/eos/vbc/user/maximilian.moser/DeepLepton"
+    skim_directory   = "/eos/vbc/user/robert.schoefbeck/DeepLepton"
     #data_directory   = "/afs/hephy.at/data/rschoefbeck02/cmgTuples/"
     dbDir           = "/users/maximilian.moser/caches/Samples/"
 

@@ -256,6 +256,7 @@ write_variables = variables
 
 logger.info("Counting Samples and constructing the Reader")
 
+assert False, ""
 #Loop over samples
 for leptonClass in leptonClasses:
     logger.info( "Class %s", leptonClass['name'] )

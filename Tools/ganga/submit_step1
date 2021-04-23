@@ -44,30 +44,21 @@ def main():
 
     if opts.year == 2016:
         db_file = db_dir / "DB_Summer16_DeepLepton.sql::memory:?cache=shared"
+        samples_def = cmssw_base / 'src/DeepLepton/Samples/python/nanoAOD_PFCands_Summer16.py'
     elif opts.year == 2017:
         db_file = db_dir / "DB_Fall17_DeepLepton.sql::memory:?cache=shared"
+        samples_def = cmssw_base / 'src/DeepLepton/Samples/python/nanoAOD_PFCands_Fall17.py'
     elif opts.year == 2018:
         db_file = db_dir / "DB_Autumn18_DeepLepton.sql::memory:?cache=shared"
-    all_samples = get_samples(db_file)
+        samples_def = cmssw_base / 'src/DeepLepton/Samples/python/nanoAOD_PFCands_Fall18.py'
+
 
     # grid nickname
     nickname = find_nickname()
 
-    # process special sample names ALL, DY, QCD and T
-
-    if opts.sample == "ALL":
-        samples = all_samples
-    elif opts.sample == "DY":
-        samples = [s for s in all_samples if re.match("DYJetsToLL_", s.name, re.I)]
-    elif opts.sample == "QCD":
-        samples = [s for s in all_samples if re.match("QCD_", s.name, re.I)]
-    elif opts.sample == "T":
-        samples = [s for s in all_samples if re.match("T|ST_", s.name, re.I)]
-    else:
-        samples = [s for s in all_samples if s.name == opts.sample]
-        if len(samples) == 0:
-            print(f"Sample {opts.sample} not found.")
-            sys.exit(1)
+    all_samples = get_samples(db_file)
+    the_samples = get_samples_from_def(samples_def,opts.sample)
+    samples = [ s for s in all_samples if s.name in the_samples ]
 
     # Create the tarball
 
@@ -335,6 +326,42 @@ def get_samples(db_file):
     Sample = namedtuple("Sample", ["name", "nr_files"])
     return [Sample(first_up(r[0]), r[1]) for r in db.execute(sql)]
 
+def get_samples_from_def(samples_def,sample_name):
+
+    with open(samples_def,'r') as f:
+        samples_data = f.read()
+
+    group_samples = {}
+    all_samples = []
+    for m in re.finditer(r"^\ *(\w*)\ *=\ *\[([^\]]+)\]", samples_data, re.M):
+        name = m.group(1)
+        samples = m.group(2).replace(" ", "").replace("\n", "")
+        samples = [s for s in samples.split(",") if s]
+        group_samples[name] = samples
+        all_samples += samples
+
+    if sample_name == 'ALL':
+        return all_samples
+    elif sample_name == 'QCD1':
+        l = len(group_samples['QCD']) // 2
+        return group_samples['QCD'][:l]
+    elif sample_name == 'QCD2':
+        l = len(group_samples['QCD']) // 2
+        return group_samples['QCD'][l:]
+    elif sample_name == 'T1':
+        l = len(group_samples['T']) // 2
+        return group_samples['T'][:l]
+    elif sample_name == 'T2':
+        l = len(group_samples['T']) // 2
+        return group_samples['T'][l:]
+    elif sample_name in group_samples:
+        return group_samples[sample_name]
+    elif sample_name in all_samples:
+        return [ sample_name ]
+    
+    print ( f'Unknown sample {sample_name}.')
+    sys.exit
+
 
 def splitter(samples, max_files, flavour):
     """Perform job splitting"""
@@ -346,6 +373,7 @@ def splitter(samples, max_files, flavour):
 
     sj_args = []
     for s in samples:
+        print ( s )
         if max_files > 0 and s.nr_files > max_files:
             nr_jobs = s.nr_files // max_files + 1
             for j in range(nr_jobs):
@@ -359,7 +387,7 @@ def splitter(samples, max_files, flavour):
                             "--nJobs",
                             nr_jobs,
                             "--job",
-                            j + 1,
+                            j,
                         ]
                     )
         else:

@@ -47,7 +47,7 @@ maxN = 2 if options.small else None
 #load keras model
 #from keras.models import load_model
 import tensorflow as tf
-model = tf.keras.models.load_model("/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_rH_2/training_20/KERAS_model.h5")
+model = tf.keras.models.load_model( "/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_rH_flat/training_20_CNN/KERAS_model.h5" )
 
 
 # Load samples
@@ -180,32 +180,7 @@ new_maker = TreeMaker( sequence  = [ ],
 tmp_directory.cd()
 
 new_maker.start()
-"""
-for leptonClass_name, leptonClass in leptonClasses.iteritems():
 
-    outfilename =  os.path.join(output_directory, "predicted", options.flavour, leptonClass_name, options.ptSelection, sample_name, sample.name + '.root')
-    logger.debug("Writing to: %s", outfilename)
-
-    if not os.path.exists(os.path.dirname(outfilename)):
-        try:
-            os.makedirs(os.path.dirname(outfilename))
-        except:
-            pass
-
-    tmp_directory = ROOT.gDirectory
-    outfile = ROOT.TFile.Open(outfilename, 'recreate')
-    outfile.cd()
-    maker = TreeMaker( sequence  = [ ],
-        variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, new_variables),
-        treeName = 'tree')
-    tmp_directory.cd()
-
-    leptonClass['outfile']    = outfile
-    leptonClass['outfilename']= outfilename
-    #leptonClass['clonedTree'] = reader.cloneTree( [], newTreename = 'tree', rootfile = leptonClass['outfile'] )
-    leptonClass['maker']      = maker 
-    leptonClass['maker'].start()
-"""
 global_branches = [
             'lep_pt', 'lep_eta', 'lep_phi',
             'lep_mediumId',
@@ -251,7 +226,7 @@ def ptRel(cand, lep):
     o = ROOT.TLorentzVector(cand['pt']*cos(cand['phi']), cand['pt']*sin(cand['phi']),cand['pt']*sinh(cand['eta']),cand['pt']*cosh(cand['eta']),)
     return o.Perp(a)
 
-def branches(pfC,pfC_flav_branches, npfC, n=-2): # n = -2 for pfCand, -1 for SV
+def branches(pfC,pfC_flav_branches, npfC, n=-2, inlist=True): # n = -2 for pfCand, -1 for SV
     nb = []
     for cand in pfC:
         n = [cand[b.split("_")[-1]] for b in pfC_flav_branches]
@@ -260,7 +235,7 @@ def branches(pfC,pfC_flav_branches, npfC, n=-2): # n = -2 for pfCand, -1 for SV
     zeros = [0. for i in range(len(pfC_flav_branches))]
     for i in range(npfC - len(pfC)):
         nb.append(zeros)
-    nb = np.asarray([nb]).astype(np.float32)
+    nb = np.asarray([nb]).astype(np.float32, order='C')
     return nb
 
 
@@ -302,7 +277,12 @@ while reader.run():
     for lep in leps:
         #now decide which maker to use
         maker = new_maker # only use this one maker
-        genPartFlav = ord(lep['genPartFlav'])
+        if type(lep['genPartFlav']) == int:
+            genPartFlav = lep['genPartFlav']
+        else:
+            genPartFlav = ord(lep['genPartFlav'])
+        
+        
         #for leptonClass in leptonClasses.values():
         #    if leptonClass['selector'](genPartFlav):
         #        maker = leptonClass['maker']
@@ -351,47 +331,36 @@ while reader.run():
         gb = []
         for b in global_branches:
             gb.append(lep[b.replace("lep_", "")])
-        
-        neutralB = branches(pfCands["neutral"],  pfCand_neutral_branches,  npfCand_neutral, n=-2)
-        chargedB = branches(pfCands["charged"],  pfCand_charged_branches,  npfCand_charged, n=-2)
-        photonB  = branches(pfCands["photon"],   pfCand_photon_branches,   npfCand_neutral, n=-2)
-        electronB= branches(pfCands["electron"], pfCand_electron_branches, npfCand_neutral, n=-2)
-        muonB    = branches(pfCands["muon"],     pfCand_muon_branches,     npfCand_neutral, n=-2)
-        svB      = branches(SV,                  SV_branches,              nSV,             n=-1)                
-        print(neutralB)
-        print(chargedB)
-        print(photonB)
-        print(electronB)
-        print(muonB)
-        print(svB)
-        print(np.shape(neutralB))
-        print(np.shape(chargedB))
-        print(np.shape(photonB))
-        print(np.shape(electronB))
-        print(np.shape(muonB))
-        print(np.shape(svB))
+        globalB = np.asarray([gb]).astype(np.float32, order='C')
+            
+        neutralB = branches(pfCands["neutral"],  pfCand_neutral_branches,  npfCand_neutral,  n=-2)
+        chargedB = branches(pfCands["charged"],  pfCand_charged_branches,  npfCand_charged,  n=-2)
+        photonB  = branches(pfCands["photon"],   pfCand_photon_branches,   npfCand_photon,   n=-2)
+        electronB= branches(pfCands["electron"], pfCand_electron_branches, npfCand_electron, n=-2)
+        muonB    = branches(pfCands["muon"],     pfCand_muon_branches,     npfCand_muon,     n=-2)
+        svB      = branches(SV,                  SV_branches,              nSV,              n=-1)                
+        #print(globalB)
+        #print(neutralB)
+        #print(chargedB)
+        #print(photonB)
+        #print(electronB)
+        #print(muonB)
+        #print(svB)
+        #print(np.shape(globalB))
+        #print(np.shape(neutralB))
+        #print(np.shape(chargedB))
+        #print(np.shape(photonB))
+        #print(np.shape(electronB))
+        #print(np.shape(muonB))
+        #print(np.shape(svB))
 
 
-        #toPredict = np.asarray( [ gb, nb, cb, pb, eb, mb, sv ] )
-        #toPredict = toPredict.astype(np.float32)
-        toPredict = [ gb, neutralB, chargedB, photonB, electronB, muonB, svB ]
-        #gb = np.expand_dims(np.asarray(gb), -1)
-        
-        #print(np.shape(np.asarray(gb)))
-
-        #for i in model.inputs:
-        #    print(i.shape, i.dtype)
-        tp = []
-        #for x in toPredict:
-        #    print(np.shape(x))
-            #print(np.shape(np.expand_dims(np.asarray(x), -1)))
-            #tp.append(np.expand_dims(np.asarray(x), -1))
-        #    tp.append(np.asarray(x))
-        #for x in tp:
-        #    print(np.shape(x), x)
-        
-        prediction = model.predict(tp)
-        
+        #toPredict = np.stack([ gb, neutralB, chargedB, photonB, electronB, muonB, svB ])
+        #toPredict = np.concatenate((gb, neutralB, chargedB, photonB, electronB, muonB, svB))
+        toPredict = [ globalB, neutralB, chargedB, photonB, electronB, muonB, svB ]
+        prediction = model.predict(toPredict)
+        print(prediction)
+        print(maker.event.lep_isPromptId_Training, maker.event.lep_isNonPromptId_Training, maker.event.lep_isFakeId_Training)
         #maker.event.lep_probPrompt = prediction[0]
         #maker.event.lep_probNonPrompt = prediction[1]
         #maker.event.lep_probFake = prediction[2]

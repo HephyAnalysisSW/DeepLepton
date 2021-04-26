@@ -32,7 +32,7 @@ argParser.add_argument('--logLevel',
 
 argParser.add_argument('--small',
                 action='store_true',
-                help="Run the file on a small sample (for test purpose), bool flag set to     True if used" )
+                help="Run the file on a small sample (for test purpose), bool flag set to True if used" )
 args = argParser.parse_args()
 
 #
@@ -45,14 +45,14 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 
 logger.info("program started")
-# TODO: take the paths from plot_directory
+
 scratch_directory = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/"
 path_truth = "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1/step2/2016/muo/pt_3.5_-1/DYvsQCD/"
-path_pred = os.path.join(scratch_directory, "trained/DYvsQCD_2016_3/training_20_epoches/prediction/")
+path_pred = os.path.join(scratch_directory, "trained/DYvsQCD_2016_3/training_40_epoches_usw/prediction/")
 outfiles_path = os.path.join(path_pred, "outfiles.txt")
 
 # set sensible output file name s.t. one knows from which model the plot came
-output_file_name = "DYvsQCD_2016_3-training_20_epoches_"
+output_file_name = "DYvsQCD_2016_3-training_40_epoches_usw"
 if args.small:
     output_file_name += "small_"
 

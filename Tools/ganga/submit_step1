@@ -50,13 +50,15 @@ def main():
         samples_def = cmssw_base / 'src/DeepLepton/Samples/python/nanoAOD_PFCands_Fall17.py'
     elif opts.year == 2018:
         db_file = db_dir / "DB_Autumn18_DeepLepton.sql::memory:?cache=shared"
-        samples_def = cmssw_base / 'src/DeepLepton/Samples/python/nanoAOD_PFCands_Fall18.py'
+        samples_def = cmssw_base / 'src/DeepLepton/Samples/python/nanoAOD_PFCands_Autumn18.py'
 
 
     # grid nickname
     nickname = find_nickname()
 
     all_samples = get_samples(db_file)
+    for s in all_samples:
+        print ( s )
     the_samples = get_samples_from_def(samples_def,opts.sample)
     samples = [ s for s in all_samples if s.name in the_samples ]
 
@@ -69,7 +71,7 @@ def main():
     max_subjobs = 50
     subjobs_args = splitter(samples, opts.max_files, opts.flavour)
     
-    while subjob_args:
+    while subjobs_args:
 
         job = Job()
         job.name = "step1"

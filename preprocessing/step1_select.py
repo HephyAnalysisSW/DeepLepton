@@ -27,7 +27,8 @@ def get_parser():
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
     argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,        help="Version for output directory")
     argParser.add_argument('--ptSelection',                 action='store',         nargs='?',  type=str,  default='pt_5_-1',      help="pt selection of leptons")
-    argParser.add_argument('--muFromTauArePrompt',    action='store_true',        help="Consider muons from tau leptons as prompt")        
+    argParser.add_argument('--muFromTauArePrompt',    action='store_true',        help="Consider muons from tau leptons as prompt")
+    argParser.add_argument('--displaced',             action='store_true',        help='Look for displaced muons from SUSY decays')        
 
     return argParser
 
@@ -78,16 +79,32 @@ else:
     output_directory = os.path.join( skim_directory, options.version+('_small' if options.small else ''), 'step1', str(options.year) ) 
 
 
+def from_susy(genPartFlav,genPartIdx):
+
+    global r
+    GenParts = getCollection(r, 'GenPart', ['pdgId','genPartIdxMother'], 'nGenPart')
+
+    j = genPartIdx
+    while abs(GenPartIdx[j]['pdgId']) < 1000000 and GenPartIdx[j]['genPartIdxMother'] > 0:
+        j = GenPartIdx[j]['genPartIdxMother']
+    
+    return abs(GenPartIdx[j]['pdgId']) > 1000000
+
+
 if options.muFromTauArePrompt:
     absPdgIds = {'Prompt':[1,15], 'NonPrompt':[4,5], 'Fake':[0,3,22],  'NotPrompt':[0,3,4,5,22]}
 else:
     absPdgIds = {'Prompt':[1],    'NonPrompt':[5, 4, 15], 'Fake':[0,3,22],  'NotPrompt':[0,3,4,5,15,22]}
 
-leptonClasses  = {'Prompt'     : {'selector': lambda genPartFlav: abs(genPartFlav) in absPdgIds['Prompt']}, 
-                  'NonPrompt'  : {'selector': lambda genPartFlav: abs(genPartFlav) in absPdgIds['NonPrompt']}, 
-                  'Fake'       : {'selector': lambda genPartFlav: abs(genPartFlav) not in (absPdgIds['Prompt']+absPdgIds['NonPrompt'])},
+leptonClasses  = {'Prompt'     : {'selector': lambda genPartFlav, genPartIdx: abs(genPartFlav) in absPdgIds['Prompt']}, 
+                  'NonPrompt'  : {'selector': lambda genPartFlav, genPartIdx: abs(genPartFlav) in absPdgIds['NonPrompt']}, 
+                  'Fake'       : {'selector': lambda genPartFlav, genPartIdx: abs(genPartFlav) not in (absPdgIds['Prompt']+absPdgIds['NonPrompt'])},
                   }
 
+if options.displaced:
+    leptonClasses['Displaced'] = {
+        'selector' : from_susy,
+    }
 leptonFlavour  =  {'name':'muo', 'pdgId': 13} if options.flavour == 'muo' else  {'name':'ele', 'pdgId': 11}
 
 #pt selection
@@ -108,6 +125,9 @@ read_variables = [
     ]
 read_variables += ["event/l", "luminosityBlock/I", "run/I"]
 
+if options.displaced and not sample.isData:
+    read_variables += [ "nGenPart/I", "GenPart_pdgId/I", "GenPart_genPartIdxMother/I" ]
+
 cand_varnames_read  = map( lambda n:n.split('/')[0], cand_vars_read) 
 cand_varnames_write = {pf_flavour: map( lambda n:n.split('/')[0], cand_vars_train[pf_flavour]) for pf_flavour in pf_flavours} 
 SV_varnames         = map( lambda n:n.split('/')[0], SV_vars) 
@@ -116,16 +136,20 @@ if options.flavour == 'ele':
     lep_vars = ele_vars 
     if not sample.isData:
         lep_vars.extend(['genPartFlav/b'])
+        lep_vars.extend(['genPartIdx/I'])
     read_variables.extend(['nElectron/I', 'Electron[%s]'%(",".join(lep_vars))])
 elif options.flavour == 'muo':
     lep_vars = muo_vars 
     if not sample.isData:
         lep_vars.extend(['genPartFlav/b'])
+        lep_vars.extend(['genPartIdx/I'])
     read_variables.extend(['nMuon/I', 'Muon[%s]'%(",".join(lep_vars))])
 
 lep_varnames = map( lambda n:n.split('/')[0], lep_vars ) 
 new_variables= map( lambda b: "lep_%s"%(b[:-1]+'F'), lep_vars )
 new_variables+= ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "lep_isNotPromptId_Training/I", "lep_isFakeId_Training/I"]
+if opriobns.displaced:
+    new_variables += ["lep_isFromSusy_Training/I"]
 
 for pf_flavour in pf_flavours:
     # per PFCandidate flavor, add a counter and a vector with all pf candidate variables
@@ -185,6 +209,7 @@ def ptRel(cand, lep):
 reader.start()
 counter=0
 while reader.run():
+    global r
     r = reader.event
     if options.flavour == 'muo':
         leps = getCollection(r, 'Muon', lep_varnames, 'nMuon')
@@ -222,8 +247,9 @@ while reader.run():
         maker = None
     
         genPartFlav = ord(lep['genPartFlav'])
-        for leptonClass in leptonClasses.values():
-            if leptonClass['selector'](genPartFlav):
+        genPartIdx = ord(lep['genPartFlav'])
+        for leptonClass in leptonClasses.values():   
+            if leptonClass['selector'](genPartFlav,genPartFlav):
                 maker = leptonClass['maker']
                 break
         if maker is None:
@@ -238,10 +264,12 @@ while reader.run():
             else:
                 setattr(maker.event, "lep_"+b, float(lep[b]))
 
-        maker.event.lep_isPromptId_Training     = leptonClasses['Prompt']['selector'](genPartFlav)
-        maker.event.lep_isNonPromptId_Training  = leptonClasses['NonPrompt']['selector'](genPartFlav)
-        maker.event.lep_isFakeId_Training       = leptonClasses['Fake']['selector'](genPartFlav)
+        maker.event.lep_isPromptId_Training     = leptonClasses['Prompt']['selector'](genPartFlav,genPartIdx)
+        maker.event.lep_isNonPromptId_Training  = leptonClasses['NonPrompt']['selector'](genPartFlav,genPartIdx)
+        maker.event.lep_isFakeId_Training       = leptonClasses['Fake']['selector'](genPartFlav,genPartIdx)
         maker.event.lep_isNotPromptId_Training  = (maker.event.lep_isNonPromptId_Training or maker.event.lep_isFakeId_Training)
+        if options.displaced:
+            marker.event.lep_isFromSusy_Training = leptonClasses['Displaced']['selector'](genPartFlav,genPartIdx)
 
         # write vector with PF candidates
         for pf_flavour in pf_flavours:

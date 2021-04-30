@@ -148,7 +148,7 @@ elif options.flavour == 'muo':
 lep_varnames = map( lambda n:n.split('/')[0], lep_vars ) 
 new_variables= map( lambda b: "lep_%s"%(b[:-1]+'F'), lep_vars )
 new_variables+= ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "lep_isNotPromptId_Training/I", "lep_isFakeId_Training/I"]
-if opriobns.displaced:
+if options.displaced:
     new_variables += ["lep_isFromSusy_Training/I"]
 
 for pf_flavour in pf_flavours:

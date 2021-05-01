@@ -59,7 +59,7 @@ def main():
     the_samples = get_samples_from_def(samples_def,opts.sample,opts.year)
     sample_info = get_sample_info_from_db(db_file,opts.year)
     for sample in the_samples:
-        sample['files'] = sample_info[(sample['name'],sample['dasname'])]
+        sample['nr_files'] = sample_info[(sample['name'],sample['dasname'])]
 
     # Create the tarball
 

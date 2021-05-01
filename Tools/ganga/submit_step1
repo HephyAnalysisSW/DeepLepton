@@ -385,7 +385,7 @@ def splitter(samples, max_files, flavour):
     sj_args = []
     for s in samples:
         if max_files > 0 and s['nr_files'] > max_files:
-            nr_jobs = ['nr_files'] // max_files + 1
+            nr_jobs = s['nr_files'] // max_files + 1
             for j in range(nr_jobs):
                 for f in flavours:
                     sj_args.append(

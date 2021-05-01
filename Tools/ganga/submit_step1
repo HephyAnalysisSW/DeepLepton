@@ -68,7 +68,7 @@ def main():
     # Prepare the batch job
 
     max_subjobs = 50
-    subjobs_args = splitter(samples, opts.max_files, opts.flavour)
+    subjobs_args = splitter(the_samples, opts.max_files, opts.flavour)
     
     while subjobs_args:
 
@@ -353,8 +353,6 @@ def get_samples_from_def(samples_def,sample_name,year):
         if year == 2017 and name == "DYJetsToLL_M4to50_HT200to400_new_pmx_LO": name = "DYJetsToLL_M4to50_HT200to400_LO"
         das_names[name] = m.group(2)
 
-    for k, v in das_names.items():
-        print ( k, '-', v )
     group_samples = {}
     all_samples = []
     for m in re.finditer(r"^\ *(\w*)\ *=\ *\[([^\]]+)\]", samples_data, re.M):
@@ -386,14 +384,14 @@ def splitter(samples, max_files, flavour):
 
     sj_args = []
     for s in samples:
-        if max_files > 0 and s.nr_files > max_files:
-            nr_jobs = s.nr_files // max_files + 1
+        if max_files > 0 and s['nr_files'] > max_files:
+            nr_jobs = ['nr_files'] // max_files + 1
             for j in range(nr_jobs):
                 for f in flavours:
                     sj_args.append(
                         [
                             "--sample",
-                            s.name,
+                            s['name'],
                             "--flavour",
                             f,
                             "--nJobs",
@@ -404,7 +402,7 @@ def splitter(samples, max_files, flavour):
                     )
         else:
             for f in flavours:
-                sj_args.append(["--sample", s.name, "--flavour", f])
+                sj_args.append(["--sample", s['name'], "--flavour", f])
 
     return sj_args
 

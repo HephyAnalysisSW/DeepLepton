@@ -56,11 +56,13 @@ def main():
     # grid nickname
     nickname = find_nickname()
 
-    all_samples = get_samples(db_file)
-    for s in all_samples:
-        print ( s )
-    the_samples = get_samples_from_def(samples_def,opts.sample)
-    samples = [ s for s in all_samples if s.name in the_samples ]
+    the_samples = get_samples_from_def(samples_def,opts.sample,opts.year)
+    sample_info = get_sample_info_from_db(db_file,opts.year)
+    for sample in the_samples:
+        sample['files'] = sample_info[(sample['name'],sample['dasname'])]
+        print ( sample )
+
+    sys.exit()
 
     # Create the tarball
 
@@ -130,6 +132,7 @@ def main():
 
         # Inputsandbox
         job.inputsandbox.append(File(str(tarball)))
+        job.inputsandbox.append(File(str(cmssw_base / "src/DeepLepton/Tools/ganga/retry.sh")))
         if opts.condor:
             job.inputsandbox.append(File(str(db_file)))
 
@@ -302,7 +305,7 @@ def parse_args():
         action="store",
         nargs="?",
         type=str,
-        default="pt_5_-1",
+        default="pt_3.5_-1",
         help="pt selection of leptons",
     )
     ap.add_argument(
@@ -322,21 +325,39 @@ def parse_args():
     return opts
 
 
-def get_samples(db_file):
+def get_sample_info_from_db(db_file,year):
     """Read the samples from the sqlite DB"""
 
     db = sqlite3.connect(str(db_file))
-    sql = "SELECT name, count(*) AS 'nr_files' FROM fileCache GROUP BY name;"
+    sql = "SELECT name, DAS, count(*) AS 'nr_files' FROM fileCache GROUP BY name, DAS;"
     # first letter uppercase
     first_up = lambda x: x[0].upper() + x[1:]
-    Sample = namedtuple("Sample", ["name", "nr_files"])
-    return [Sample(first_up(r[0]), r[1]) for r in db.execute(sql)]
+    info = {}
+    for r in  db.execute(sql):
+        name = first_up(r[0])
+        if year == 2016 and name == "TTZToLL_M1to10_NLO": name = "TTZToLL_M1to10_LO" # uff
+        if year == 2017 and name == "DYJetsToLL_M4to50_HT200to400_LO": name = "DYJetsToLL_M4to50_HT200to400_old_pmx_LO"
+        if year == 2017 and name == "DYJetsToLL_M4to50_HT200to400_new_pmx_LO": name = "DYJetsToLL_M4to50_HT200to400_LO"
+        info[(name,r[1])] = int(r[2])
 
-def get_samples_from_def(samples_def,sample_name):
+    return info
 
+def get_samples_from_def(samples_def,sample_name,year):
+
+    first_up = lambda x: x[0].upper() + x[1:]
     with open(samples_def,'r') as f:
         samples_data = f.read()
 
+    das_names = {}
+    for m in re.finditer('Sample.nanoAODfromDAS\( *"([^"]+)" *, *"([^"]+)".*\)' , samples_data, re.M):
+        name = first_up(m.group(1))
+        if year == 2016 and name == "TTZToLL_M1to10_NLO": name = "TTZToLL_M1to10_LO" # uff
+        if year == 2017 and name == "DYJetsToLL_M4to50_HT200to400_LO": name = "DYJetsToLL_M4to50_HT200to400_old_pmx_LO"
+        if year == 2017 and name == "DYJetsToLL_M4to50_HT200to400_new_pmx_LO": name = "DYJetsToLL_M4to50_HT200to400_LO"
+        das_names[name] = m.group(2)
+
+    for k, v in das_names.items():
+        print ( k, '-', v )
     group_samples = {}
     all_samples = []
     for m in re.finditer(r"^\ *(\w*)\ *=\ *\[([^\]]+)\]", samples_data, re.M):
@@ -347,15 +368,16 @@ def get_samples_from_def(samples_def,sample_name):
         all_samples += samples
 
     if sample_name == 'ALL':
-        return all_samples
+        samples = all_samples
     elif sample_name in group_samples:
-        return group_samples[sample_name]
+        samples = group_samples[sample_name]
     elif sample_name in all_samples:
-        return [ sample_name ]
-    
-    print ( f'Unknown sample {sample_name}.')
-    sys.exit
+        samples = [ sample_name ]
+    else:
+        print ( f'Unknown sample {sample_name}.')
+        sys.exit(1)
 
+    return [ { 'name': s, 'dasname': das_names[s]} for s in samples ]
 
 def splitter(samples, max_files, flavour):
     """Perform job splitting"""

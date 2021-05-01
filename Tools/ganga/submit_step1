@@ -60,9 +60,6 @@ def main():
     sample_info = get_sample_info_from_db(db_file,opts.year)
     for sample in the_samples:
         sample['files'] = sample_info[(sample['name'],sample['dasname'])]
-        print ( sample )
-
-    sys.exit()
 
     # Create the tarball
 

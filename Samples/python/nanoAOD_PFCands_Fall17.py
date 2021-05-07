@@ -33,6 +33,10 @@ logger.info("Using db file: %s", dbFile)
 #redirector = "/eos/vbc/experiments/cms/"
 redirector = "root://eos.grid.vbc.ac.at/"
 
+## SUSY sample
+
+Signal_CompressedStops                 = Sample.fromDirectory("Signal_CompressedStops", "/eos/vbc/user/robert.schoefbeck/DeepLepton/nanoAODUL17_PFCands/signal_stops_compressed/")
+
 ## DY
 
 DYJetsToLL_M10to50_LO                  = Sample.nanoAODfromDAS("DYJetsToLL_M10to50_LO", "/DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8/mmoser-crab_RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1_v6_PFCands-6ed54b6dbec6325fc1ce711bde233f01/USER", dbFile=dbFile, instance = "phys03", redirector=redirector, overwrite=ov, xSection=-1)
@@ -89,7 +93,6 @@ DY = [DYJetsToLL_M10to50_LO,
         ]
 
 #QCD
-
 QCD_Mu_pt15to20         = Sample.nanoAODfromDAS("QCD_Mu_pt15to20", "/QCD_Pt-15to20_MuEnrichedPt5_TuneCP5_13TeV_pythia8/mmoser-crab_RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1_v6_PFCands-6ed54b6dbec6325fc1ce711bde233f01/USER", dbFile=dbFile, instance = "phys03", redirector=redirector, overwrite=ov, xSection=-1)
 QCD_Mu_pt20to30         = Sample.nanoAODfromDAS("QCD_Mu_pt20to30", "/QCD_Pt-20to30_MuEnrichedPt5_TuneCP5_13TeV_pythia8/mmoser-crab_RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1_v6_PFCands-6ed54b6dbec6325fc1ce711bde233f01/USER", dbFile=dbFile, instance = "phys03", redirector=redirector, overwrite=ov, xSection=-1)
 QCD_Mu_pt30to50         = Sample.nanoAODfromDAS("QCD_Mu_pt30to50", "/QCD_Pt-30to50_MuEnrichedPt5_TuneCP5_13TeV_pythia8/mmoser-crab_RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1_v6_PFCands-6ed54b6dbec6325fc1ce711bde233f01/USER", dbFile=dbFile, instance = "phys03", redirector=redirector, overwrite=ov, xSection=-1)

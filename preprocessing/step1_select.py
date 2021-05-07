@@ -1,5 +1,6 @@
 # Standard imports
 import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions=True
 import os
 import sys
 from math import *
@@ -10,6 +11,32 @@ from RootTools.core.standard import *
 # DeepLepton
 from DeepLepton.Tools.helpers import getCollection, deltaR, deltaR2
 
+# Extend the Lept_genPartFlav vector with information of leptons from SUSY
+# Leptons from SUSY are flagged by 100. In case the decay chain containes
+# a heavy falvor this is marked by 105 or 104   
+def gen_part_susy_flav(nLept, Lept_genPartFlav, Lept_genPartIdx, GenPart_genPartIdxMother, GenPart_pdgId):
+     
+    newPartFlav = []
+    for i in range(nLept):
+        quark = 0
+        j = Lept_genPartIdx[i]
+        if j > 0:
+            # move back in the decay chain, as long there is no SUSY particle (pdg_id < 1000000)
+            while abs(GenPart_pdgId[j]) < 1000000 and GenPart_genPartIdxMother[j] > 0:
+                # Extract the quark flavor q for charm and beauty hadrons 
+                # The pdg_Id for mesons and hadrons is qXX and qXXX
+                pdg_id = str(abs(GenPart_pdgId[j]))
+                if len(pdg_id) in [3, 4] and pdg_id[0] in ['4', '5']:
+                    quark = int(pdg_id[0])
+                j = GenPart_genPartIdxMother[j]
+
+        if j > 0 and abs(GenPart_pdgId[j]) > 1000000:
+            newPartFlav.append(100 + quark)
+        else:
+            newPartFlav.append(Lept_genPartFlav[i])
+
+    return newPartFlav
+
 # parser
 def get_parser():
     ''' Argument parser for post-processing module.
@@ -17,20 +44,22 @@ def get_parser():
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
 
-    argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'],     default='INFO',                     help="Log level for logging")
+    argParser.add_argument('--logLevel',            action='store',         nargs='?',              choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'],     default='INFO',                     help="Log level for logging")
     #argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
-    argParser.add_argument('--year',                        action='store',                     type=int,   choices=[2016,2017,2018],    required = True,                    help="Which year?")
-    argParser.add_argument('--flavour',                      action='store',                     type=str,   choices=['muo', 'ele'], default='muo',                      help="muo or ele?")
-    argParser.add_argument('--sample',                      action='store',         nargs='?',  type=str,                           default='WZTo3LNu',                 help="Sample to be post-processed")
-    argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
-    argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                          help="Run only job i")
-    argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
-    argParser.add_argument('--version',                     action='store',         nargs='?',  type=str,  required = True,        help="Version for output directory")
-    argParser.add_argument('--ptSelection',                 action='store',         nargs='?',  type=str,  default='pt_5_-1',      help="pt selection of leptons")
-    argParser.add_argument('--muFromTauArePrompt',    action='store_true',        help="Consider muons from tau leptons as prompt")        
+    argParser.add_argument('--year',                action='store',                     type=int,   choices=[2016,2017,2018],    required = True,   help="Which year?")
+    argParser.add_argument('--flavour',             action='store',                     type=str,   choices=['muo', 'ele'], default='muo',          help="muo or ele?")
+    argParser.add_argument('--sample',              action='store',         nargs='?',  type=str,                           default='WZTo3LNu',     help="Sample to be post-processed")
+    argParser.add_argument('--nJobs',               action='store',         nargs='?',  type=int,                           default=1,              help="Maximum number of simultaneous jobs.")
+    argParser.add_argument('--job',                 action='store',                     type=int,                           default=0,              help="Run only job i")
+    argParser.add_argument('--small',               action='store_true',                                                                            help="Run the file on a small sample (for test purpose), bool flag set to True if used")
+    argParser.add_argument('--version',             action='store',         nargs='?',  type=str,  required = True,                                 help="Version for output directory")
+    argParser.add_argument('--ptSelection',         action='store',         nargs='?',  type=str,  default='pt_5_-1',                               help="pt selection of leptons")
+    argParser.add_argument('--muFromTauArePrompt',  action='store_true',                                                                            help="Consider muons from tau leptons as prompt")  
+    argParser.add_argument('--displaced',           action='store_true',    default=False,                                                          help='Look for displaced leptons from SUSY')      
 
     return argParser
 
+ROOT.gROOT.SetBatch()
 options = get_parser().parse_args()
 
 # Logging
@@ -42,7 +71,12 @@ logger_rt = _logger_rt.get_logger(options.logLevel, logFile = None )
 maxN = 2 if options.small else None
 
 # Load samples
-if options.year == 2016:
+
+# special case, there exists only the sample in roberts directory ....
+if options.displaced:
+     from RootTools.core.Sample import Sample
+     CompSUSY =  Sample.fromDirectory('CompSUSY', '/eos/vbc/user/robert.schoefbeck/DeepLepton/nanoAODUL17_PFCands/signal_stops_compressed', 'root://eos.grid.vbc.ac.at') 
+elif options.year == 2016:
     from DeepLepton.Samples.nanoAOD_PFCands_Summer16 import *
 elif options.year == 2017:
     from DeepLepton.Samples.nanoAOD_PFCands_Fall17 import *
@@ -70,6 +104,7 @@ logger.info( " Run over %i/%i files for job %i/%i."%(len(sample.files), len_orig
 logger.debug( "Files to be run over:\n%s", "\n".join(sample.files) )
 if options.small:
     sample.reduceFiles(to=1)
+
 #output directory
 if 'SKIMSDIR' in os.environ:
     output_directory = os.path.join( options.version+('_small' if options.small else ''), 'step1', str(options.year) ) 
@@ -83,10 +118,16 @@ if options.muFromTauArePrompt:
 else:
     absPdgIds = {'Prompt':[1],    'NonPrompt':[5, 4, 15], 'Fake':[0,3,22],  'NotPrompt':[0,3,4,5,15,22]}
 
-leptonClasses  = {'Prompt'     : {'selector': lambda genPartFlav: abs(genPartFlav) in absPdgIds['Prompt']}, 
-                  'NonPrompt'  : {'selector': lambda genPartFlav: abs(genPartFlav) in absPdgIds['NonPrompt']}, 
-                  'Fake'       : {'selector': lambda genPartFlav: abs(genPartFlav) not in (absPdgIds['Prompt']+absPdgIds['NonPrompt'])},
+# genPartFlav are always positiv
+leptonClasses  = {'Prompt'     : {'selector': lambda genPartFlav: genPartFlav in absPdgIds['Prompt']}, 
+                  'NonPrompt'  : {'selector': lambda genPartFlav: genPartFlav in absPdgIds['NonPrompt']}, 
+                  'Fake'       : {'selector': lambda genPartFlav: genPartFlav not in (absPdgIds['Prompt']+absPdgIds['NonPrompt'])},
                   }
+
+# for leptons from SUSY additional lepton classes
+if options.displaced:
+    leptonClasses['FromSUSY']   = { 'selector': lambda genPartFlav: genPartFlav in [100,104,105] }
+    leptonClasses['Fake']       = { 'selector': lambda genPartFlav: genPartFlav not in absPdgIds['Prompt']+absPdgIds['NonPrompt']+[100,104,105]}
 
 leptonFlavour  =  {'name':'muo', 'pdgId': 13} if options.flavour == 'muo' else  {'name':'ele', 'pdgId': 11}
 
@@ -116,16 +157,23 @@ if options.flavour == 'ele':
     lep_vars = ele_vars 
     if not sample.isData:
         lep_vars.extend(['genPartFlav/b'])
+        lep_vars.extend(['genPartIdx/I'])
     read_variables.extend(['nElectron/I', 'Electron[%s]'%(",".join(lep_vars))])
 elif options.flavour == 'muo':
     lep_vars = muo_vars 
     if not sample.isData:
         lep_vars.extend(['genPartFlav/b'])
+        lep_vars.extend(['genPartIdx/I'])
     read_variables.extend(['nMuon/I', 'Muon[%s]'%(",".join(lep_vars))])
+
+if options.displaced:
+    read_variables.append(VectorTreeVariable.fromString("GenPart[pdgId/I,genPartIdxMother/I]", nMax=5000))
 
 lep_varnames = map( lambda n:n.split('/')[0], lep_vars ) 
 new_variables= map( lambda b: "lep_%s"%(b[:-1]+'F'), lep_vars )
 new_variables+= ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "lep_isNotPromptId_Training/I", "lep_isFakeId_Training/I"]
+if options.displaced:
+    new_variables += ["lep_isFromSUSY_Training/I", "lep_isFromSUSYHF_Training/I"]
 
 for pf_flavour in pf_flavours:
     # per PFCandidate flavor, add a counter and a vector with all pf candidate variables
@@ -191,6 +239,16 @@ while reader.run():
     elif options.flavour == 'ele':
         leps = getCollection(r, 'Electron', lep_varnames, 'nElectron')
 
+    # if leptons from  SUSY replace genPartFlav with the corrected value
+    if options.displaced:
+        if options.flavour == 'muo':
+            lep_genPartFlav = gen_part_susy_flav(r.nMuon, r.Muon_genPartFlav, r.Muon_genPartIdx, r.GenPart_genPartIdxMother, r.GenPart_pdgId)
+        else:
+            lep_genPartFlav = gen_part_susy_flav(r.nElectron, r.Electron_genPartFlav, r.Electron_genPartIdx, r.GenPart_genPartIdxMother, r.GenPart_pdgId)
+
+        for i, lep in enumerate(leps):
+            lep['genPartFlav'] = lep_genPartFlav[i]
+
     # write leptons to event
     leps = filter( lambda l: (l['pt']>=pt_threshold[0] or pt_threshold[0]<0) and (l['pt']<pt_threshold[1] or pt_threshold[1]<0), leps )
 
@@ -221,7 +279,7 @@ while reader.run():
         #now decide which maker to use
         maker = None
     
-        genPartFlav = ord(lep['genPartFlav'])
+        genPartFlav = lep['genPartFlav']
         for leptonClass in leptonClasses.values():
             if leptonClass['selector'](genPartFlav):
                 maker = leptonClass['maker']
@@ -242,7 +300,10 @@ while reader.run():
         maker.event.lep_isNonPromptId_Training  = leptonClasses['NonPrompt']['selector'](genPartFlav)
         maker.event.lep_isFakeId_Training       = leptonClasses['Fake']['selector'](genPartFlav)
         maker.event.lep_isNotPromptId_Training  = (maker.event.lep_isNonPromptId_Training or maker.event.lep_isFakeId_Training)
-
+        # additional training flags in case of leptons from SUSY
+        if options.displaced:
+            maker.event.lep_isFromSUSY_Training   = leptonClasses['FromSUSY']['selector'](genPartFlav)
+        
         # write vector with PF candidates
         for pf_flavour in pf_flavours:
             cands = filter( lambda c: deltaR2(c, lep) < dR_PF**2, sorted_cands[pf_flavour] )

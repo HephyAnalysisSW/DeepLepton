@@ -328,8 +328,8 @@ if args.small:
             s.reduceFiles( to = 2 )
     else:
         for s in [ samplePrompt, sampleNonPrompt, sampleFake, sampleFromSUSY, sampleFromSUSYHF ]: 
+            # there is only one susy file
             s.reduceFiles( to = 2 )
-            print("reduced Susy samples as well")
 
 prompt    =  {'name':'Prompt',    'sample':samplePrompt,    }
 nonPrompt =  {'name':'NonPrompt', 'sample':sampleNonPrompt, }
@@ -344,20 +344,21 @@ if args.sampleSelection == "STopvsTop":
 # find leaf structure
 from RootTools.core.helpers import shortTypeDict
 structure = {'':[]}
-for l in prompt['sample'].chain.GetListOfLeaves():
+
+#prompt
+for l in prompt['sample'] if not args.sampleSelection == "STopvsTop" else fromSUSY['sample'].chain.GetListOfLeaves():
     # this is anm element of a vector branch:
     if l.GetLeafCount():
         counter_var = l.GetLeafCount().GetName()
         vector_name = counter_var[1:]
-
         vector_branch_declaration = ( l.GetName()[len(vector_name)+1:], shortTypeDict[l.GetTypeName()] )
+
         if not structure.has_key(vector_name):
             structure[vector_name] = [ vector_branch_declaration ]
         else:
             structure[vector_name].append( vector_branch_declaration )
     else:
         structure[''].append( (l.GetName(), shortTypeDict[l.GetTypeName()]))
-
 # define variables for reading and writing
 read_variables = []
 write_variables = []

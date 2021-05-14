@@ -271,14 +271,18 @@ def getInputFromOthers(sub_directories,
     sub_directories = [sub_directories[i][j] for i in range(nr_of_subdirs)
                        for j in range(len(sub_directories[i]))]
     # print(directory)
-    # TODO determine wheather to use the redirector or not
+
+    use_redirector = True
+    for inputpath in inputPath:
+        if not inputpath.startswith('/eos/'):
+            use_redirector = False
     for s in sub_directories:
         logger.debug("Sample %s", s)
     sample = Sample.fromDirectory(
         name=class_name,
         directory=directory,  # =[os.path.join(inputPath, s) for s in sub_directories],
         treeName='tree', selectionString=selectionString,
-        redirector="root://eos.grid.vbc.ac.at/" if inputPath[0].startswith('/eos/') else None,
+        redirector="root://eos.grid.vbc.ac.at/" if use_redirector else None,
         skipCheck=True
     )
     random.shuffle(sample.files)
@@ -303,22 +307,19 @@ elif args.sampleSelection == "all":
 elif args.sampleSelection == "STopvsTop":
     # prepare vars for getInputFromOthers for the Fake class
     sub_dirs = [Top[args.year], ["CompSUSY"]]
-    inputdirs = ["/eos/vbc/user/maximilian.moser/DeepLepton/", "/eos/vbc/user/dietrich.liko/DeepLepton/"]    
-    version = ["v1", "v0"]
+    inputdirs = ["/eos/vbc/experiments/cms/store/user/liko/skims/", "/eos/vbc/user/dietrich.liko/DeepLepton/"]    
+    version = ["v3", "v0"]
     year = [args.year, 2017]
 
-    # samplePrompt    = getInput(Top[args.year], "Prompt")
-    # sampleNonPrompt = getInput(Top[args.year], "NonPrompt")
     samplePrompt    = getInputFromOthers(sub_dirs, "Prompt", inputdirs=inputdirs, version=version, year=year)
     sampleNonPrompt = getInputFromOthers(sub_dirs, "NonPrompt", inputdirs=inputdirs, version=version, year=year)
-
-#   sampleFake      = getInput( Top[args.year], "Fake")
-    sampleFake      = getInputFromOthers(sub_dirs, "Fake", inputdirs=inputdirs, version=version, year=year)
+    sampleFake      = getInputFromOthers([Top[args.year]], "Fake", inputdirs=inputdirs[0], version=version[0], year=year[0])
     sampleFromSUSY  = getInputFromOthers([["CompSUSY"]], "FromSUSY", inputdirs="/eos/vbc/user/dietrich.liko/DeepLepton/", version="v0", year=2017) 
     sampleFromSUSYHF= getInputFromOthers([["CompSUSY"]], "FromSUSYHF", inputdirs="/eos/vbc/user/dietrich.liko/DeepLepton/", version="v0", year=2017)
 # /eos/vbc/user/dietrich.liko/DeepLepton/v0/step1/2017/muo/
 # /eos/vbc/user/dietrich.liko/DeepLepton/v0/step1/2017/muo/FromSUSY/pt_3.5_-1/CompSUSY
 # /eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Prompt/pt_3.5_-1/ 
+# /eos/vbc/experiments/cms/store/user/liko/skims/v3/step1/
 
 nMax = 500 # For the read and write buffer
 
@@ -411,8 +412,8 @@ if args.ratio == 'balanced':
         # balanced condition prompt+nonPrompt+fake = fromSUSY+fromSUSYHF
         background = prompt['Entries']+nonPrompt['Entries']+fake['Entries']
         signal = fromSUSY['Entries']+fromSUSYHF['Entries']
-        print("background = {}".format(background))
-        print("signal = {}".format(signal))
+        # print("background = {}".format(background))
+        # print("signal = {}".format(signal))
         if signal >= background:
             signal_arr = np.array([ fromSUSY['Entries'], fromSUSYHF['Entries']])
             try:

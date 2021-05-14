@@ -15,9 +15,20 @@ from DeepLepton.Tools.user import plot_directory
 
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--logLevel',       action='store',      default='INFO',      nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
+argParser.add_argument('--logLevel',
+                action='store',
+                default='INFO',
+                nargs='?',
+                choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'],
+                help="Log level for logging")
 #argParser.add_argument('--plot_directory', action='store',      default='FourMuonInvariantMass')
-argParser.add_argument('--small',       action='store_true',                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used" )
+argParser.add_argument('--small',
+                action='store_true',
+                help="Run the file on a small sample (for test purpose), bool flag set to True if used" )
+
+argParser.add_argument('--normalize',
+                        action='store_true',
+                        help="If True all histos will have the same area (The same as the 4th histo)")
 args = argParser.parse_args()
 
 
@@ -32,12 +43,23 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 redirector = "root://eos.grid.vbc.ac.at/"
 
-directory = [
-        "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1/step2/2016/muo/pt_3.5_-1/DYvsQCD/",
-        ]
+subdirs = ["Fake/", "FromSUSY/", "FromSUSYHF/", "NonPrompt/", "Prompt/"]
+# dietrich_step1_files = "/eos/vbc/user/dietrich.liko/DeepLepton/v0/step1/2017/muo/"
+# directory = [os.path.join(dietrich_step1_files, subdir, "pt_3.5_-1/CompSUSY/") for subdir in subdirs]
+directory = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/v2_small/step2/2016/muo/pt_3.5_-1/STopvsTop/"
+
+# directory = [
+        # "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1/step2/2016/muo/pt_3.5_-1/DYvsQCD/",
+        # "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1_compr_stop/step1/2017/muo/NonPrompt/pt_3_-1/stopCompr/Sample_0/",
+        # "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1_compr_stop/step1/2017/muo/Prompt/pt_3_-1/stopCompr/Sample_0/",
+        # "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1_compr_stop/step1/2017/muo/Fake/pt_3_-1/stopCompr/Sample_0/"
+        #"/eos/vbc/user/dietrich.liko/DeepLepton/v0/step1/2017/muo/FromSUSYHF/pt_3.5_-1/CompSUSY/
+
+#        ]
 
 t0 = time.time()
 data_sample = Sample.fromDirectory(
+        # "step2",
         "step2",
         #directory = "/scratch-cbe/users/maximilian.moser/DeepLepton/v1_small/step1/2016/muo/Fake/pt_5_-1/DYJetsToLL_M50_LO/", 
         directory = directory,
@@ -67,12 +89,23 @@ sampleFake                 = deepcopy(data_sample)
 sampleFake.setSelectionString("lep_isFakeId_Training==1")
 sampleFake.texName         = "Fake"
 sampleFake.Name            = "Fake"
-sampleFake.style           = styles.lineStyle(ROOT.kGreen)
+sampleFake.style           = styles.lineStyle(ROOT.kGreen + 1)
 
+sampleSUSY                 = deepcopy(data_sample)
+sampleSUSY.setSelectionString("lep_isFromSUSY_Training==1") #lep_isFromSUSY_Training/I
+sampleSUSY.texName         = "FromSUSY"
+sampleSUSY.Name            = "FromSUSY"
+sampleSUSY.style           = styles.lineStyle(ROOT.kRed)
 
+sampleSUSYHF                 = deepcopy(data_sample)
+sampleSUSYHF.setSelectionString("lep_isFromSUSYHF_Training==1")
+sampleSUSYHF.texName         = "FromSUSYHF"
+sampleSUSYHF.Name            = "FromSUSYHF"
+sampleSUSYHF.style           = styles.lineStyle(ROOT.kMagenta)
+print("copied samples successfully")
 read_variables = [
                   "lep_pt/F",
-		  "lep_eta/F",
+		          "lep_eta/F",
                   "lep_phi/F",
                   "lep_pdgId/F",
                   "lep_mediumId/F",
@@ -108,7 +141,7 @@ read_variables = [
                  ]
 
 
-stack = Stack([samplePrompt], [sampleNonPrompt], [sampleFake])
+stack = Stack([samplePrompt], [sampleNonPrompt], [sampleFake], [sampleSUSY], [sampleSUSYHF])
 
 # Use some defaults
 Plot.setDefaults(stack = stack)
@@ -275,7 +308,7 @@ plots.append(Plot(name      = "lep_ptErr",
 plots.append(Plot(name      = "lep_segmentComp",
                   texX      = 'segmentComp', texY = 'Number of Events ',
                   attribute = lambda event, sample: event.lep_segmentComp,
-                  binning   = [100,0,1],
+                  binning   = [50,0,1],
                   ))
 
 plots.append(Plot(name      = "lep_tkRelIso",
@@ -333,11 +366,32 @@ plots.append(Plot(name      = "nSV",
                   ))
 
 plotting.fill(plots, read_variables = read_variables)
+if args.normalize:
+    scaling = {0:3, 1:3, 2:3, 4:3}
+else:
+    scaling = {}
+years = ["2016", "2017", "2018"]
+year = []
+for i in years:
+    if i in directory:
+        year.append(i)
+if len(year)==1:
+    logger.info("Found the year of the sample in directory, will use it for naming the outputfile")
+    useyear = True
+else:
+    logger.info("Did not find a unique year in directory, the outputfile will not contain the year")
+    useyear = False
 
 for plot in plots:
     plotting.draw(plot, 
-                  plot_directory = os.path.join(plot_directory, "2016_muo_DYvsQCD_v2"),#args.plot_directory),
+                  plot_directory = os.path.join(plot_directory, 
+                                                "Compressed_stop_step2",
+                                                "Compressed_stop_step2"+\
+                                                ("_"+year[0] if useyear else "")+\
+                                                ("_normalized" if args.normalize else "")+\
+                                                ("_small" if "small" in directory else "")),#args.plot_directory),
                   ratio          = None, 
+                  scaling        = scaling,  
                   logX           = False, 
                   logY           = True,
                   sorting        = True, 
@@ -345,7 +399,7 @@ for plot in plots:
                   #legend         = "auto"
                   #drawObjects    = drawObjects( )
                   copyIndexPHP   = True,
-                  extensions     = ["png", "pdf", "root"]
+                  extensions     = ["png"] # , "pdf", "root"]
                                               )
 
 logger.info("%f s per file, %f total", (time.time()-t0)/len(samplePrompt.files), time.time()-t0)

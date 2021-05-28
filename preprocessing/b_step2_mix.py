@@ -307,15 +307,15 @@ elif args.sampleSelection == "all":
 elif args.sampleSelection == "STopvsTop":
     # prepare vars for getInputFromOthers for the Fake class
     sub_dirs = [Top[args.year], ["CompSUSY"]]
-    inputdirs = ["/eos/vbc/experiments/cms/store/user/liko/skims/", "/eos/vbc/user/dietrich.liko/DeepLepton/"]    
-    version = ["v3", "v0"]
+    inputdirs = ["/eos/vbc/experiments/cms/store/user/liko/skims/", "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/"]    
+    version = ["v3", "v3"]
     year = [args.year, 2017]
 
     samplePrompt    = getInputFromOthers(sub_dirs, "Prompt", inputdirs=inputdirs, version=version, year=year)
     sampleNonPrompt = getInputFromOthers(sub_dirs, "NonPrompt", inputdirs=inputdirs, version=version, year=year)
     sampleFake      = getInputFromOthers([Top[args.year]], "Fake", inputdirs=inputdirs[0], version=version[0], year=year[0])
-    sampleFromSUSY  = getInputFromOthers([["CompSUSY"]], "FromSUSY", inputdirs="/eos/vbc/user/dietrich.liko/DeepLepton/", version="v0", year=2017) 
-    sampleFromSUSYHF= getInputFromOthers([["CompSUSY"]], "FromSUSYHF", inputdirs="/eos/vbc/user/dietrich.liko/DeepLepton/", version="v0", year=2017)
+    sampleFromSUSY  = getInputFromOthers([["CompSUSY"]], "FromSUSY", inputdirs="/eos/vbc/user/benjamin.wilhelmy/DeepLepton/", version="v3", year=2017) 
+    sampleFromSUSYHF= getInputFromOthers([["CompSUSY"]], "FromSUSYHF", inputdirs="/eos/vbc/user/benjamin.wilhelmy/DeepLepton/", version="v3", year=2017)
 # /eos/vbc/user/dietrich.liko/DeepLepton/v0/step1/2017/muo/
 # /eos/vbc/user/dietrich.liko/DeepLepton/v0/step1/2017/muo/FromSUSY/pt_3.5_-1/CompSUSY
 # /eos/vbc/user/maximilian.moser/DeepLepton/v2/step1/2016/muo/Prompt/pt_3.5_-1/ 
@@ -347,7 +347,7 @@ from RootTools.core.helpers import shortTypeDict
 structure = {'':[]}
 
 #prompt
-for l in prompt['sample'] if not args.sampleSelection == "STopvsTop" else fromSUSY['sample'].chain.GetListOfLeaves():
+for l in prompt['sample'].chain.GetListOfLeaves() if not args.sampleSelection == "STopvsTop" else fromSUSY['sample'].chain.GetListOfLeaves():
     # this is anm element of a vector branch:
     if l.GetLeafCount():
         counter_var = l.GetLeafCount().GetName()
@@ -432,7 +432,7 @@ if args.ratio == 'balanced':
 
         # x = [[0, 1, 2, 3, 4], [prompt['Entries'], nonPrompt['Entries'], fake['Entries'], fromSUSY['Entries'], fromSUSYHF['Entries']]]
 else:
-    if not agrs.sampleSelection == "STopvsTop":
+    if not args.sampleSelection == "STopvsTop":
         x = [[0,1,2], [leptonClass['Entries'] for leptonClass in leptonClasses]]
     else:
         x = [[0, 1, 2, 3, 4], [leptonClass['Entries'] for leptonClass in leptonClasses]]
@@ -444,7 +444,8 @@ n_maxfileentries    = 100000
 n_current_entries   = 0
 n_file              = 0
 
-outputDir = os.path.join( "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton",
+# consider changing back to eos so skimdir
+outputDir = os.path.join( "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/", # "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton",
                              args.version + ("_small" if args.small else ""),
                              "step2",
                              str(args.year),
@@ -506,7 +507,17 @@ for i_choice, choice in enumerate(choices):
     for name, value in structure.iteritems():
         if name=='':
             for branch_name, _ in value:
-                setattr( maker.event, branch_name, getattr( r, branch_name ) )
+                # of if "SUSY" in leptonClasses[choice]['name'] there is another string comming...
+                if branch_name in ['lep_isFromSUSY_Training', 'lep_isFromSUSYHF_Training', 'lep_isFromSUSYandHF_Training'] and \
+                                not "SUSY" in leptonClasses[choice]['name']:
+                    setattr( maker.event, branch_name, 0)
+
+                else: 
+                    setattr( maker.event, branch_name, getattr( r, branch_name ) )
+                # del these 3 lines
+                # if branch_name in ['lep_isFromSUSY_Training', 'lep_isFromSUSYHF_Training']:
+                #     if choice in [0, 1, 2]:
+                #         print("branch_name is {} and value is {} and choice is {}".format(branch_name, getattr(r, branch_name), choice))
         else:
             setattr( maker.event, "n"+name, getattr( r, "n"+name ) )
             # sorting of SV and candidates

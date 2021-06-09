@@ -45,14 +45,24 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 
 logger.info("program started")
+# path_pred = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/trained/DYvsQCD_fromMax/training_20/prediction_max/"
+# path_truth = "/scratch-cbe/users/maximilian.moser/DeepLepton/traindata/DYvsQCD_2016/"
+# outfiles_path = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/trained/DYvsQCD_fromMax/training_20/prediction_max/outfiles.txt"
+# scratch_directory = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/"
+# path_truth = "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1/step2/2016/muo/pt_3.5_-1/DYvsQCD/"
+# path_pred = os.path.join(scratch_directory, "trained/DYvsQCD_2016_3/training_40_epoches_usw/prediction/")
+# outfiles_path = os.path.join(path_pred, "benjamins_outfiles.txt")
 
-scratch_directory = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/"
-path_truth = "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1/step2/2016/muo/pt_3.5_-1/DYvsQCD/"
-path_pred = os.path.join(scratch_directory, "trained/DYvsQCD_2016_3/training_40_epoches_usw/prediction/")
-outfiles_path = os.path.join(path_pred, "outfiles.txt")
+path_truth = "/scratch-cbe/users/maximilian.moser/DeepLepton/traindata/DYvsQCD_2016/"
+outfiles_path = "/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_notprompt/training_10/outfiles.txt"
+path_pred = "/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_notprompt/training_10/"
+
+
+
+
 
 # set sensible output file name s.t. one knows from which model the plot came
-output_file_name = "DYvsQCD_2016_3-training_40_epoches_usw"
+output_file_name = "Consistency_check_plot_max_model_"
 if args.small:
     output_file_name += "small_"
 
@@ -80,13 +90,17 @@ for f in open(outfiles_path, "r"):
             break
 
 
-pt_bins = np.array([
-                0,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100], dtype = float)
+pt_bins = np.array([0,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100, 125],
+                    dtype = float)
+pt_bins = np.array([5, 7.5, 10, 12.5, 15, 17.5, 20, 25, 30, 35, 40, 45, 50, 60, 75, 100,
+                                125, 150, 175, 200, 250, 300, 400, 500, 600, 2000], dtype=float)
+# actually dxy bins...
+eta_bins = np.linspace(start=-5, stop=5, num=10, endpoint=True, dtype=float)
 
-eta_bins = np.array(
-            [-2.5,-2.,-1.5,-1.,-0.5,0.5,1,1.5,2.,2.5],
-            dtype=float
-            )
+# eta_bins = np.array(
+#             [-2.5,-2.,-1.5,-1.,-0.5,0.5,1,1.5,2.,2.5],
+#             dtype=float
+#             )
 
 len_classifier_pt = len(pt_bins)-1
 len_classifier_eta = len(eta_bins)-1
@@ -163,21 +177,21 @@ for i in range(len(files_truth)):
                         FP_eta[i] += 1.       
 
 
-# calculate sensitivity
+# calculate sensitivity = signal efficiency
 sensitivity_pt = (TP_pt[:, 0])/(TP_pt[:, 0]+FN_pt)
 sensitivity_eta = TP_eta[:, 0]/(TP_eta[:, 0]+FN_eta)
 
 # caluclate specificity
-specificity_pt = (TN_pt[:, 0])/(TN_pt[:, 0]+FP_pt)
-specificity_eta = TN_eta[:, 0]/(TN_eta[:, 0]+FP_eta)
+# specificity_pt = (TN_pt[:, 0])/(TN_pt[:, 0]+FP_pt)
+# specificity_eta = TN_eta[:, 0]/(TN_eta[:, 0]+FP_eta)
 
 # calculate accuracy
-accuracy_pt = (TP_pt[:, 0]+TN_pt[:, 0])/(TP_pt[:, 0]+TN_pt[:, 0]+FP_pt+FN_pt)
-accuracy_eta = (TP_eta[:, 0]+TN_eta[:, 0])/(TP_eta[:, 0]+TN_eta[:, 0]+FP_eta+FN_eta)
+# accuracy_pt = (TP_pt[:, 0]+TN_pt[:, 0])/(TP_pt[:, 0]+TN_pt[:, 0]+FP_pt+FN_pt)
+# accuracy_eta = (TP_eta[:, 0]+TN_eta[:, 0])/(TP_eta[:, 0]+TN_eta[:, 0]+FP_eta+FN_eta)
 
 # calculate efficiency
-efficiency_pt = (sensitivity_pt+specificity_pt+accuracy_pt)/3
-efficiency_eta = (sensitivity_eta+specificity_eta+accuracy_eta)/3
+# efficiency_pt = (sensitivity_pt+specificity_pt+accuracy_pt)/3
+# efficiency_eta = (sensitivity_eta+specificity_eta+accuracy_eta)/3
 
 # calculate background eff
 back_eff_pt = FP_pt / (TN_pt[:, 0] + FP_pt)
@@ -194,22 +208,22 @@ for i in range(len_classifier_eta):
     plot_eta_bins[i] = (eta_bins[i+1]+eta_bins[i])/2
 
 # The pt plot:
-gr1 = ROOT.TGraph(len(pt_bins)-1, array.array("d", plot_pt_bins), array.array("d", efficiency_pt))
-gr2 = ROOT.TGraph(len(pt_bins)-1, array.array("d", plot_pt_bins), array.array("d", sensitivity_pt))
-gr3 = ROOT.TGraph(len_classifier_pt, array.array("d", plot_pt_bins), array.array("d", specificity_pt))
-gr4 = ROOT.TGraph(len_classifier_pt, array.array("d", plot_pt_bins), array.array("d", accuracy_pt))
+# gr1 = ROOT.TGraph(len_classifier_pt, array.array("d", plot_pt_bins), array.array("d", efficiency_pt))
+gr2 = ROOT.TGraph(len_classifier_pt, array.array("d", plot_pt_bins), array.array("d", sensitivity_pt))
+# gr3 = ROOT.TGraph(len_classifier_pt, array.array("d", plot_pt_bins), array.array("d", specificity_pt))
+# gr4 = ROOT.TGraph(len_classifier_pt, array.array("d", plot_pt_bins), array.array("d", accuracy_pt))
 gr5 = ROOT.TGraph(len_classifier_pt, array.array("d", plot_pt_bins), array.array("d", back_eff_pt))
 
-gr1.SetLineColorAlpha(ROOT.kBlue, 1)
+# gr1.SetLineColorAlpha(ROOT.kBlue, 1)
 gr2.SetLineColorAlpha(ROOT.kRed, 1)
-gr3.SetLineColorAlpha(3, 1) #green
-gr4.SetLineColorAlpha(5, 1) #yellow
+# gr3.SetLineColorAlpha(3, 1) #green
+# gr4.SetLineColorAlpha(5, 1) #yellow
 gr5.SetLineColorAlpha(6, 1) #violet 
 
-gr1.SetMarkerStyle(34)
+# gr1.SetMarkerStyle(34)
 gr2.SetMarkerStyle(34)
-gr3.SetMarkerStyle(34)
-gr4.SetMarkerStyle(34)
+# gr3.SetMarkerStyle(34)
+# gr4.SetMarkerStyle(34)
 gr5.SetMarkerStyle(34)
 
 
@@ -217,18 +231,18 @@ c1 = ROOT.TCanvas("c1", "L", 200,100,1000,1000)
 
 c1.SetGrid()
 
-gr1.SetTitle("Efficiency")
-gr2.SetTitle("Sensitivity")
-gr3.SetTitle("Specificity")
-gr4.SetTitle("Accuracy")
+# gr1.SetTitle("Efficiency")
+gr2.SetTitle("Signal Efficiency")
+# gr3.SetTitle("Specificity")
+# gr4.SetTitle("Accuracy")
 gr5.SetTitle("Background Efficiency")
 
 mg = ROOT.TMultiGraph()
 
-mg.Add(gr1)
+# mg.Add(gr1)
 mg.Add(gr2)
-mg.Add(gr3)
-mg.Add(gr4)
+# mg.Add(gr3)
+# mg.Add(gr4)
 mg.Add(gr5)
 
 mg.SetTitle("Binary Classification Tests in p_t")
@@ -247,22 +261,22 @@ logger.info("Succesfully plotted pt plot")
 
 # The eta plot:
 
-gr1 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_eta_bins), array.array("d", efficiency_eta))
+# gr1 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_eta_bins), array.array("d", efficiency_eta))
 gr2 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_eta_bins), array.array("d", sensitivity_eta))
-gr3 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_eta_bins), array.array("d", specificity_eta))
-gr4 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_eta_bins), array.array("d", accuracy_eta))
+# gr3 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_eta_bins), array.array("d", specificity_eta))
+# gr4 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_eta_bins), array.array("d", accuracy_eta))
 gr5 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_eta_bins), array.array("d", back_eff_eta))
 
-gr1.SetLineColorAlpha(ROOT.kBlue, 1)
+# gr1.SetLineColorAlpha(ROOT.kBlue, 1)
 gr2.SetLineColorAlpha(ROOT.kRed, 1)
-gr3.SetLineColorAlpha(3, 1) #green
-gr4.SetLineColorAlpha(5, 1) #yellow
+# gr3.SetLineColorAlpha(3, 1) #green
+# gr4.SetLineColorAlpha(5, 1) #yellow
 gr5.SetLineColorAlpha(6, 1) #violet 
 
-gr1.SetMarkerStyle(34)
+# gr1.SetMarkerStyle(34)
 gr2.SetMarkerStyle(34)
-gr3.SetMarkerStyle(34)
-gr4.SetMarkerStyle(34)
+# gr3.SetMarkerStyle(34)
+# gr4.SetMarkerStyle(34)
 gr5.SetMarkerStyle(34)
 
 
@@ -270,18 +284,18 @@ c1 = ROOT.TCanvas("c1", "L", 200,100,1000,1000)
 
 c1.SetGrid()
 
-gr1.SetTitle("Efficiency")
-gr2.SetTitle("Sensitivity")
-gr3.SetTitle("Specificity")
-gr4.SetTitle("Accuracy")
+# gr1.SetTitle("Efficiency")
+gr2.SetTitle("Signal Efficiency")
+# gr3.SetTitle("Specificity")
+# gr4.SetTitle("Accuracy")
 gr5.SetTitle("Background Efficiency")
 
 mg = ROOT.TMultiGraph()
 
-mg.Add(gr1)
+# mg.Add(gr1)
 mg.Add(gr2)
-mg.Add(gr3)
-mg.Add(gr4)
+# mg.Add(gr3)
+# mg.Add(gr4)
 mg.Add(gr5)
 
 mg.SetTitle("$Binary \t Classification \\ Tests\quad in \\ \eta; lepton\\ \eta$")

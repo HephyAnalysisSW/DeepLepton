@@ -36,8 +36,58 @@ DY  = { 2016:['DYJetsToLL_M50_LO',
               'DYJetsToLL_M5to50_HT400to600',
               'DYJetsToLL_M5to50_HT400to600_ext',
               'DYJetsToLL_M5to50_HT600toInf',], 
-        2017:[], 
-        2018:[]}
+        
+        2017:['DYJetsToLL_M10to50_LO',
+            'DYJetsToLL_M4to50_HT100to200_LO',
+            'DYJetsToLL_M4to50_HT100to200_LO_ext1',
+            'DYJetsToLL_M4to50_HT200to400_LO',
+            'DYJetsToLL_M4to50_HT200to400_LO_ext1',
+            'DYJetsToLL_M4to50_HT200to400_new_pmx_LO',
+            'DYJetsToLL_M4to50_HT400to600_LO',
+            'DYJetsToLL_M4to50_HT400to600_LO_ext1',
+            'DYJetsToLL_M4to50_HT600toInf_LO',
+            'DYJetsToLL_M4to50_HT600toInf_LO_ext1',
+            'DYJetsToLL_M50_HT100to200_LO',
+            'DYJetsToLL_M50_HT100to200_LO_ext1',
+            'DYJetsToLL_M50_HT1200to2500_LO',
+            'DYJetsToLL_M50_HT200to400_LO',
+            'DYJetsToLL_M50_HT200to400_LO_ext1',
+            'DYJetsToLL_M50_HT2500toInf_LO',
+            'DYJetsToLL_M50_HT400to600_LO',
+            'DYJetsToLL_M50_HT400to600_LO_ext1',
+            'DYJetsToLL_M50_HT600to800_LO',
+            'DYJetsToLL_M50_HT70to100_LO',
+            'DYJetsToLL_M50_HT800to1200_LO',
+            'DYJetsToLL_M50_LO',
+            'DYJetsToLL_M50_LO_ext1',
+            'DYJetsToLL_M50_NLO',], 
+        
+        2018:[
+            'DYJetsToLL_M10to50_LO',
+            'DYJetsToLL_M4to50_HT100to200_LO',
+            'DYJetsToLL_M4to50_HT100to200_LO_ext1',
+            'DYJetsToLL_M4to50_HT200to400_LO',
+            'DYJetsToLL_M4to50_HT200to400_LO_ext1',
+            'DYJetsToLL_M4to50_HT200to400_new_pmx_LO',
+            'DYJetsToLL_M4to50_HT400to600_LO',
+            'DYJetsToLL_M4to50_HT400to600_LO_ext1',
+            'DYJetsToLL_M4to50_HT600toInf_LO',
+            'DYJetsToLL_M4to50_HT600toInf_LO_ext1',
+            'DYJetsToLL_M50_HT100to200_LO',
+            'DYJetsToLL_M50_HT100to200_LO_ext1',
+            'DYJetsToLL_M50_HT1200to2500_LO',
+            'DYJetsToLL_M50_HT200to400_LO',
+            'DYJetsToLL_M50_HT200to400_LO_ext1',
+            'DYJetsToLL_M50_HT2500toInf_LO',
+            'DYJetsToLL_M50_HT400to600_LO',
+            'DYJetsToLL_M50_HT400to600_LO_ext1',
+            'DYJetsToLL_M50_HT600to800_LO',
+            'DYJetsToLL_M50_HT70to100_LO',
+            'DYJetsToLL_M50_HT800to1200_LO',
+            'DYJetsToLL_M50_LO',
+            'DYJetsToLL_M50_LO_ext1',
+            'DYJetsToLL_M50_NLO',]}
+
 
 Top = { 2016:['TTTo2L2Nu_noSC_pow',
               'TTTo2L2Nu_pow_CP5',
@@ -61,12 +111,12 @@ Top = { 2016:['TTTo2L2Nu_noSC_pow',
               'ST_tW_top_5f_pow',
               'ST_tW_top_5f_pow_CP5',
               'ST_tWll_5f_LO',
-              #'ST_tWnunu_5f_LO',
+              'ST_tWnunu_5f_LO',
              
               'THQ_LO',
               'THW_LO',
               
-              #'TTTT_NLO',
+              'TTTT_NLO',
               'TTWW_NLO',
               'TTWZ_NLO',
               'TTZZ_NLO',
@@ -79,8 +129,87 @@ Top = { 2016:['TTTo2L2Nu_noSC_pow',
               'TTZToQQ_NLO',
               'TGG',
               ], 
-        2017:[], 
-        2018:[]}
+
+        2017:['ST_schannel_4f_NLO',
+            'ST_schannel_4f_NLO_PS',
+            'ST_tchannel_antitop_4f_incl_pow',
+            'ST_tchannel_antitop_5f_pow_PS',
+            'ST_tchannel_antitop_5f_pow_PS_old_pmx',
+            'ST_tchannel_top_4f_incl_pow',
+            'ST_tchannel_top_5f_pow',
+            'ST_tchannel_top_5f_pow_old_pmx',
+            'ST_tW_antitop_incl_5f_pow',
+            'ST_tW_antitop_incl_5f_pow_PS',
+            'ST_tW_antitop_NoFullyHad_5f_pow_PS',
+            'ST_tW_top_incl_5f_pow',
+            'ST_tW_top_incl_5f_pow_PS',
+            'ST_tW_top_NoFullyHad_5f_pow',
+            'ST_tW_top_NoFullyHad_5f_pow_PS',
+            'ST_tWll_5f_LO',
+            'ST_tWnunu_5f_LO',
+            'TTHH_LO',
+            'TTJets_dilep_genMET150_LO',
+            'TTJets_dilep_LO',
+            'TTJets_HT1200to2500_LO',
+            'TTJets_HT2500toInf_LO',
+            'TTJets_HT600to800_LO',
+            'TTJets_HT800to1200_LO',
+            'TTJets_LO',
+            'TTJets_NLO',
+            'TTJets_semilepFromT_genMET150_LO',
+            'TTJets_semilepFromT_LO',
+            'TTJets_semilepFromTbar_genMET150_LO',
+            'TTJets_semilepFromTbar_LO',
+            'TTTo2L2Nu_pow',
+            'TTTo2L2Nu_pow_PS',
+            'TTToSemiLeptonic_pow',
+            'TTToSemiLeptonic_pow_PS',
+            'TTWH_LO',
+            'TTWW_LO',
+            'TTWZ_LO',
+            'TTZH_LO',
+            'TTZZ_LO',], 
+        
+        2018:['ST_schannel_4f_NLO',
+            'ST_schannel_4f_NLO_PS',
+            'ST_tchannel_antitop_4f_incl_pow',
+            'ST_tchannel_antitop_5f_pow_PS',
+            'ST_tchannel_antitop_5f_pow_PS_old_pmx',
+            'ST_tchannel_top_4f_incl_pow',
+            'ST_tchannel_top_5f_pow',
+            'ST_tchannel_top_5f_pow_old_pmx',
+            'ST_tW_antitop_incl_5f_pow',
+            'ST_tW_antitop_incl_5f_pow_PS',
+            'ST_tW_antitop_NoFullyHad_5f_pow_PS',
+            'ST_tW_top_incl_5f_pow',
+            'ST_tW_top_incl_5f_pow_PS',
+            'ST_tW_top_NoFullyHad_5f_pow',
+            'ST_tW_top_NoFullyHad_5f_pow_PS',
+            'ST_tWll_5f_LO',
+            'ST_tWnunu_5f_LO',
+            'TTHH_LO',
+            'TTJets_dilep_genMET150_LO',
+            'TTJets_dilep_LO',
+            'TTJets_HT1200to2500_LO',
+            'TTJets_HT2500toInf_LO',
+            'TTJets_HT600to800_LO',
+            'TTJets_HT800to1200_LO',
+            'TTJets_LO',
+            'TTJets_NLO',
+            'TTJets_semilepFromT_genMET150_LO',
+            'TTJets_semilepFromT_LO',
+            'TTJets_semilepFromTbar_genMET150_LO',
+            'TTJets_semilepFromTbar_LO',
+            'TTTo2L2Nu_pow',
+            'TTTo2L2Nu_pow_PS',
+            'TTToSemiLeptonic_pow',
+            'TTToSemiLeptonic_pow_PS',
+            'TTWH_LO',
+            'TTWW_LO',
+            'TTWZ_LO',
+            'TTZH_LO',
+            'TTZZ_LO',]}
+
 
 QCD = { 'muo': {2016: ['QCD_Mu_pt15to20',
                        'QCD_Mu_pt20to30',
@@ -100,8 +229,33 @@ QCD = { 'muo': {2016: ['QCD_Mu_pt15to20',
                        'QCD_Mu_pt800to1000',
                        'QCD_Mu_pt800to1000_ext1',
                        'QCD_Mu_pt1000toInf',], 
-                2017: [], 
-                2018: []},
+                
+                2017: ['QCD_Mu_pt1000toInf',
+                       'QCD_Mu_pt120to170',
+                       'QCD_Mu_pt15to20',
+                       'QCD_Mu_pt170to300',
+                       'QCD_Mu_pt20to30',
+                       'QCD_Mu_pt300to470',
+                       'QCD_Mu_pt30to50',
+                       'QCD_Mu_pt470to600',
+                       'QCD_Mu_pt50to80',
+                       'QCD_Mu_pt600to800',
+                       'QCD_Mu_pt800to1000',
+                       'QCD_Mu_pt80to120',], 
+                
+                2018: ['QCD_Mu_pt1000toInf',
+                       'QCD_Mu_pt120to170',
+                       'QCD_Mu_pt15to20',
+                       'QCD_Mu_pt170to300',
+                       'QCD_Mu_pt20to30',
+                       'QCD_Mu_pt300to470',
+                       'QCD_Mu_pt30to50',
+                       'QCD_Mu_pt470to600',
+                       'QCD_Mu_pt50to80',
+                       'QCD_Mu_pt600to800',
+                       'QCD_Mu_pt800to1000',
+                       'QCD_Mu_pt80to120',]},
+
 
         'ele': {2016: ['QCD_Mu_pt1000toInf_ext1',
                        'QCD_EMEnriched_pt20to30',
@@ -121,8 +275,34 @@ QCD = { 'muo': {2016: ['QCD_Mu_pt15to20',
                        'QCD_bcToE_pt80to170',
                        'QCD_bcToE_pt170to250',
                        'QCD_bcToE_pt250toInf',], 
-                2017: [], 
-                2018: []}} 
+                
+                2017: ['QCD_bcToE_pt170to250',
+                       'QCD_bcToE_pt20to30',
+                       'QCD_bcToE_pt20to30_new_pmx',
+                       'QCD_bcToE_pt250toInf',
+                       'QCD_bcToE_pt30to80',
+                       'QCD_bcToE_pt80to170',
+                       'QCD_EMEnriched_pt120to170',
+                       'QCD_EMEnriched_pt170to300',
+                       'QCD_EMEnriched_pt20to30',
+                       'QCD_EMEnriched_pt300toInf',
+                       'QCD_EMEnriched_pt30to50',
+                       'QCD_EMEnriched_pt50to80',
+                       'QCD_EMEnriched_pt80to120',], 
+                
+                2018: ['QCD_bcToE_pt170to250',
+                       'QCD_bcToE_pt20to30',
+                       'QCD_bcToE_pt20to30_new_pmx',
+                       'QCD_bcToE_pt250toInf',
+                       'QCD_bcToE_pt30to80',
+                       'QCD_bcToE_pt80to170',
+                       'QCD_EMEnriched_pt120to170',
+                       'QCD_EMEnriched_pt170to300',
+                       'QCD_EMEnriched_pt20to30',
+                       'QCD_EMEnriched_pt300toInf',
+                       'QCD_EMEnriched_pt30to50',
+                       'QCD_EMEnriched_pt50to80',
+                       'QCD_EMEnriched_pt80to120',]}} 
 
 #parser
 def get_parser():
@@ -131,7 +311,7 @@ def get_parser():
     import argparse
     argParser = argparse.ArgumentParser(description = "Argument parser for cmgPostProcessing")
 
-    argParser.add_argument('--year',                        action='store',                     type=int,   choices=[2016,2017],    required = True,               help="Which year?")
+    argParser.add_argument('--year',                        action='store',                     type=int,   choices=[2016,2017,2018],    required = True,               help="Which year?")
     argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'],     default='INFO',                     help="Log level for logging")
     argParser.add_argument('--sample',                      action='store',         nargs='?',  type=str,                           default='WZTo3LNu',            help="List of samples to be post-processed, given as CMG component name")
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                     help="Maximum number of simultaneous jobs.")
@@ -165,7 +345,8 @@ selectionString = '(event%{nJobs}=={job}&&abs(lep_pdgId)=={flavour}&&{kinematic}
 random.seed(100) # Otherwise file shuffling not deterministic!
 def getInput( sub_directories, class_name):
     assert len(sub_directories)>0, "sub_directories can not be empty!"
-    inputPath = os.path.join( skim_directory, args.version, "step1", str(args.year), args.flavour, class_name, args.ptSelectionStep1)
+    #inputPath = os.path.join( skim_directory, args.version, "step1", str(args.year), args.flavour, class_name, args.ptSelectionStep1)
+    inputPath = os.path.join( "/eos/vbc/experiments/cms/store/user/liko/skims/", args.version, "step1", str(args.year), args.flavour, class_name, args.ptSelectionStep1)
     # prepend redirector for /eos/ paths
     for s in sub_directories:
         logger.debug("Sample %s", s)
@@ -279,6 +460,7 @@ random.shuffle(choices)
 n_maxfileentries    = 100000
 n_current_entries   = 0
 n_file              = 0
+
 
 outputDir = os.path.join( "/scratch-cbe/users/maximilian.moser/DeepLepton", args.version + ("_small" if args.small else ""), "step2", str(args.year), args.flavour, args.ptSelection, args.sampleSelection)
 

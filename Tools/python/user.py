@@ -5,6 +5,10 @@ if 'SKIMSDIR' in os.environ:
     skim_directory = os.environ['SKIMSDIR']
     dbDir = "."
 
+elif os.environ['USER'] in ['dietrich.liko']:
+    skim_directory   = "/eos/vbc/user/dietrich.liko/DeepLepton"
+    dbDir            = "/users/dietrich.liko/caches/Samples/"
+
 elif os.environ['USER'] in ['robert.schoefbeck']:
     #plot_directory   = "/afs/hephy.at/user/r/rschoefbeck/www/DeepLepton/"
     #skim_directory   = "/scratch-cbe/users/robert.schoefbeck/DeepLepton/"

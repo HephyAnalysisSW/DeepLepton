@@ -15,20 +15,9 @@ from DeepLepton.Tools.user import plot_directory
 
 import argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
-argParser.add_argument('--logLevel',
-                action='store',
-                default='INFO',
-                nargs='?',
-                choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'],
-                help="Log level for logging")
+argParser.add_argument('--logLevel',       action='store',      default='INFO',      nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 #argParser.add_argument('--plot_directory', action='store',      default='FourMuonInvariantMass')
-argParser.add_argument('--small',
-                action='store_true',
-                help="Run the file on a small sample (for test purpose), bool flag set to True if used" )
-
-argParser.add_argument('--normalize',
-                        action='store_true',
-                        help="If True all histos will have the same area (The same as the 4th histo)")
+argParser.add_argument('--small',       action='store_true',                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used" )
 args = argParser.parse_args()
 
 
@@ -43,23 +32,13 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 redirector = "root://eos.grid.vbc.ac.at/"
 
-subdirs = ["Fake/", "FromSUSY/", "FromSUSYHF/", "NonPrompt/", "Prompt/"]
-# dietrich_step1_files = "/eos/vbc/user/dietrich.liko/DeepLepton/v0/step1/2017/muo/"
-# directory = [os.path.join(dietrich_step1_files, subdir, "pt_3.5_-1/CompSUSY/") for subdir in subdirs]
-directory = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/v2_small/step2/2016/muo/pt_3.5_-1/STopvsTop/"
-
-# directory = [
-        # "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1/step2/2016/muo/pt_3.5_-1/DYvsQCD/",
-        # "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1_compr_stop/step1/2017/muo/NonPrompt/pt_3_-1/stopCompr/Sample_0/",
-        # "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1_compr_stop/step1/2017/muo/Prompt/pt_3_-1/stopCompr/Sample_0/",
-        # "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1_compr_stop/step1/2017/muo/Fake/pt_3_-1/stopCompr/Sample_0/"
-        #"/eos/vbc/user/dietrich.liko/DeepLepton/v0/step1/2017/muo/FromSUSYHF/pt_3.5_-1/CompSUSY/
-
-#        ]
+directory = [
+        #"/eos/vbc/user/maximilian.moser/DeepLepton/v2/step2/2016/muo/pt_3.5_-1/DYvsQCD/",
+        "/scratch-cbe/users/maximilian.moser/DeepLepton/v2/step2/2016/ele/pt_5_-1/Top/"
+        ]
 
 t0 = time.time()
 data_sample = Sample.fromDirectory(
-        # "step2",
         "step2",
         #directory = "/scratch-cbe/users/maximilian.moser/DeepLepton/v1_small/step1/2016/muo/Fake/pt_5_-1/DYJetsToLL_M50_LO/", 
         directory = directory,
@@ -89,59 +68,53 @@ sampleFake                 = deepcopy(data_sample)
 sampleFake.setSelectionString("lep_isFakeId_Training==1")
 sampleFake.texName         = "Fake"
 sampleFake.Name            = "Fake"
-sampleFake.style           = styles.lineStyle(ROOT.kGreen + 1)
+sampleFake.style           = styles.lineStyle(ROOT.kGreen)
 
-sampleSUSY                 = deepcopy(data_sample)
-sampleSUSY.setSelectionString("lep_isFromSUSY_Training==1") #lep_isFromSUSY_Training/I
-sampleSUSY.texName         = "FromSUSY"
-sampleSUSY.Name            = "FromSUSY"
-sampleSUSY.style           = styles.lineStyle(ROOT.kRed)
 
-sampleSUSYHF                 = deepcopy(data_sample)
-sampleSUSYHF.setSelectionString("lep_isFromSUSYHF_Training==1")
-sampleSUSYHF.texName         = "FromSUSYHF"
-sampleSUSYHF.Name            = "FromSUSYHF"
-sampleSUSYHF.style           = styles.lineStyle(ROOT.kMagenta)
-print("copied samples successfully")
 read_variables = [
-                  "lep_pt/F",
-		          "lep_eta/F",
-                  "lep_phi/F",
-                  "lep_pdgId/F",
-                  "lep_mediumId/F",
-                  "lep_miniPFRelIso_all/F",
-                  "lep_pfRelIso03_all/F",
-                  "lep_sip3d/F",
-                  "lep_dxy/F",
-                  "lep_dz/F",
-                  "lep_charge/F",
-                  "lep_dxyErr/F",
-                  "lep_dzErr/F",
-                  "lep_ip3d/F",
-                  "lep_jetPtRelv2/F",
-                  "lep_jetRelIso/F",
-                  "lep_miniPFRelIso_chg/F",
-                  "lep_mvaLowPt/F",
-                  "lep_nStations/F",
-                  "lep_nTrackerLayers/F",
-                  "lep_pfRelIso03_all/F",
-                  "lep_pfRelIso03_chg/F",
-                  "lep_pfRelIso04_all/F",
-                  "lep_ptErr/F",
-                  "lep_segmentComp/F",
-                  "lep_tkRelIso/F",
-                  "lep_tunepRelPt/F",
-                  "lep_genPartFlav/F",
-                  "npfCand_charged/I",
-                  "npfCand_neutral/I",
-                  "npfCand_photon/I",
-                  "npfCand_electron/I",
-                  "npfCand_muon/I",
-                  "nSV/I",
-                 ]
+'lep_pt/F',
+'lep_eta/F',
+'lep_phi/F',
+'lep_pdgId/F',
+'lep_cutBased/F',
+'lep_miniPFRelIso_all/F',
+'lep_pfRelIso03_all/F',
+'lep_sip3d/F',
+'lep_lostHits/F',
+'lep_convVeto/F',
+'lep_dxy/F',
+'lep_dz/F',
+'lep_charge/F',
+'lep_deltaEtaSC/F',
+'lep_vidNestedWPBitmap/F',
+'lep_dr03EcalRecHitSumEt/F',
+'lep_dr03HcalDepth1TowerSumEt/F',
+'lep_dr03TkSumPt/F',
+'lep_dxyErr/F',
+'lep_dzErr/F',
+'lep_eCorr/F',
+'lep_eInvMinusPInv/F',
+'lep_energyErr/F',
+'lep_hoe/F',
+'lep_ip3d/F',
+'lep_jetPtRelv2/F',
+'lep_jetRelIso/F',
+'lep_miniPFRelIso_chg/F',
+'lep_mvaFall17V2noIso/F',
+'lep_pfRelIso03_chg/F',
+'lep_r9/F',
+'lep_sieie/F',
+'lep_genPartFlav/F',
+'npfCand_charged/I',
+'npfCand_neutral/I',
+'npfCand_photon/I',
+'npfCand_electron/I',
+'npfCand_muon/I',
+'nSV/I',                
+]
 
 
-stack = Stack([samplePrompt], [sampleNonPrompt], [sampleFake], [sampleSUSY], [sampleSUSYHF])
+stack = Stack([samplePrompt], [sampleNonPrompt], [sampleFake])
 
 # Use some defaults
 Plot.setDefaults(stack = stack)
@@ -173,9 +146,9 @@ plots.append(Plot(name      = "lep_pdgId",
                   binning   = [100,0,20],
                   ))
 
-plots.append(Plot(name      = "lep_mediumId",
-                  texX      = 'mediumId', texY = 'Number of Events ',
-                  attribute = lambda event, sample: event.lep_mediumId,
+plots.append(Plot(name      = "lep_cutBased", #
+                  texX      = 'cutBased', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_cutBased,
                   binning   = [100,0,5],
                   ))
 
@@ -189,6 +162,17 @@ plots.append(Plot(name      = "lep_pfRelIso03_all",
                   texX      = 'pfRelIso03_all', texY = 'Number of Events ',
                   attribute = lambda event, sample: event.lep_pfRelIso03_all,
                   binning   = [100,0,20],
+                  ))
+
+plots.append(Plot(name      = "lep_lostHits",
+                  texX      = 'lostHits', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_lostHits,
+                  binning   = [8,0,8],
+                  ))
+plots.append(Plot(name      = "lep_convVeto",
+                  texX      = 'convVeto', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_convVeto,
+                  binning   = [100,0,1],
                   ))
 
 plots.append(Plot(name      = "lep_sip3d",
@@ -242,7 +226,38 @@ plots.append(Plot(name      = "lep_dzErr",
 plots.append(Plot(name      = "lep_ip3d",
                   texX      = 'ip3d', texY = 'Number of Events ',
                   attribute = lambda event, sample: event.lep_ip3d,
-                  binning   = [100,-1,30],
+                  binning   = [100,0,30],
+                  ))
+plots.append(Plot(name      = "lep_ip3d_zoom",
+                  texX      = 'ip3d', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_ip3d,
+                  binning   = [100,0,2],
+                  ))
+
+plots.append(Plot(name      = "lep_deltaEtaSC",
+                  texX      = 'deltaEtaSC', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_deltaEtaSC,
+                  binning   = [100,0,5],
+                  ))
+plots.append(Plot(name      = "lep_vidNestedWPBitmap",
+                  texX      = 'vidNestedWPBitmap', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_vidNestedWPBitmap,
+                  binning   = [100,200000000,608000000],
+                  ))
+plots.append(Plot(name      = "lep_dr03EcalRecHitSumEt",
+                  texX      = 'dr03EcalRecHitSumEt', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_dr03EcalRecHitSumEt,
+                  binning   = [100,0,100],
+                  ))
+plots.append(Plot(name      = "lep_dr03HcalDepth1TowerSumEt",
+                  texX      = 'dr03HcalDepth1TowerSumEt', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_dr03HcalDepth1TowerSumEt,
+                  binning   = [100,0,100],
+                  ))
+plots.append(Plot(name      = "lep_dr03TkSumPt",
+                  texX      = 'dr03TkSumPt', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_dr03TkSumPt,
+                  binning   = [100,0,100],
                   ))
 
 plots.append(Plot(name      = "lep_jetPtRelv2",
@@ -263,22 +278,34 @@ plots.append(Plot(name      = "lep_miniPFRelIso_chg",
                   binning   = [100,0,15],
                   ))
 
-plots.append(Plot(name      = "lep_mvaLowPt",
-                  texX      = 'mvaLowPt', texY = 'Number of Events ',
-                  attribute = lambda event, sample: event.lep_mvaLowPt,
+plots.append(Plot(name      = "lep_mvaFall17V2noIso",
+                  texX      = 'mvaFall17V2noIso', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_mvaFall17V2noIso,
                   binning   = [100,0,1],
                   ))
 
-plots.append(Plot(name      = "lep_nStations",
-                  texX      = 'nStations', texY = 'Number of Events ',
-                  attribute = lambda event, sample: event.lep_nStations,
-                  binning   = [100,0,10],
+plots.append(Plot(name      = "lep_eCorr",
+                  texX      = 'eCorr', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_eCorr,
+                  binning   = [100,0,2.5],
                   ))
 
-plots.append(Plot(name      = "lep_nTrackerLayers",
-                  texX      = 'nTrackerLayers', texY = 'Number of Events ',
-                  attribute = lambda event, sample: event.lep_nTrackerLayers,
-                  binning   = [20,0,20],
+plots.append(Plot(name      = "lep_eInvMinusPInv",
+                  texX      = 'eInvMinusPInv', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_eInvMinusPInv,
+                  binning   = [100,-3,3],
+                  ))
+
+plots.append(Plot(name      = "lep_energyErr",
+                  texX      = 'energyErr', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_energyErr,
+                  binning   = [100,0,100],
+                  ))
+
+plots.append(Plot(name      = "lep_hoe",
+                  texX      = 'hoe', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_hoe,
+                  binning   = [100,0,100],
                   ))
 
 plots.append(Plot(name      = "lep_pfRelIso03_all",
@@ -293,34 +320,16 @@ plots.append(Plot(name      = "lep_pfRelIso03_chg",
                   binning   = [100,0,30],
                   ))
 
-plots.append(Plot(name      = "lep_pfRelIso04_all",
-                  texX      = 'pfRelIso04_all', texY = 'Number of Events ',
-                  attribute = lambda event, sample: event.lep_pfRelIso04_all,
+plots.append(Plot(name      = "lep_r9",
+                  texX      = 'r9', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_r9,
                   binning   = [100,0,30],
                   ))
 
-plots.append(Plot(name      = "lep_ptErr",
-                  texX      = 'ptErr', texY = 'Number of Events ',
-                  attribute = lambda event, sample: event.lep_ptErr,
-                  binning   = [100,0,40],
-                  ))
-
-plots.append(Plot(name      = "lep_segmentComp",
-                  texX      = 'segmentComp', texY = 'Number of Events ',
-                  attribute = lambda event, sample: event.lep_segmentComp,
-                  binning   = [50,0,1],
-                  ))
-
-plots.append(Plot(name      = "lep_tkRelIso",
-                  texX      = 'tkRelIso', texY = 'Number of Events ',
-                  attribute = lambda event, sample: event.lep_tkRelIso,
-                  binning   = [100,0,40],
-                  ))
-
-plots.append(Plot(name      = "lep_tunepRelPt",
-                  texX      = 'tunepRelPt', texY = 'Number of Events ',
-                  attribute = lambda event, sample: event.lep_tunepRelPt,
-                  binning   = [100,0,50],
+plots.append(Plot(name      = "lep_sieie",
+                  texX      = 'sieie', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_sieie,
+                  binning   = [100,0,0.1],
                   ))
 
 plots.append(Plot(name      = "lep_genPartFlav",
@@ -366,32 +375,11 @@ plots.append(Plot(name      = "nSV",
                   ))
 
 plotting.fill(plots, read_variables = read_variables)
-if args.normalize:
-    scaling = {0:3, 1:3, 2:3, 4:3}
-else:
-    scaling = {}
-years = ["2016", "2017", "2018"]
-year = []
-for i in years:
-    if i in directory:
-        year.append(i)
-if len(year)==1:
-    logger.info("Found the year of the sample in directory, will use it for naming the outputfile")
-    useyear = True
-else:
-    logger.info("Did not find a unique year in directory, the outputfile will not contain the year")
-    useyear = False
 
 for plot in plots:
     plotting.draw(plot, 
-                  plot_directory = os.path.join(plot_directory, 
-                                                "Compressed_stop_step2",
-                                                "Compressed_stop_step2"+\
-                                                ("_"+year[0] if useyear else "")+\
-                                                ("_normalized" if args.normalize else "")+\
-                                                ("_small" if "small" in directory else "")),#args.plot_directory),
+                  plot_directory = os.path.join(plot_directory, "2016_ele_Top"),#args.plot_directory),
                   ratio          = None, 
-                  scaling        = scaling,  
                   logX           = False, 
                   logY           = True,
                   sorting        = True, 
@@ -399,7 +387,7 @@ for plot in plots:
                   #legend         = "auto"
                   #drawObjects    = drawObjects( )
                   copyIndexPHP   = True,
-                  extensions     = ["png"] # , "pdf", "root"]
+                  extensions     = ["png", "pdf", "root"]
                                               )
 
 logger.info("%f s per file, %f total", (time.time()-t0)/len(samplePrompt.files), time.time()-t0)

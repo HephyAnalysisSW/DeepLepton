@@ -28,8 +28,10 @@ def get_parser():
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                          help="Run only job i")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
     argParser.add_argument('--vers',                     action='store',         nargs='?',  type=str,  default='v2',         help="Version for output directory")
+    argParser.add_argument('--versionName',                  action='store',                    type=str)
     argParser.add_argument('--ptSelection',                 action='store',         nargs='?',  type=str,  default='pt_5_-1',      help="pt selection of leptons")
     argParser.add_argument('--muFromTauArePrompt',    action='store_true',        help="Consider muons from tau leptons as prompt")        
+    argParser.add_argument('--modelPath',                       action='store',       help="Path to Keras model")
 
     return argParser
 
@@ -46,9 +48,14 @@ maxN = 2 if options.small else None
 
 #load keras model
 #from keras.models import load_model
+logger.info('loading keras model, this may take a minute (or two)')
 import tensorflow as tf
-model = tf.keras.models.load_model( "/scratch-cbe/users/maximilian.moser/DeepLepton/Train_DYvsQCD_rH_flat/training_20_CNN/KERAS_model.h5" )
-
+modelPath = options.modelPath
+if not os.path.exists(modelPath):
+    logger.error('modelPath is invalid')
+    raise RuntimeError('modelPath is invalid')
+model = tf.keras.models.load_model( modelPath )
+logger.info('loading Model complete')
 
 # Load samples
 if options.year == 2016:
@@ -108,8 +115,7 @@ read_variables = [
     "SV[%s]"%(",".join(SV_vars)),
     ]
 read_variables += ["event/l", "luminosityBlock/I", "run/I"]
-#read_variables += ["pt/F"]
-
+#read_variables += ["lep_looseId/O"]
 
 cand_varnames_read  = map( lambda n:n.split('/')[0], cand_vars_read) 
 cand_varnames_write = {pf_flavour: map( lambda n:n.split('/')[0], cand_vars_train[pf_flavour]) for pf_flavour in pf_flavours} 
@@ -129,12 +135,13 @@ elif options.flavour == 'muo':
 lep_varnames = map( lambda n:n.split('/')[0], lep_vars ) 
 new_variables= map( lambda b: "lep_%s"%(b[:-1]+'F'), lep_vars )
 new_variables+= ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "lep_isNotPromptId_Training/I", "lep_isFakeId_Training/I"]
+new_variables+= ["lep_StopsCompressed/I"]#, "lep_looseId/O", "lep_mediumId/O", "lep_tightId/O"]
 
 ############### out_variables
 out_variables = ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "lep_isNotPromptId_Training/I", "lep_isFakeId_Training/I"]
 out_variables += ["lep_pt/F", "lep_eta/F", "lep_probPrompt/F", "lep_probNonPrompt/F", "lep_probFake/F", "lep_probNotPrompt/F"]
 out_variables += ["event/l", "lep_mvaTTH/F"]
-
+out_variables += ["lep_StopsCompressed/I", "lep_looseId/F", "lep_mediumId/F", "lep_tightId/F"]
 for pf_flavour in pf_flavours:
     # per PFCandidate flavor, add a counter and a vector with all pf candidate variables
     new_variables.append( VectorTreeVariable.fromString( 'pfCand_%s[%s]'%(pf_flavour, ",".join(cand_vars_train[pf_flavour] + ['ptRel/F', 'deltaR/F'])), nMax = 100) ) # here
@@ -153,7 +160,6 @@ def fill_vector_collection( event, collection_name, collection_varnames, objects
                     obj[var] = float(obj[var])
                 getattr(event, collection_name+"_"+var)[i_obj] = obj[var]
 
-# Reader .TODO fix
 
 reader = sample.treeReader( \
     variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables),
@@ -161,7 +167,8 @@ reader = sample.treeReader( \
     )
 
 ####
-outfilename =  os.path.join(output_directory, "predicted", options.flavour, options.ptSelection, sample_name, sample.name + '.root')
+#outfilename =  os.path.join(output_directory, "predicted", options.flavour, options.ptSelection, sample_name, sample.name + '.root')
+outfilename =  os.path.join("/scratch-cbe/users/maximilian.moser/DeepLepton", "predicted", options.versionName, options.flavour, options.ptSelection, sample_name, sample.name + '.root')
 logger.debug("Writing to: %s", outfilename)
 
 if not os.path.exists(os.path.dirname(outfilename)):
@@ -182,9 +189,10 @@ tmp_directory.cd()
 new_maker.start()
 
 global_branches = [
-            'lep_pt', 'lep_eta', 'lep_phi',
+            #'lep_pt', 'lep_eta',
+            'lep_phi',
             'lep_mediumId',
-            'lep_miniPFRelIso_all', 'lep_pfRelIso03_all',
+            'lep_miniPFRelIso_all',
             'lep_sip3d', 'lep_dxy', 'lep_dz',
             'lep_charge',
             'lep_dxyErr', 'lep_dzErr', 'lep_ip3d',
@@ -339,41 +347,46 @@ while reader.run():
         electronB= branches(pfCands["electron"], pfCand_electron_branches, npfCand_electron, n=-2)
         muonB    = branches(pfCands["muon"],     pfCand_muon_branches,     npfCand_muon,     n=-2)
         svB      = branches(SV,                  SV_branches,              nSV,              n=-1)                
-        #print(globalB)
-        #print(neutralB)
-        #print(chargedB)
-        #print(photonB)
-        #print(electronB)
-        #print(muonB)
-        #print(svB)
-        #print(np.shape(globalB))
-        #print(np.shape(neutralB))
-        #print(np.shape(chargedB))
-        #print(np.shape(photonB))
-        #print(np.shape(electronB))
-        #print(np.shape(muonB))
-        #print(np.shape(svB))
-
 
         #toPredict = np.stack([ gb, neutralB, chargedB, photonB, electronB, muonB, svB ])
         #toPredict = np.concatenate((gb, neutralB, chargedB, photonB, electronB, muonB, svB))
         toPredict = [ globalB, neutralB, chargedB, photonB, electronB, muonB, svB ]
-        prediction = model.predict(toPredict)
-        print(prediction)
-        print(maker.event.lep_isPromptId_Training, maker.event.lep_isNonPromptId_Training, maker.event.lep_isFakeId_Training)
-        #maker.event.lep_probPrompt = prediction[0]
-        #maker.event.lep_probNonPrompt = prediction[1]
-        #maker.event.lep_probFake = prediction[2]
-        #maker.event.lep_probNotPrompt = prediciton[1] + prediction[2]
+        prediction = model.predict(toPredict)[0]
+        #print(prediction)
+        #print(np.argmax(prediction))
+       # print(maker.event.lep_isPromptId_Training, maker.event.lep_isNonPromptId_Training, maker.event.lep_isFakeId_Training)
+        
+        #if prediction[0] > 0.02:
+        #    print('PROMPT!')
+        maker.event.lep_probPrompt = prediction[0]
+        maker.event.lep_probNonPrompt = prediction[1]
+        maker.event.lep_probFake = prediction[2]
+        maker.event.lep_probNotPrompt = prediction[1] + prediction[2]
         
         maker.event.lep_pt = lep["pt"]
         maker.event.lep_eta = lep["eta"]
         
-        maker.event.lep_mvaTTH = lep["mvaTTH"]
+        maker.event.lep_mvaTTH   = lep["mvaTTH"]
+        maker.event.lep_looseId  = lep["looseId"]
+        maker.event.lep_mediumId = lep["mediumId"]
+        maker.event.lep_tightId  = lep["tightId"]
+        #print(lep["looseId"], lep["mediumId"], lep["tightId"])
+        if lep["pt"] <= 25:
+            if abs(lep["eta"]) < 2.4 and lep["pfRelIso03_all"] * lep["pt"] < 5.0 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
+                maker.event.lep_StopsCompressed = 1
+            else:
+                maker.event.lep_StopsCompressed = 0
+        elif lep["pt"] > 25:
+            if abs(lep["eta"]) < 2.4 and lep["pfRelIso03_all"] < 0.2 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
+                maker.event.lep_StopsCompressed = 1
+            else:
+                maker.event.lep_StopsCompressed = 0
         
         maker.fill()
         maker.event.init()
+        
                 
+        
     # stop early when small.
     if options.small:
         if counter==200:
@@ -383,4 +396,5 @@ logger.info("Writing trees.")
 #leptonClass['maker'].tree.Write()
 outfile.Write()
 outfile.Close()
-logger.info( "Written %s", leptonClass['outfilename'])
+logger.info( "Written %s", outfilename)
+

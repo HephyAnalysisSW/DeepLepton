@@ -46,8 +46,13 @@ redirector = "root://eos.grid.vbc.ac.at/"
 subdirs = ["Fake/", "FromSUSY/", "FromSUSYHF/", "NonPrompt/", "Prompt/"]
 # dietrich_step1_files = "/eos/vbc/user/dietrich.liko/DeepLepton/v0/step1/2017/muo/"
 # directory = [os.path.join(dietrich_step1_files, subdir, "pt_3.5_-1/CompSUSY/") for subdir in subdirs]
-directory = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/v2_small/step2/2016/muo/pt_3.5_-1/STopvsTop/"
-
+#directory = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/v2_small/step2/2016/muo/pt_3.5_-1/STopvsTop/"
+# directory = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/v2/step2/2016/muo/pt_3.5_-1/STopvsTop/"
+#directory = "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v3_small/step2/2016/muo/pt_3.5_-1/STopvsTop/"
+#directory = "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1_small/step2/2016/muo/balanced/pt_3.5_-1/DYvsQCD/"
+# directory = "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v_debug/step2/2016/muo/balanced/pt_3.5_-1/STopvsTop"
+# directory = "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v3/step2/2016/muo/unbalanced/pt_3.5_-1/STopvsTop"
+directory = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/v3_unbalanced/v3/step2/2016/muo/unbalanced/pt_3.5_-1/STopvsTop/"
 # directory = [
         # "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1/step2/2016/muo/pt_3.5_-1/DYvsQCD/",
         # "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v1_compr_stop/step1/2017/muo/NonPrompt/pt_3_-1/stopCompr/Sample_0/",
@@ -68,8 +73,9 @@ data_sample = Sample.fromDirectory(
 
 logger.info("%i files", len(data_sample.files))
 
+small_nfiles = 10
 if args.small:
-    data_sample.reduceFiles( to = 4 )
+    data_sample.reduceFiles( to = small_nfiles )
 
 # copy samples:
 
@@ -138,6 +144,7 @@ read_variables = [
                   "npfCand_electron/I",
                   "npfCand_muon/I",
                   "nSV/I",
+                  "lep_isFromSUSYandHF_Training/I",
                  ]
 
 
@@ -365,6 +372,12 @@ plots.append(Plot(name      = "nSV",
                   binning   = [10,0,20],
                   ))
 
+plots.append(Plot(name      = "lep_isFromSUSYandHF_Training",
+                  texX      = 'lep_isFromSUSYandHF_Training', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_isFromSUSYandHF_Training,
+                  binning   = [100,0,1.5],
+                  ))
+
 plotting.fill(plots, read_variables = read_variables)
 if args.normalize:
     scaling = {0:3, 1:3, 2:3, 4:3}
@@ -385,8 +398,9 @@ else:
 for plot in plots:
     plotting.draw(plot, 
                   plot_directory = os.path.join(plot_directory, 
-                                                "Compressed_stop_step2",
-                                                "Compressed_stop_step2"+\
+                                                "CompSUSY_v3_unbalanced",
+                                                "v3_unbalanced_susy"+\
+                                                ("_args_small_nfiles_{} ".format(small_nfiles) if args.small else "")+\
                                                 ("_"+year[0] if useyear else "")+\
                                                 ("_normalized" if args.normalize else "")+\
                                                 ("_small" if "small" in directory else "")),#args.plot_directory),

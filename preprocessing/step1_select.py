@@ -126,7 +126,8 @@ leptonClasses  = {'Prompt'     : {'selector': lambda genPartFlav: genPartFlav in
 
 # for leptons from SUSY additional lepton classes
 if options.displaced:
-    leptonClasses['FromSUSY']   = { 'selector': lambda genPartFlav: genPartFlav in [100,104,105] }
+    leptonClasses['FromSUSY']   = { 'selector': lambda genPartFlav: genPartFlav == 100 }
+    leptonClasses['FromSUSYHF'] = { 'selector': lambda genPartFlav: genPartFlav in [104,105] }
     leptonClasses['Fake']       = { 'selector': lambda genPartFlav: genPartFlav not in absPdgIds['Prompt']+absPdgIds['NonPrompt']+[100,104,105]}
 
 leptonFlavour  =  {'name':'muo', 'pdgId': 13} if options.flavour == 'muo' else  {'name':'ele', 'pdgId': 11}
@@ -303,6 +304,7 @@ while reader.run():
         # additional training flags in case of leptons from SUSY
         if options.displaced:
             maker.event.lep_isFromSUSY_Training   = leptonClasses['FromSUSY']['selector'](genPartFlav)
+            maker.event.lep_isFromSUSYHF_Training = leptonClasses['FromSUSYHF']['selector'](genPartFlav)
         
         # write vector with PF candidates
         for pf_flavour in pf_flavours:

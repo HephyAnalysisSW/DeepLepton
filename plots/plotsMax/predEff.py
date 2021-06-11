@@ -82,7 +82,8 @@ pt_pred_stops = [[] for i in range(len(pt_bins))]
 Sample = Sample.fromDirectory(
                             name="Sample",
                             directory=directory,
-                            treeName='tree')
+                            treeName='tree',
+                            selectionString="lep_precut==1.")
 
 #if args.small:
 #    Sample.reduceFiles(to=1)
@@ -105,9 +106,6 @@ while reader.run():
     lep_mvaTTH                  = r.lep_mvaTTH
     lep_StopsCompressed         = r.lep_StopsCompressed
     
-    if not r.lep_precut:
-        continue
-
     for i, pt in enumerate(pt_bins):
         if lep_pt < pt:
             pt_pred[i-1].append(lep_probPrompt)
@@ -300,7 +298,7 @@ for truths, pred_dl, pred_tth, pred_stops, pt_bin in zip(pt_truth, pt_pred, pt_p
     mg.Add(gr2)
     mg.Add(gr3)
 
-    mg.SetTitle("ROC-Curve Comparison")
+    mg.SetTitle("ROC-Curve Comparison {}".format(pt_bin))
     
     mg.Draw("AL")
     mg.GetXaxis().SetTitle("False Positive Rate")

@@ -142,6 +142,7 @@ out_variables = ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "l
 out_variables += ["lep_pt/F", "lep_eta/F", "lep_probPrompt/F", "lep_probNonPrompt/F", "lep_probFake/F", "lep_probNotPrompt/F"]
 out_variables += ["event/l", "lep_mvaTTH/F"]
 out_variables += ["lep_StopsCompressed/I", "lep_looseId/F", "lep_mediumId/F", "lep_tightId/F"]
+out_variables += ["lep_precut/F"]
 for pf_flavour in pf_flavours:
     # per PFCandidate flavor, add a counter and a vector with all pf candidate variables
     new_variables.append( VectorTreeVariable.fromString( 'pfCand_%s[%s]'%(pf_flavour, ",".join(cand_vars_train[pf_flavour] + ['ptRel/F', 'deltaR/F'])), nMax = 100) ) # here
@@ -382,6 +383,10 @@ while reader.run():
             else:
                 maker.event.lep_StopsCompressed = 0
         
+        if abs(lep["eta"]) < 2.4 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
+            maker.event.lep_precut = 1
+        else:
+            maker.event.lep_precut = 0
         maker.fill()
         maker.event.init()
         

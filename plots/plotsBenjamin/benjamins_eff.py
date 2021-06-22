@@ -9,12 +9,12 @@ from copy import deepcopy
 import os
 from RootTools.core.standard import *
 import Analysis.Tools.syncer as syncer
+# automatic sync with cernbox, ...
 import ROOT
 
 # this enables batch mode -> pyroot will not display any graphics
 ROOT.gROOT.SetBatch(True)
 
-# automatic sync with cernbox, ...
 # import uproot
 
 
@@ -43,11 +43,11 @@ argParser.add_argument('--pathpred',
                        type=str,
                        help="Path to prediction root files")
 
-argParser.add_argument('--pathtruth',
-                       action='store',
-                       required=True,
-                       type=str,
-                       help="Path to Truth root files")
+# argParser.add_argument('--pathtruth',
+#                        action='store',
+#                        required=True,
+#                        type=str,
+#                        help="Path to Truth root files")
 
 argParser.add_argument('--outfilespath',
                        action='store',
@@ -74,28 +74,29 @@ logger.info("program started")
 # path_pred = os.path.join(scratch_directory, "trained/DYvsQCD_2016_3/training_40_epoches_usw/prediction/")
 # outfiles_path = os.pcath.join(path_pred, "benjamins_outfiles.txt")
 
-path_truth = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/v3_balanced/\
-    step2/2016/muo/balanced/pt_3.5_-1/STopvsTop/"
+# path_truth = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/v3_balanced/\
+#     step2/2016/muo/balanced/pt_3.5_-1/STopvsTop/"
+# 
+# path_outfiles = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/trained/\
+#     first_real_training_on_balanced_data_no_droppout/prediction/outfiles.txt"
+# 
+# path_pred = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/trained/\
+#     first_real_training_on_balanced_data_no_droppout/prediction/"
 
-path_outfiles = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/trained/\
-    first_real_training_on_balanced_data_no_droppout/prediction/outfiles.txt"
-
-path_pred = "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/trained/\
-    first_real_training_on_balanced_data_no_droppout/prediction/"
-
-path_truth = args.pathtruth
+# path_truth = args.pathtruth
 path_pred = args.pathpred
-if agrs.outfilespath == "outfiles.txt":
+if args.outfilespath == "outfiles.txt":
     path_outfiles = os.path.join(path_pred, args.outfilespath)
 else:
     path_outfiles = args.outfilespath
 
 
 # set sensible output file name s.t. one knows from which model the plot came
-output_file_name = "first_real_training_on_balanced_data_no_droppout"
+output_file_name ="training_on_unbalanced_data_only_dxy_weighter_used_0.1_dropout_20epochs" 
+# "first_real_training_on_unbalanced_data_no_removes_0.1_dropout_20epochs_prediction_model_epoch2_"
 
 if args.small:
-    output_file_name += "_small"
+    output_file_name += "small_"
 
 labels = ["lep_isPromptId_Training/F",
           "lep_isNonPromptId_Training/F",
@@ -122,12 +123,12 @@ data = {"Signal": ['isFromSUSY', 'isFromSUSYHF']}
 
 # read outfiles
 logger.info('Getting filenames')
-files_truth = []
+# files_truth = []
 files_pred = []
 
 
 # read in the the root file names
-for f in open(outfiles_path, "r"):
+for f in open(path_outfiles, "r"):
     if ".root" in f:
         if f.endswith("\n"):
             ff = f[:-1]
@@ -136,22 +137,26 @@ for f in open(outfiles_path, "r"):
         # cuts off pred_
         truth_file = ff[5:]
         f_pred = os.path.join(path_pred, ff)
-        f_truth = os.path.join(path_truth, truth_file)
+        # f_truth = os.path.join(path_truth, truth_file)
         files_pred.append(f_pred)
-        files_truth.append(f_truth)
+        # files_truth.append(f_truth)
         if args.small:
             break
 
 
-
-
+filenames_pred = []
+for fname in files_pred:
+    filenames_pred.append(os.path.basename(fname))
+logger.debug("In directory {} \n found files: {}".format(os.path.dirname(files_pred[0]), filenames_pred))
 # x_bins = np.array([0,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100, 125],
 #                     dtype = float)
 
-# these bins are copied from TrainDeep....py trainings data class
-x_bins = np.array([5, 7.5, 10, 12.5, 15, 17.5, 20, 25, 30, 35, 40, 45, 50, 60,
-                   75, 100, 125, 150, 175, 200, 250, 300, 400, 500, 600, 2000],
-                  dtype=float)
+# we only have leps from susy and susyhf with lep_pt up to 60, not more...
+# x_bins = np.array([5, 7.5, 10, 12.5, 15, 17.5, 20, 25, 30, 35, 40, 45, 50, 60],
+#                   dtype=float)
+
+# pt bins
+x_bins = np.linspace(start=3.5, stop=40, num=20, endpoint=True, dtype=float)
 # actually dxy bins...
 y_bins = np.linspace(start=-5, stop=5, num=10, endpoint=True, dtype=float)
 
@@ -178,17 +183,18 @@ TN = {"x":[], "y":[]}
 FP = {"x":[], "y":[]}
 FN = {"x":[], "y":[]}
 
-# needed for checking the length of TP, TN, ... and making histos
-categories = [(TP, h_tp), (TN, h_tn), (FP, h_fp), (FN, h_fn)]
 
 # max length of list of tuples before making histogram to save memory
-n_max = 5e6
+n_max = 1e6
 
 # initialize histograms with zeros
-h_tp = {"x":np.zeros(len(bin_x)-1), "y":np.zeros(len(bin_y)-1)}
-h_tn = {"x":np.zeros(len(bin_x)-1), "y":np.zeros(len(bin_y)-1)}
-h_fp = {"x":np.zeros(len(bin_x)-1), "y":np.zeros(len(bin_y)-1)}
-h_fn = {"x":np.zeros(len(bin_x)-1), "y":np.zeros(len(bin_y)-1)}
+h_tp = {"x":np.zeros(len(x_bins)-1), "y":np.zeros(len(y_bins)-1)}
+h_tn = {"x":np.zeros(len(x_bins)-1), "y":np.zeros(len(y_bins)-1)}
+h_fp = {"x":np.zeros(len(x_bins)-1), "y":np.zeros(len(y_bins)-1)}
+h_fn = {"x":np.zeros(len(x_bins)-1), "y":np.zeros(len(y_bins)-1)}
+
+# needed for checking the length of TP, TN, ... and making histos
+categories = [(TP, h_tp), (TN, h_tn), (FP, h_fp), (FN, h_fn)]
 
 # for category in categories
 def make_histo(category):
@@ -196,6 +202,16 @@ def make_histo(category):
     category[1]["x"] += np.histogram(category[0]["x"], x_bins)[0]
     category[1]["y"] += np.histogram(category[0]["y"], y_bins)[0]
 
+def divide_histo(hist_a, hist_b):
+    assert(len(hist_a) == len(hist_b))
+    tmp = np.zeros(len(hist_a))
+    for i in range(len(hist_a)):
+        if hist_b[i]:
+            tmp[i] = hist_a[i]/hist_b[i]
+        else:
+            logger.info("A bin was empty -> consider other binning")
+            tmp[i] = 0
+    return tmp
 # =============================================================================
 # FN_x = np.zeros(len_classifier_pt, dtype=float)
 # # Here we only have one component since the other one is
@@ -220,6 +236,7 @@ def event_is_signal(event, data):
     signal_labels = ['lep_'+ signal_label+'_Training' \
                    for signal_label in data["Signal"]]
     for signal_label in signal_labels:
+        # print("debuging event is signal: signal_label={}, attr={}".format(signal_label, getattr(event, signal_label)))
         if getattr(event, signal_label) == 1:
             return True
     return False
@@ -230,6 +247,7 @@ def event_classified_signal(event, data, THRESHOLD):
     signal_prob = 0
     for prediction_label in prediction_labels:
         signal_prob += getattr(event, prediction_label)
+        # print("event classified signal = {}".format(getattr(event, prediction_label)))
     if signal_prob >= THRESHOLD:
         return True
     else: 
@@ -238,18 +256,23 @@ def event_classified_signal(event, data, THRESHOLD):
 # should later work with threshold beeing array_like
 THRESHOLD = 0.5
 
-for i in range(len(files_truth)):
-    logger.info("Reading Sample %i of %i" % (i+1, len(files_truth)))
+for i in range(len(files_pred)):
+    logger.info("Reading Sample %i of %i" % (i+1, len(files_pred)))
+    logger.debug("Filename {}".format(os.path.basename(files_pred[i])))
 
-    SampleTruth = Sample.fromFiles("truth", files_truth[i], treeName='tree')
-    SamplePred = Sample.fromFiles("pred", files_pred[i], treeName='tree')
-    Sample = deepcopy(SampleTruth)
-    Sample.addFriend(SamplePred, treeName='tree')
+    # SampleTruth = Sample.fromFiles("truth", files_truth[i], treeName='tree')
+    # SamplePred = Sample.fromFiles("pred", files_pred[i], treeName='tree')
+    # Sample = deepcopy(SampleTruth)
+    # Sample.addFriend(SamplePred, treeName='tree')
+    Sample = Sample.fromFiles("pred", files_pred[i], treeName='tree')
 
     reader = Sample.treeReader(variables=variables)
     reader.start()
     while reader.run():
         r = reader.event
+        # if r.lep_pt > 60:
+        #     print("lep from susy {}/{} or susyhf {}/{}".format(
+        #               r.lep_isFromSUSY_Training, r.prob_isFromSUSY, r.lep_isFromSUSYHF_Training, r.prob_isFromSUSYHF))
         if event_is_signal(r, data):
             if event_classified_signal(r, data, THRESHOLD):
                 TP["x"].append(getattr(r, x))
@@ -266,10 +289,15 @@ for i in range(len(files_truth)):
                 TN["x"].append(getattr(r, y))
         
         for category in categories:
-            if len(cat["x"]) >= n_max:
+            if len(category[0]["x"]) >= n_max:
+                logger.info("make a temporal histogram to save mem")
                 make_histo(category)
+                category[0]["x"] = []
+                category[0]["y"] = []
         
-        
+    # take the last events in histogram
+    for category in categories:
+        make_histo(category)
 # =============================================================================
 #         for i in range(len_classifier_pt):
 #             if r.lep_pt < x_bins[i+1] and x_bins[i] < r.lep_pt:
@@ -311,9 +339,10 @@ for i in range(len(files_truth)):
 
 
 # calculate sensitivity = signal efficiency
-sensitivity_x = h_tp["x"]/(h_tp["x"] + h_fn["x"])
-sensitivity_y = h_tp["y"]/(h_tp["y"] + h_fn["y"])
-
+sensitivity_x = divide_histo(h_tp["x"], h_tp["x"] + h_fn["x"])
+sensitivity_y = divide_histo(h_tp["y"], h_tp["y"] + h_fn["y"])
+logger.info("eff x {}".format(sensitivity_x))
+logger.info("eff y {}".format(sensitivity_y))
 # =============================================================================
 # sensitivity_pt = (TP_x[:, 0])/(TP_x[:, 0]+FN_x)
 # sensitivity_eta = TP_y[:, 0]/(TP_y[:, 0]+FN_y)
@@ -332,8 +361,8 @@ sensitivity_y = h_tp["y"]/(h_tp["y"] + h_fn["y"])
 # efficiency_eta = (sensitivity_eta+specificity_eta+accuracy_eta)/3
 
 # calculate background eff
-back_eff_x = h_fp["x"] / (h_tn["x"] + h_fp["x"])
-back_eff_y = h_fp["y"] / (h_tn["y"] + h_fp["y"])
+back_eff_x = divide_histo(h_fp["x"], h_tn["x"] + h_fp["x"])
+back_eff_y = divide_histo(h_fp["y"], h_tn["y"] + h_fp["y"])
 
 # =============================================================================
 # back_eff_pt = FP_x / (TN_x[:, 0] + FP_x)
@@ -355,113 +384,155 @@ back_eff_y = h_fp["y"] / (h_tn["y"] + h_fp["y"])
 
 # The pt plot:
 # gr1 = ROOT.TGraph(len_classifier_pt, array.array("d", plot_x_bins), array.array("d", efficiency_pt))
-gr2 = ROOT.TGraph(len(x_bins)-1,
-                  array.array("d", x_bins),
-                  array.array("d", sensitivity_x))
-# gr3 = ROOT.TGraph(len_classifier_pt, array.array("d", plot_x_bins), array.array("d", specificity_pt))
-# gr4 = ROOT.TGraph(len_classifier_pt, array.array("d", plot_x_bins), array.array("d", accuracy_pt))
-gr5 = ROOT.TGraph(len(x_bins)-1,
-                  array.array("d", x_bins),
-                  array.array("d", back_eff_))
+def plot(bins, sensitivity, back_eff, feature_name):
+'''feature_name is either x or y as string'''
+    gr1 = ROOT.TGraph(len(bins)-1,
+                        array.array("d", bins),
+                        array.array("d", sensitivity))
 
-# gr1.SetLineColorAlpha(ROOT.kBlue, 1)
-gr2.SetLineColorAlpha(ROOT.kRed, 1)
-# gr3.SetLineColorAlpha(3, 1) #green
-# gr4.SetLineColorAlpha(5, 1) #yellow
-gr5.SetLineColorAlpha(6, 1)  # violet
+    gr2 = ROOT.TGraph(len(bins)-1,
+                        array.array("d", bins),
+                        array.array("d", back_eff))
+    
+    # signal green
+    gr1.SetLineColor(3)
+    gr1.SetMarkerStyle(34)
+    gr1.SetTitle("Signal Efficiency")
+    # back red
+    gr2.SetLineColor(2)
+    gr2.SetMarkerStyle(34)
+    gr2.SetTitle("Background Efficiency")
 
-# gr1.SetMarkerStyle(34)
-gr2.SetMarkerStyle(34)
-# gr3.SetMarkerStyle(34)
-# gr4.SetMarkerStyle(34)
-gr5.SetMarkerStyle(34)
+    # setup canvas
+    c1 = ROOT.TCanvas("c1", "L", 200, 100, 1000, 1000)
+    c1.SetGrid()
 
+    mg = ROOT.TMultiGraph()
+    mg.Add(gr1)
+    mg.Add(gr2)
+    mg.SetTitle("Binary Classification Tests in {}".format(feature_name))
+    mg.Draw("APL")  # set everything before Draw, exept axis stuff
+    mg.GetXaxis().SetTitle(feature_name)
+    mg.GetYaxis().SetLimits(0, 1)
+    c1.BuildLegend(0.7, 0.4, 1, 0.6)
+    c1.Print(os.path.join(plot_directory,
+                          'Efficiency',
+                          output_file_name + "{}.png".format(feature_name)))
+    
+    logger.info("Succesfully plotted {} plot".format(feature_name))
 
-c1 = ROOT.TCanvas("c1", "L", 200, 100, 1000, 1000)
-
-c1.SetGrid()
-
-# gr1.SetTitle("Efficiency")
-gr2.SetTitle("Signal Efficiency")
-# gr3.SetTitle("Specificity")
-# gr4.SetTitle("Accuracy")
-gr5.SetTitle("Background Efficiency")
-
-mg = ROOT.TMultiGraph()
-
-# mg.Add(gr1)
-mg.Add(gr2)
-# mg.Add(gr3)
-# mg.Add(gr4)
-mg.Add(gr5)
-
-# maybe do some formating with x
-mg.SetTitle("Binary Classification Tests in {}".format(x))
-
-mg.Draw("APL")  # set everything before Draw, exept axis stuff
-
-mg.GetXaxis().SetTitle(x)
-# mg.GetYaxis().SetTitle("efficiency")
-
-mg.GetYaxis().SetLimits(0, 1)
-
-c1.BuildLegend(0.7, 0.4, 1, 0.6)
-c1.Print(os.path.join(plot_directory,
-                      'Efficiency',
-                      output_file_name + "{}.png".format(x)))
-
-logger.info("Succesfully plotted {} plot".format(x))
-
-# The eta plot:
-
-# gr1 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_y_bins), array.array("d", efficiency_eta))
-gr2 = ROOT.TGraph(len(y_bins)-1,
-                  array.array("d", y_bins),
-                  array.array("d", sensitivity_y))
-# gr3 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_y_bins), array.array("d", specificity_eta))
-# gr4 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_y_bins), array.array("d", accuracy_eta))
-gr5 = ROOT.TGraph(len(y_bins)-1,
-                  array.array("d", y_bins),
-                  array.array("d", back_eff_y))
-
-# gr1.SetLineColorAlpha(ROOT.kBlue, 1)
-gr2.SetLineColorAlpha(ROOT.kRed, 1)
-# gr3.SetLineColorAlpha(3, 1) #green
-# gr4.SetLineColorAlpha(5, 1) #yellow
-gr5.SetLineColorAlpha(6, 1)  # violet
-
-# gr1.SetMarkerStyle(34)
-gr2.SetMarkerStyle(34)
-# gr3.SetMarkerStyle(34)
-# gr4.SetMarkerStyle(34)
-gr5.SetMarkerStyle(34)
-
-
-c1 = ROOT.TCanvas("c1", "L", 200, 100, 1000, 1000)
-
-c1.SetGrid()
-
-# gr1.SetTitle("Efficiency")
-gr2.SetTitle("Signal Efficiency")
-# gr3.SetTitle("Specificity")
-# gr4.SetTitle("Accuracy")
-gr5.SetTitle("Background Efficiency")
-
-mg = ROOT.TMultiGraph()
-
-# mg.Add(gr1)
-mg.Add(gr2)
-# mg.Add(gr3)
-# mg.Add(gr4)
-mg.Add(gr5)
-
-mg.SetTitle("$Binary \t Classification \\ Tests\quad in \\ \eta; lepton\\ \eta$")
-
-mg.Draw("APL")  # set everything before Draw, exept axis stuff
-
-mg.GetYaxis().SetLimits(0, 1)
-
-c1.BuildLegend(0.7, 0.4, 1, 0.6)
-c1.Print(os.path.join(plot_directory,
-                      'Efficiency',
-                      output_file_name+"{}.png".format(y)))
+# make the plots
+plot(x_bins, sensitivity_x, back_eff_x, x)
+plot(y_bins, sensitivity_y, back_eff_y, y)
+    
+# gr2 = ROOT.TGraph(len(x_bins)-1,
+#                   array.array("d", x_bins),
+#                   array.array("d", sensitivity_x))
+# # gr3 = ROOT.TGraph(len_classifier_pt, array.array("d", plot_x_bins), array.array("d", specificity_pt))
+# # gr4 = ROOT.TGraph(len_classifier_pt, array.array("d", plot_x_bins), array.array("d", accuracy_pt))
+# gr5 = ROOT.TGraph(len(x_bins)-1,
+#                   array.array("d", x_bins),
+#                   array.array("d", back_eff_x))
+# 
+# # gr1.SetLineColorAlpha(ROOT.kBlue, 1)
+# gr2.SetLineColorAlpha(ROOT.kRed, 1)
+# # gr3.SetLineColorAlpha(3, 1) #green
+# # gr4.SetLineColorAlpha(5, 1) #yellow
+# gr5.SetLineColorAlpha(6, 1)  # violet
+# 
+# # gr1.SetMarkerStyle(34)
+# gr2.SetMarkerStyle(34)
+# # gr3.SetMarkerStyle(34)
+# # gr4.SetMarkerStyle(34)
+# gr5.SetMarkerStyle(34)
+# 
+# 
+# c1 = ROOT.TCanvas("c1", "L", 200, 100, 1000, 1000)
+# 
+# c1.SetGrid()
+# 
+# # gr1.SetTitle("Efficiency")
+# gr2.SetTitle("Signal Efficiency")
+# # gr3.SetTitle("Specificity")
+# # gr4.SetTitle("Accuracy")
+# gr5.SetTitle("Background Efficiency")
+# 
+# mg = ROOT.TMultiGraph()
+# 
+# # mg.Add(gr1)
+# mg.Add(gr2)
+# # mg.Add(gr3)
+# # mg.Add(gr4)
+# mg.Add(gr5)
+# 
+# # maybe do some formating with x
+# mg.SetTitle("Binary Classification Tests in {}".format(x))
+# 
+# mg.Draw("APL")  # set everything before Draw, exept axis stuff
+# 
+# mg.GetXaxis().SetTitle(x)
+# # mg.GetYaxis().SetTitle("efficiency")
+# 
+# mg.GetYaxis().SetLimits(0, 1)
+# 
+# c1.BuildLegend(0.7, 0.4, 1, 0.6)
+# c1.Print(os.path.join(plot_directory,
+#                       'Efficiency',
+#                       output_file_name + "{}.png".format(x)))
+# 
+# logger.info("Succesfully plotted {} plot".format(x))
+# 
+# # The eta plot:
+# 
+# # gr1 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_y_bins), array.array("d", efficiency_eta))
+# gr2 = ROOT.TGraph(len(y_bins)-1,
+#                   array.array("d", y_bins),
+#                   array.array("d", sensitivity_y))
+# # gr3 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_y_bins), array.array("d", specificity_eta))
+# # gr4 = ROOT.TGraph(len_classifier_eta, array.array("d", plot_y_bins), array.array("d", accuracy_eta))
+# gr5 = ROOT.TGraph(len(y_bins)-1,
+#                   array.array("d", y_bins),
+#                   array.array("d", back_eff_y))
+# 
+# # gr1.SetLineColorAlpha(ROOT.kBlue, 1)
+# gr2.SetLineColorAlpha(ROOT.kRed, 1)
+# # gr3.SetLineColorAlpha(3, 1) #green
+# # gr4.SetLineColorAlpha(5, 1) #yellow
+# gr5.SetLineColorAlpha(6, 1)  # violet
+# 
+# # gr1.SetMarkerStyle(34)
+# gr2.SetMarkerStyle(34)
+# # gr3.SetMarkerStyle(34)
+# # gr4.SetMarkerStyle(34)
+# gr5.SetMarkerStyle(34)
+# 
+# 
+# c1 = ROOT.TCanvas("c1", "L", 200, 100, 1000, 1000)
+# 
+# c1.SetGrid()
+# 
+# # gr1.SetTitle("Efficiency")
+# gr2.SetTitle("Signal Efficiency")
+# # gr3.SetTitle("Specificity")
+# # gr4.SetTitle("Accuracy")
+# gr5.SetTitle("Background Efficiency")
+# 
+# mg = ROOT.TMultiGraph()
+# 
+# # mg.Add(gr1)
+# mg.Add(gr2)
+# # mg.Add(gr3)
+# # mg.Add(gr4)
+# mg.Add(gr5)
+# 
+# mg.SetTitle("Binary Classification Tests in {0}; lepton {0}".format(y))
+# 
+# mg.Draw("APL")  # set everything before Draw, exept axis stuff
+# 
+# mg.GetYaxis().SetLimits(0, 1)
+# 
+# c1.BuildLegend(0.7, 0.4, 1, 0.6)
+# c1.Print(os.path.join(plot_directory,
+#                       'Efficiency',
+#                       output_file_name+"{}.png".format(y)))
+# 

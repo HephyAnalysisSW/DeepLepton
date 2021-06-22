@@ -83,7 +83,7 @@ Sample = Sample.fromDirectory(
                             name="Sample",
                             directory=directory,
                             treeName='tree',
-                            selectionString="lep_precut==1.")
+                            selectionString="lep_precut==1.&&lep_genPartFlav!=15")
 
 #if args.small:
 #    Sample.reduceFiles(to=1)

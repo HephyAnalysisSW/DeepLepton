@@ -52,9 +52,9 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 # take this vars from parser -> make roc.sh
 # path_truth = "/eos/vbc/user/maximilian.moser/DeepLepton/v2/step2/2016/muo/pt_3.5_-1/DYvsQCD/"
-outfiles_path = "/scratch-cbe/users/maximilian.moser/DeepLepton/Train/training_test2/outfiles.txt"
+outfiles_path = args.outfilespath
 # path_pred = "/scratch-cbe/users/maximilian.moser/DeepLepton/Train/training_test2/"
-path_pred = os.path.basename(outfiles_path)
+path_pred = os.path.dirname(outfiles_path)
 
 truth_vars = ["lep_isFromSUSY_Training/F", "lep_isFromSUSYHF_Training/F"]
 pred_vars = ["prob_isFromSUSY/F", "prob_isFromSUSYHF/F",]
@@ -62,40 +62,41 @@ variables = truth_vars + pred_vars
 
 def wasSignal(event, truth_vars):
     for category in truth_vars:
-        if getattr(event, category) == 1:
-            return True
-    return False
+        if getattr(event, category.split('/')[0]) == 1:
+            return 1
+    return 0
 
 def prob_wasSignal(event, pred_vars):
     probability = 0
-    for category in pred_vars):
-        probability += getattr(event, category)
+    for category in pred_vars:
+        probability += getattr(event, category.split('/')[0])
     return probability
 
 
 # read outfiles
 logger.info('Getting filenames')
-files_truth = []
 files_pred  = []
-
+# print("outfiles path is {}".format(outfiles_path))
+# print("path pred is {}".format(path_pred))
 for f in open(outfiles_path, "r"):
     if ".root" in f:
         if f.endswith("\n"):
             ff = f[:-1]
         # truth_file   = ff[5:]
+        # print("ff is {}".format(ff))
         f_pred  = os.path.join(path_pred, ff)
         # f_truth = os.path.join(path_truth, truth_file)
         files_pred.append(f_pred)
         # files_truth.append(f_truth)
         if args.small:
             break
-
+# print("my predict files are {}".format(files_pred))
 pred    = []
 truth   = []
 
-for i in range(len(files_truth)):
-    logger.info("Reading Sample %i of %i"%(i+1, len(files_truth)))
-    
+for i in range(len(files_pred)):
+    logger.info("Reading Sample %i of %i"%(i+1, len(files_pred)))
+    logger.debug("Reading File {}".format(files_pred[i]))    
 # =============================================================================
 #     SampleTruth = Sample.fromFiles("truth", files_truth[i], treeName='tree')
 #     SamplePred  = Sample.fromFiles("pred", files_pred[i], treeName='tree')
@@ -112,6 +113,10 @@ for i in range(len(files_truth)):
         pred.append(prob_wasSignal(r, pred_vars))
         truth.append(wasSignal(r, truth_vars))
          
+logger.info("Making roc curve...")
+print("truth, pred:")
+print(truth)
+print(pred)
 fpr, tpr, thresholds = roc_curve(truth, pred)
 
 gr = ROOT.TGraph(len(fpr), array.array('d', fpr), array.array('d', tpr))
@@ -128,7 +133,8 @@ gr.GetXaxis().SetLimits(0,1)
 gr.GetYaxis().SetLimits(0,1)
 gr.SetTitle("ROC-Curve")
 gr.Draw()
-c1.Print(os.path.join(plot_directory, "Training", ,'roc_curve.png'))
+plot_sub_dir = path_pred.split('/')[-2]
+c1.Print(os.path.join(plot_directory, "Training", plot_sub_dir ,'roc_curve.png'))
 
 
 

@@ -41,6 +41,8 @@ if not args.directory:
 else:
     directory = args.directory
 
+flav = "muo" if "muo" in directory else "ele"
+
 if args.mode == 'Top':
     data_sample = Sample.fromDirectory(
         "Predicted",
@@ -171,7 +173,7 @@ plotting.fill(plots, read_variables = read_variables)
 
 for plot in plots:
     plotting.draw(plot, 
-                  plot_directory = os.path.join(plot_directory, "2016_muo_Top_Input_DYvsQCD"),#args.plot_directory),
+                  plot_directory = os.path.join(plot_directory, "2016_{}_{}_Input_{}".format(flav, args.mode, directory.split("/")[-2])),#args.plot_directory),
                   ratio          = None, 
                   logX           = False, 
                   logY           = True,
@@ -184,4 +186,4 @@ for plot in plots:
                   extensions     = ["png", "pdf", "root"]
                                               )
 
-logger.info("%f s per file, %f total", (time.time()-t0)/len(data_sample.files), time.time()-t0)
+#logger.info("%f s per file, %f total", (time.time()-t0)/len(data_sample.files), time.time()-t0)

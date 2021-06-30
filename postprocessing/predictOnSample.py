@@ -10,6 +10,7 @@ from RootTools.core.standard import *
 # DeepLepton
 from DeepLepton.Tools.user import skim_directory
 from DeepLepton.Tools.helpers import getCollection, deltaR, deltaR2
+from helpers import electronVIDSelector
 
 print('parsing')
 # parser
@@ -21,7 +22,7 @@ def get_parser():
 
     argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'],     default='INFO',                     help="Log level for logging")
     #argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
-    argParser.add_argument('--year',                        action='store',                     type=int,   choices=[2016,2017],    required = True,                    help="Which year?")
+    argParser.add_argument('--year',                        action='store',                     type=int,   choices=[2016,2017, 2018],    required = True,                    help="Which year?")
     argParser.add_argument('--flavour',                      action='store',                     type=str,   choices=['muo', 'ele'], default='muo',                      help="muo or ele?")
     argParser.add_argument('--sample',                      action='store',         nargs='?',  type=str,                           default='WZTo3LNu',                 help="Sample to be post-processed")
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
@@ -60,7 +61,9 @@ logger.info('loading Model complete')
 # Load samples
 if options.year == 2016:
     from DeepLepton.Samples.nanoAOD_PFCands_Summer16 import *
-else:
+elif options.year == 2017:
+    from DeepLepton.Samples.nanoAOD_PFCands_Fall17 import *
+else:    
     raise NotImplementedError
 
 # skim conditions. Take all for now.
@@ -138,11 +141,19 @@ new_variables+= ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "l
 new_variables+= ["lep_StopsCompressed/I"]#, "lep_looseId/O", "lep_mediumId/O", "lep_tightId/O"]
 
 ############### out_variables
-out_variables = ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "lep_isNotPromptId_Training/I", "lep_isFakeId_Training/I"]
-out_variables += ["lep_pt/F", "lep_eta/F", "lep_probPrompt/F", "lep_probNonPrompt/F", "lep_probFake/F", "lep_probNotPrompt/F"]
-out_variables += ["event/l", "lep_mvaTTH/F"]
-out_variables += ["lep_StopsCompressed/I", "lep_looseId/F", "lep_mediumId/F", "lep_tightId/F"]
-out_variables += ["lep_precut/F"]
+#out_variables = ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "lep_isNotPromptId_Training/I", "lep_isFakeId_Training/I"]
+#out_variables += ["lep_pt/F", "lep_eta/F", "lep_probPrompt/F", "lep_probNonPrompt/F", "lep_probFake/F", "lep_probNotPrompt/F"]
+#out_variables += ["event/l", "lep_mvaTTH/F"]
+#out_variables += ["lep_StopsCompressed/I", "lep_looseId/F", "lep_mediumId/F", "lep_tightId/F"]
+#out_variables += ["lep_precut/F", "lep_pfRelIso03_all/F"]
+new_variables += ["lep_probPrompt/F", "lep_probNonPrompt/F", "lep_probFake/F", "lep_probNotPrompt/F"]
+new_variables += ["event/l", "lep_mvaTTH/F"]
+if options.flavour == 'muo':
+    new_variables += ["lep_StopsCompressed/I", "lep_looseId/F", "lep_mediumId/F", "lep_tightId/F"]
+    new_variables += ["lep_precut/F", "lep_pfRelIso03_all/F"]
+if options.flavour == 'ele':
+    new_variables += ["lep_precut/F", "lep_StopsCompressed/I"]
+
 for pf_flavour in pf_flavours:
     # per PFCandidate flavor, add a counter and a vector with all pf candidate variables
     new_variables.append( VectorTreeVariable.fromString( 'pfCand_%s[%s]'%(pf_flavour, ",".join(cand_vars_train[pf_flavour] + ['ptRel/F', 'deltaR/F'])), nMax = 100) ) # here
@@ -169,7 +180,7 @@ reader = sample.treeReader( \
 
 ####
 #outfilename =  os.path.join(output_directory, "predicted", options.flavour, options.ptSelection, sample_name, sample.name + '.root')
-outfilename =  os.path.join("/scratch-cbe/users/maximilian.moser/DeepLepton", "predicted", options.versionName, options.flavour, options.ptSelection, sample_name, sample.name + '.root')
+outfilename =  os.path.join("/scratch-cbe/users/maximilian.moser/DeepLepton", "predicted", options.versionName, str(options.year), options.flavour, options.ptSelection, sample_name, sample.name + '.root')
 logger.debug("Writing to: %s", outfilename)
 
 if not os.path.exists(os.path.dirname(outfilename)):
@@ -183,13 +194,14 @@ tmp_directory = ROOT.gDirectory
 outfile = ROOT.TFile.Open(outfilename, 'recreate')
 outfile.cd()
 new_maker = TreeMaker( sequence  = [ ],
-    variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, out_variables),
+    variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, new_variables),
     treeName = 'tree')
 tmp_directory.cd()
 
 new_maker.start()
 
-global_branches = [
+if options.flavour == 'muo':
+    global_branches = [
             #'lep_pt', 'lep_eta',
             'lep_phi',
             'lep_mediumId',
@@ -201,6 +213,24 @@ global_branches = [
             'lep_miniPFRelIso_chg', 'lep_mvaLowPt', 'lep_nStations', 'lep_nTrackerLayers', 'lep_pfRelIso03_all', 'lep_pfRelIso03_chg', 'lep_pfRelIso04_all', 'lep_ptErr',
             'lep_segmentComp', 'lep_tkRelIso', 'lep_tunepRelPt',
             ]
+
+elif options.flavour == 'ele':
+    global_branches = ['lep_phi', 'lep_pdgId', 'lep_cutBased',
+            'lep_miniPFRelIso_all', 'lep_pfRelIso03_all',
+            'lep_sip3d', 'lep_lostHits',
+            'lep_convVeto', 'lep_dxy',
+            'lep_dz', 'lep_charge',
+            'lep_deltaEtaSC', 'lep_vidNestedWPBitmap',
+            'lep_dr03EcalRecHitSumEt', 'lep_dr03HcalDepth1TowerSumEt',
+            'lep_dr03TkSumPt', 'lep_dxyErr',
+            'lep_dzErr', 'lep_eCorr',
+            'lep_eInvMinusPInv', 'lep_energyErr',
+            'lep_hoe', 'lep_ip3d',
+            'lep_jetPtRelv2', 'lep_jetRelIso',
+            'lep_miniPFRelIso_chg', 'lep_mvaFall17V2noIso',
+            'lep_pfRelIso03_chg', 'lep_r9',
+            'lep_sieie',]
+
 pfCand_neutral_branches  = ['pfCand_neutral_eta', 'pfCand_neutral_phi', 'pfCand_neutral_pt', 'pfCand_neutral_puppiWeight', 'pfCand_neutral_puppiWeightNoLep',
                             'pfCand_neutral_ptRel', 'pfCand_neutral_deltaR',]
 pfCand_charged_branches  = ['pfCand_chargeid_d0', 'pfCand_charged_d0Err', 'pfCand_charged_dz', 'pfCand_charged_dzErr', 'pfCand_charged_eta', 'pfCand_charged_mass',
@@ -368,25 +398,71 @@ while reader.run():
         maker.event.lep_eta = lep["eta"]
         
         maker.event.lep_mvaTTH   = lep["mvaTTH"]
-        maker.event.lep_looseId  = lep["looseId"]
-        maker.event.lep_mediumId = lep["mediumId"]
-        maker.event.lep_tightId  = lep["tightId"]
-        #print(lep["looseId"], lep["mediumId"], lep["tightId"])
-        if lep["pt"] <= 25:
-            if abs(lep["eta"]) < 2.4 and lep["pfRelIso03_all"] * lep["pt"] < 5.0 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
-                maker.event.lep_StopsCompressed = 1
-            else:
-                maker.event.lep_StopsCompressed = 0
-        elif lep["pt"] > 25:
-            if abs(lep["eta"]) < 2.4 and lep["pfRelIso03_all"] < 0.2 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
-                maker.event.lep_StopsCompressed = 1
-            else:
-                maker.event.lep_StopsCompressed = 0
         
-        if abs(lep["eta"]) < 2.4 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
-            maker.event.lep_precut = 1
-        else:
-            maker.event.lep_precut = 0
+        if options.flavour == "muo":
+            maker.event.lep_looseId  = lep["looseId"]
+            maker.event.lep_mediumId = lep["mediumId"]
+            maker.event.lep_tightId  = lep["tightId"]
+            maker.event.lep_pfRelIso03_all = lep["pfRelIso03_all"]
+
+            if lep["pt"] <= 25:
+                if abs(lep["eta"]) < 2.4 and lep["pfRelIso03_all"] * lep["pt"] < 5.0 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
+                    maker.event.lep_StopsCompressed = 1
+                else:
+                    maker.event.lep_StopsCompressed = 0
+            elif lep["pt"] > 25:
+                if abs(lep["eta"]) < 2.4 and lep["pfRelIso03_all"] < 0.2 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
+                    maker.event.lep_StopsCompressed = 1
+                else:
+                    maker.event.lep_StopsCompressed = 0
+        
+            if abs(lep["eta"]) < 2.4 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
+                maker.event.lep_precut = 1
+            else:
+                maker.event.lep_precut = 0
+        
+        elif options.flavour == "ele":
+            maker.event.lep_pfRelIso03_all = lep["pfRelIso03_all"]
+            
+            if lep["pt"] <= 25:
+                if abs(lep["pdgId"]) == 11: 
+                    absEta = abs(lep["eta"] + lep["deltaEtaSC"])
+                else:
+                    absEta = abs(lep["eta"]) 
+                ECALGap = ( absEta > 1.566 or absEta < 1.4442 )
+                # StopsCompressed Id
+                if abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and abs(lep["eta"]) < 2.5 and (lep['pfRelIso03_all']*lep['pt']) < 5.0 \
+                        and ECALGap and electronVIDSelector( lep, idVal= 1, removedCuts=['pfRelIso03_all'] ):
+                    maker.event.lep_StopsCompressed = 1
+                else:
+                    maker.event.lep_StopsCompressed = 0
+                if abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and abs(lep["eta"]) < 2.5 \
+                        and ECALGap and electronVIDSelector( lep, idVal= 1, removedCuts=['pfRelIso03_all'] ):
+                    maker.event.lep_precut = 1
+                else:
+                    maker.event.lep_precut = 0
+                
+            else:
+                if abs(lep["pdgId"]) == 11:
+                    absEta = abs(lep["eta"] + lep["deltaEtaSC"])
+                else:
+                    absEta = abs(lep["eta"]) 
+                ECALGap = ( absEta > 1.566 or absEta < 1.4442 )
+                # StopsCompressed Id
+                if abs(lep["dxy"]) < 0.02 \
+                        and abs(lep["dz"]) < 0.1 \
+                        and abs(lep["eta"]) < 2.5 \
+                        and lep['pfRelIso03_all'] < 0.2 \
+                        and ECALGap and electronVIDSelector( lep, idVal= 1, removedCuts=['pfRelIso03_all'] ):
+                    maker.event.lep_StopsCompressed = 1
+                else:
+                    maker.event.lep_StopsCompressed = 0
+                if abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and abs(lep["eta"]) < 2.5 \
+                        and ECALGap and electronVIDSelector( lep, idVal= 1, removedCuts=['pfRelIso03_all'] ):
+                    maker.event.lep_precut = 1
+                else:
+                    maker.event.lep_precut = 0
+
         maker.fill()
         maker.event.init()
         

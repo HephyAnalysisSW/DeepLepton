@@ -48,7 +48,7 @@ if args.mode == 'Top':
         "Predicted",
         directory = directory,
         treeName  = "tree",
-        selectionString="lep_precut==1&&lep_probPrompt>0.99&&lep_pt>100",
+        selectionString="lep_precut==1",
         )
     if args.small:
         data_sample.reduceFiles( to = 4 )
@@ -60,8 +60,14 @@ elif args.mode == 'DYvsQCD':
     directoriesQCD = [os.path.join(directory, d)  for d in dirs if "QCD" in d]
     
     # TODO: weight the samples
-    sampleDY  = Sample.fromDirectory('DY',  directory=directoriesDY,  treeName='tree', selectionString='lep_isPromptId_Training==1')
-    sampleQCD = Sample.fromDirectory('QCD', directory=directoriesQCD, treeName='tree', selectionString='lep_isPromptId_Training==0')
+    sampleDY  = Sample.fromDirectory('DY',  directory=directoriesDY,
+                                        treeName='tree',
+                                        selectionString='lep_isPromptId_Training==1',
+                                        weightString="luminosity*genWeight*xsec(sample) / Sum(genWeights)")
+    sampleQCD = Sample.fromDirectory('QCD', directory=directoriesQCD,
+                                        treeName='tree',
+                                        selectionString='lep_isPromptId_Training==0',
+                                        weightString="luminosity*genWeight*xsec(sample) / Sum(genWeights)")
     data_sample = Sample.combine("Predicted", [sampleDY])
     if args.small:
         sampleDY.reduceFiles( to = 4 )
@@ -78,10 +84,16 @@ if args.mode == 'Top':
     samplePromptSig               = deepcopy(data_sample)
     sampleNonPromptSig            = deepcopy(data_sample)
     sampleFakeSig                 = deepcopy(data_sample)
+    samplePromptBack              = deepcopy(data_sample)
+    sampleNonPromptBack           = deepcopy(data_sample)
+    sampleFakeBack                = deepcopy(data_sample)
 elif args.mode == 'DYvsQCD':
     samplePromptSig    = deepcopy(sampleDY)
     sampleNonPromptSig = deepcopy(sampleQCD)
     sampleFakeSig      = deepcopy(sampleQCD)
+    samplePromptBack   = deepcopy(sampleDY)
+    sampleNonPromptBack= deepcopy(sampleQCD)
+    sampleFakeBack     = deepcopy(sampleQCD)
 
 samplePromptSig.addSelectionString("lep_isPromptId_Training==1&&lep_probPrompt>{}".format(wp))
 samplePromptSig.texName       = "Prompt as Signal"
@@ -386,7 +398,7 @@ plotting.fill(plots, read_variables = read_variables)
 
 for plot in plots:
     plotting.draw(plot, 
-                  plot_directory = os.path.join(plot_directory, "2016_muo_Top_Input_TT_pow_DEBUG"),#args.plot_directory),
+                  plot_directory = os.path.join(plot_directory, "2016_muo_{}_Input_{}".format(args.mode, directory.split("/")[-2])),#args.plot_directory),
                   ratio          = None, 
                   logX           = False, 
                   logY           = True,

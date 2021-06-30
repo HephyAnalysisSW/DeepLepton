@@ -20,6 +20,8 @@ argParser.add_argument('--logLevel',       action='store',      default='INFO', 
 argParser.add_argument('--directory', action='store')
 argParser.add_argument('--small',       action='store_true',     help="Run the file on a small sample (for test purpose), bool flag set to     True if used" )
 argParser.add_argument('--long',       action='store_true',     help="0-500, else 0-45" )
+argParser.add_argument('--flavour',     action="store", default="muo")
+argParser.add_argument('--mode', action="store")
 
 args = argParser.parse_args()
 
@@ -35,8 +37,21 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 directory = args.directory
 sampleName = directory.split('/')[-2]
 print(sampleName)
-#variables = ["prob_isPrompt/F", "prob_isNonPrompt/F", "prob_isFake/F", "lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "lep_isFakeId_Training/I", "lep_pt/F", "lep_eta/F"]
-variables = ['lep_isPromptId_Training/I',
+
+flav = args.flavour
+if "2016" in directory:
+    year = "2016"
+elif "2017" in directory:
+    year = "2017"
+elif "2018" in directory:
+    year = "2018"
+else:
+    logger.error("NO YEAR")
+
+
+
+if flav == "muo":
+    variables = ['lep_isPromptId_Training/I',
              'lep_isNonPromptId_Training/I',
              'lep_isNotPromptId_Training/I',
              'lep_isFakeId_Training/I',
@@ -53,15 +68,35 @@ variables = ['lep_isPromptId_Training/I',
              'lep_tightId/F',
              'lep_precut/F',
             ]
-
+else:
+    variables = ['lep_isPromptId_Training/I',
+             'lep_isNonPromptId_Training/I',
+             'lep_isNotPromptId_Training/I',
+             'lep_isFakeId_Training/I',
+             'lep_pt/F',
+             'lep_eta/F',
+             'lep_probPrompt/F',
+             'lep_probNonPrompt/F',
+             'lep_probFake/F',
+             'lep_probNotPrompt/F',
+             'lep_mvaTTH/F',
+             'lep_StopsCompressed/I',
+             'lep_precut/F',
+            ]
+    
 pred    = []
 truth   = []
 
 if args.long:
-    pt_bins = np.array([3.5,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100, 125, 150, 175, 200,250,300,400,500,],dtype=float)
+    if flav == "muo":
+        pt_bins = np.array([3.5,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100, 125, 150, 175, 200,250,300,400,500,],dtype=float)
+    else:
+        pt_bins = np.array([5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100, 125, 150, 175, 200,250,300,400,500,],dtype=float)
 else:
-    pt_bins = np.array([3.5,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45],dtype=float)
-               
+    if flav == "muo":
+        pt_bins = np.array([3.5,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45],dtype=float)
+    else:
+        pt_bins = np.array([5,7.5,10,12.5,15,17.5,20,25,30,35,40,45],dtype=float)
 
                 #125,150,175,200,250,300,400,500,
                 #600,2000],dtype=float)
@@ -77,17 +112,31 @@ pt_pred   = [[] for i in range(len(pt_bins))]
 eta_pred  = [[] for i in range(len(eta_bins))]
 
 pt_pred_tth   = [[] for i in range(len(pt_bins))]
+
 pt_pred_stops = [[] for i in range(len(pt_bins))]
     
-Sample = Sample.fromDirectory(
+selectionString = "lep_precut==1.&&lep_genPartFlav!=15"
+
+
+if args.mode == "TOP":
+    Sample = Sample.fromDirectory(
                             name="Sample",
                             directory=directory,
                             treeName='tree',
-                            selectionString="lep_precut==1.&&lep_genPartFlav!=15")
+                            selectionString=selectionString)
+    
+elif args.mode == 'DYvsQCD':
+    import os
+    dirs = os.listdir( directory )
+    directoriesDY  = [os.path.join(directory, d)  for d in dirs if "DY"  in d]
+    directoriesQCD = [os.path.join(directory, d)  for d in dirs if "QCD" in d]
+    
+    directories = directoriesDY + directoriesQCD
+    Sample  = Sample.fromDirectory('DY',  directory=directories,  treeName='tree', selectionString=selectionString)
 
 #if args.small:
 #    Sample.reduceFiles(to=1)
- 
+
 reader = Sample.treeReader(variables=variables)
 reader.start()
 
@@ -127,6 +176,7 @@ while reader.run():
         if counter > 1000000:
             break
 # Plot logic here
+
 
 def get_efficiencies(pred, truth, bins, threshhold):
     signal_eff = []
@@ -176,23 +226,26 @@ for t in [0.9,0.91,0.92,0.95, 0.96, 0.97, 0.98,  0.99,0.991,0.992,0.993,  0.994,
     gr3 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_tth))
     gr4 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_tth))
     
-    gr5 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_stops))
-    gr6 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_stops))
+    if flav == "muo":
+        gr5 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_stops))
+        gr6 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_stops))
 
 
     gr1.SetLineColorAlpha(ROOT.kBlue, 1)
     gr2.SetLineColorAlpha(ROOT.kRed, 1)
     gr3.SetLineColorAlpha(ROOT.kCyan+1, 1)
     gr4.SetLineColorAlpha(ROOT.kMagenta+2, 1)
-    gr5.SetLineColorAlpha(ROOT.kGreen+2, 1)
-    gr6.SetLineColorAlpha(ROOT.kYellow+1, 1)
+    if flav == "muo":
+        gr5.SetLineColorAlpha(ROOT.kGreen+2, 1)
+        gr6.SetLineColorAlpha(ROOT.kYellow+1, 1)
 
     gr1.SetMarkerStyle(34)
     gr2.SetMarkerStyle(34)
     gr3.SetMarkerStyle(34)
     gr4.SetMarkerStyle(34)
-    gr5.SetMarkerStyle(34)
-    gr6.SetMarkerStyle(34)
+    if flav == "muo":
+        gr5.SetMarkerStyle(34)
+        gr6.SetMarkerStyle(34)
 
     c1 = ROOT.TCanvas("c1", "L", 200,100,1000,1000)
     
@@ -202,8 +255,9 @@ for t in [0.9,0.91,0.92,0.95, 0.96, 0.97, 0.98,  0.99,0.991,0.992,0.993,  0.994,
     gr2.SetTitle("Background Efficiency DeepLepton")
     gr3.SetTitle("Signal Efficiency TTH")
     gr4.SetTitle("Background Efficiency TTH")
-    gr5.SetTitle("Signal Efficiency StopsCompressed")
-    gr6.SetTitle("Background Efficiency StopsCompressed")
+    if flav == "muo":
+        gr5.SetTitle("Signal Efficiency StopsCompressed")
+        gr6.SetTitle("Background Efficiency StopsCompressed")
 
     mg = ROOT.TMultiGraph()
 
@@ -211,8 +265,9 @@ for t in [0.9,0.91,0.92,0.95, 0.96, 0.97, 0.98,  0.99,0.991,0.992,0.993,  0.994,
     mg.Add(gr2)
     mg.Add(gr3)
     mg.Add(gr4)
-    mg.Add(gr5)
-    mg.Add(gr6)
+    if flav == "muo":
+        mg.Add(gr5)
+        mg.Add(gr6)
 
     mg.SetTitle("Signal and Background Efficiency")
     
@@ -229,7 +284,7 @@ for t in [0.9,0.91,0.92,0.95, 0.96, 0.97, 0.98,  0.99,0.991,0.992,0.993,  0.994,
         os.mkdir(os.path.join(plot_directory, 'Efficiency_muo_Top_2016_{}/'))
     except:
         pass
-    c1.Print(os.path.join(plot_directory, 'Efficiency_muo_Top_2016_{}/pt_background_{}_{}-{}.png'.format(sampleName, t, 3.5, str(pt_bins[-1]))))
+    c1.Print(os.path.join(plot_directory, 'Efficiency_{}_{}_{}_{}/pt_background_{}_{}-{}.png'.format(flav,args.mode,year, sampleName, t, 3.5, str(pt_bins[-1]))))
 
 # ROC Curves
 
@@ -247,12 +302,19 @@ def numcheck(arr):
             rm.append(i)
     return rm
 
+
+# bin as key
+results_dl    = {}
+results_tth   = {}
+results_stops = {}
+
 for truths, pred_dl, pred_tth, pred_stops, pt_bin in zip(pt_truth, pt_pred, pt_pred_tth, pt_pred_stops, pt_bins):
+    if pt_bin == pt_bins[-1]:
+        continue
     #pred_dl = []
     #truths = []
     #pred_tth = []
     #pred_stops = []
-
     #for i in range(2):
     #    pred_dl += pt_pred[i]
     #    pred_tth += pt_pred_tth[i]
@@ -265,50 +327,189 @@ for truths, pred_dl, pred_tth, pred_stops, pt_bin in zip(pt_truth, pt_pred, pt_p
             print('is 1 at position {}'.format(i))
             break
     from sklearn.metrics import roc_curve, auc
-    
+     
     rm_indices = numcheck(pred_dl)
     truths2 = truths[:]
     for i in reversed(rm_indices):
         truths2.pop(i)
         pred_dl.pop(i)
     
-    fpr_dl, tpr_dl, _ = roc_curve(truths2, pred_dl)
-    fpr_tth, tpr_tth, _ = roc_curve(truths, pred_tth)
-    fpr_stops, tpr_stops, _ = roc_curve(truths, pred_stops)
+    fpr_dl,    tpr_dl,    thr_dl    = roc_curve(truths2, pred_dl)
+    fpr_tth,   tpr_tth,   thr_tth   = roc_curve(truths, pred_tth)
+    fpr_stops, tpr_stops, thr_stops = roc_curve(truths, pred_stops)
+    
+    results_dl[pt_bin] = [fpr_dl, tpr_dl, thr_dl]    
+    results_tth[pt_bin] = [fpr_tth, tpr_tth, thr_tth]    
+    results_stops[pt_bin] = [fpr_stops, tpr_stops, thr_stops]    
 
     gr1 = ROOT.TGraph(len(fpr_dl), array.array('d', fpr_dl), array.array('d', tpr_dl))
     gr2 = ROOT.TGraph(len(fpr_tth), array.array('d', fpr_tth), array.array('d', tpr_tth))
     gr3 = ROOT.TGraph(len(fpr_stops), array.array('d', fpr_stops), array.array('d', tpr_stops))
-
+    
     gr1.SetLineColorAlpha(ROOT.kBlue, 0.8)
     gr2.SetLineColorAlpha(ROOT.kRed, 0.8)
     gr3.SetLineColorAlpha(ROOT.kGreen, 0.8)
-
+    
     gr1.SetLineWidth(2)
     gr2.SetLineWidth(2)
     gr3.SetLineWidth(2)
-
+    
     c1 = ROOT.TCanvas("c1", "L", 200,100,1000,1000)
     gr1.SetTitle("Deep Lepton")
     gr2.SetTitle("TTH")
     gr3.SetTitle("Stops Compressed")
-
+    
     mg = ROOT.TMultiGraph()
     mg.Add(gr1)
     mg.Add(gr2)
     mg.Add(gr3)
-
-    mg.SetTitle("ROC-Curve Comparison {}".format(pt_bin))
     
+    mg.SetTitle("ROC-Curve Comparison {}".format(pt_bin))
+     
     mg.Draw("AL")
     mg.GetXaxis().SetTitle("False Positive Rate")
     mg.GetYaxis().SetTitle("True Positive Rate")
-
+    
     mg.GetXaxis().SetLimits(0,1)
     mg.GetYaxis().SetLimits(0,1)
-
+    
     c1.BuildLegend()
-    c1.Print(os.path.join(plot_directory, 'Efficiency_muo_Top_2016_{}/pt_roc_{}.png'.format(sampleName, pt_bin)))
+    c1.Print(os.path.join(plot_directory, 'Efficiency_{}_{}_{}_{}/pt_roc_{}.png'.format(flav, args.mode,year, sampleName, pt_bin)))
+
+    
+# now make a flat pt background plot:
+
+def get_nearest_index(arr, val):
+    array = np.asarray(arr)
+    idx = (np.abs(array - val)).argmin()
+    return idx
+    
+
+
+
+targets = [0.01, 0.02, 0.05, 0.1]
+
+efficiencies_dl = {}
+
+
+for pt_bin in pt_bins[:-1]:
+    fpr_dl, tpr_dl, thr_dl          = results_dl[pt_bin]
+    fpr_tth, tpr_tth, thr_tth       = results_tth[pt_bin]
+    fpr_stops, tpr_stops, thr_stops = results_stops[pt_bin]
+    
+    #print(fpr_dl, tpr_dl, thr_dl)
+    #print(1)
+    #print(fpr_tth, tpr_tth, thr_tth)
+    #print(2)
+    #print(fpr_stops, tpr_stops, thr_stops)
+
+    # get sig_eff and thr for dl:
+    efficiencies = {}
+    for target in targets:
+        index = get_nearest_index(fpr_dl, target)
+        signal_eff = tpr_dl[index]
+        background_eff = fpr_dl[index]
+        threshhold = thr_dl[index]
+        efficiencies[target] = [signal_eff, background_eff, threshhold, target, pt_bin]
+    efficiencies_dl[pt_bin] = efficiencies
+
+
+# get the right signal efficiencies:
+swap_back_eff = 15 # 2nd target, 0th target, swap at 3rd bin
+loose_target_index = 1
+tight_target_index = 0
+pt_signal_eff = []
+pt_background_eff = []
+
+for pt_bin in pt_bins[:-1]:
+    if pt_bin <= swap_back_eff:
+        target = targets[loose_target_index]
+    else:
+        target = targets[tight_target_index]
+    
+    sig_eff  = efficiencies_dl[pt_bin][target][0]
+    back_eff = efficiencies_dl[pt_bin][target][1]    
+
+    pt_signal_eff.append(sig_eff)
+    pt_background_eff.append(back_eff) 
+
+# make plot:
+logger.info("Making final plot")
+ 
+gr1 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff))
+gr2 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff))
+
+gr3 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_tth))
+gr4 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_tth))
+    
+gr5 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_stops))
+gr6 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_stops))
+
+
+gr1.SetLineColorAlpha(ROOT.kBlue, 1)
+gr2.SetLineColorAlpha(ROOT.kRed, 1)
+gr3.SetLineColorAlpha(ROOT.kCyan+1, 1)
+gr4.SetLineColorAlpha(ROOT.kMagenta+2, 1)
+gr5.SetLineColorAlpha(ROOT.kGreen+2, 1)
+gr6.SetLineColorAlpha(ROOT.kYellow+1, 1)
+
+gr1.SetMarkerStyle(34)
+gr2.SetMarkerStyle(34)
+gr3.SetMarkerStyle(34)
+gr4.SetMarkerStyle(34)
+gr5.SetMarkerStyle(34)
+gr6.SetMarkerStyle(34)
+
+c1 = ROOT.TCanvas("c1", "L", 200,100,1000,1000)
+    
+c1.SetGrid()
+    
+gr1.SetTitle("Signal Efficiency DeepLepton")
+gr2.SetTitle("Background Efficiency DeepLepton")
+gr3.SetTitle("Signal Efficiency TTH")
+gr4.SetTitle("Background Efficiency TTH")
+gr5.SetTitle("Signal Efficiency StopsCompressed")
+gr6.SetTitle("Background Efficiency StopsCompressed")
+
+mg = ROOT.TMultiGraph()
+
+mg.Add(gr1)
+mg.Add(gr2)
+mg.Add(gr3)
+mg.Add(gr4)
+mg.Add(gr5)
+mg.Add(gr6)
+
+mg.SetTitle("Signal and Background Efficiency")
+    
+mg.Draw("APL") # set everything before Draw, exept axis stuff
+
+mg.GetXaxis().SetTitle("lepton pt")
+mg.GetYaxis().SetTitle("efficiency")
+
+mg.GetYaxis().SetLimits(0,1)
+
+c1.BuildLegend(0.7,0.4, 1, 0.6)
+    
+try:
+    os.mkdir(os.path.join(plot_directory, 'Efficiency_muo_Top_2016_{}/'))
+except:
+    pass
+c1.Print(os.path.join(plot_directory, 'Efficiency_{}_{}_{}_{}/pt_flat_background_{}_{}-{}.png'.format(flav,args.mode, year, sampleName, t, 3.5, str(pt_bins[-1]))))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

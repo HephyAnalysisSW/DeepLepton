@@ -19,6 +19,8 @@ argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',       action='store',      default='INFO',      nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 argParser.add_argument('--directory', action='store')
 argParser.add_argument('--small',       action='store_true',     help="Run the file on a small sample (for test purpose), bool flag set to     True if used" )
+argParser.add_argument('--long',       action='store_true',     help="0-500, else 0-45" )
+argParser.add_argument('--flavour', action='store')
 args = argParser.parse_args()
 
 #
@@ -45,13 +47,35 @@ variables = ['lep_isPromptId_Training/I',
              'lep_probNotPrompt/F',
              'lep_mvaTTH/F',]
 
+if args.flavour == 'muo':
+    variables += ['lep_StopsCompressed/I',
+             'lep_looseId/F',
+             'lep_mediumId/F',
+             'lep_tightId/F',
+             'lep_precut/F'] 
+
+
 pred    = []
 truth   = []
 
-pt_bins = np.array([
-                3.5,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100, 125],dtype=float)
-                #125,150,175,200,250,300,400,500,
-                #600,2000],dtype=float)
+if args.flavour == 'muo':
+    if args.long:
+        pt_bins = np.array([
+                3.5,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100,
+                125, 125,150,175,200,250,300,400,500],dtype=float)
+    else:
+        pt_bins = np.array([
+                3.5,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,],dtype=float)
+elif args.flavour == 'ele':
+    if args.long:
+        pt_bins = np.array([
+                5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100,
+                125, 125,150,175,200,250,300,400,500],dtype=float)
+    else:
+        pt_bins = np.array([
+                5,7.5,10,12.5,15,17.5,20,25,30,35,40,45],dtype=float)
+    
+
 eta_bins = np.array(
             [-2.5,-2.,-1.5,-1.,-0.5,0.5,1,1.5,2.,2.5, 3.2],
             dtype=float
@@ -64,12 +88,13 @@ pt_pred   = [[] for i in range(len(pt_bins))]
 eta_pred  = [[] for i in range(len(eta_bins))]
 
 pt_pred_tth   = [[] for i in range(len(pt_bins))]
-
+pt_pred_stops = [[] for i in range(len(pt_bins))]
     
 Sample = Sample.fromDirectory(
                             name="Sample",
                             directory=directory,
-                            treeName='tree')
+                            treeName='tree',
+                            selectionString="lep_precut==1.&&lep_genPartFlav!=15")
 
 #if args.small:
 #    Sample.reduceFiles(to=1)
@@ -90,9 +115,10 @@ while reader.run():
     lep_pt                      = r.lep_pt
     lep_eta                     = r.lep_eta
     lep_mvaTTH                  = r.lep_mvaTTH
-
-    #if lep_isNonPromptId_Training == 1.:
-    #    continue
+    
+    if args.flavour == 'muo':
+        lep_precut = r.lep_precut
+        lep_StopsCompressed = r.lep_StopsCompressed
 
     for i, pt in enumerate(pt_bins):
         if lep_pt < pt:
@@ -103,7 +129,7 @@ while reader.run():
     
     counter += 1
     if args.small:
-        if counter > 3000000:
+        if counter > 6000000:
             break
 # Plot logic here
 
@@ -151,32 +177,44 @@ def search_best_threshhold(pred, truth, bins, target):
     threshholds = []
     signal_eff = []
     back_eff = []
-    threshholds = np.linspace(0.5, 0.9999, 400)
+    if args.small:
+        N=100
+    else:
+        N=200
+    threshholds = np.linspace(0.98, 1, N)
 
+    counter = 1
     for t in threshholds:
+        logger.info('Evaluationg for threshhold {} of {}'.format(counter, len(threshholds)))
         s, b = get_efficiencies(pred, truth, bins, t)
         signal_eff.append(s)
         back_eff.append(b)
-    
+        counter += 1    
+
     final_sig_eff = []
     final_back_eff = []
     final_threshhold = []
     for i in range(len(bins)):
-        #logger.info('bin {} of {}'.format(i+1, len(bins)))
-        idx = find_nearest_index([x[i] for x in back_eff], target)
+        if bins[i] < target[2]:
+            newTarget = target[0]
+        else:
+            newTarget = target[1]
+            
+        idx = find_nearest_index([x[i] for x in back_eff], newTarget)
+        print('index', idx)
         final_sig_eff.append(signal_eff[idx][i])
         final_back_eff.append(back_eff[idx][i])
-        final_threshhold.append(threshholds[i])
+        final_threshhold.append(threshholds[idx])
 
     return final_sig_eff, final_back_eff, final_threshhold
     
 def get_eta_threshhold(eta_pred, eta_truth, threshholds):
     pass
 
-target = 0.1
+target = [0.05, 0.01, 7.5] # Target1, Target2, TargetCut
 
 pt_signal_eff , pt_background_eff, threshholds = search_best_threshhold(pt_pred, pt_truth, pt_bins, target)
-pt_signal_eff_tth , pt_background_eff_tth, threshholds_tth = search_best_threshhold(pt_pred_tth, pt_truth, pt_bins, target)
+pt_signal_eff_tth    , pt_background_eff_tth   = get_efficiencies(pt_pred_tth, pt_truth, pt_bins, 0.9)
 
 gr1 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff))
 gr2 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff))
@@ -221,7 +259,7 @@ mg.GetYaxis().SetTitle("efficiency")
 mg.GetYaxis().SetLimits(0,1)
 
 c1.BuildLegend(0.7,0.4, 1, 0.6)
-c1.Print(os.path.join(plot_directory, 'Efficiency_muo_Top_2016_TT_pow/pt_flat_background_{}.png'.format(str(target))))
+c1.Print(os.path.join(plot_directory, 'Efficiency_muo_Top_2016_TT_pow/pt_flat_background{}.png'.format("" if not args.long else "_long")))
 
 print(threshholds) 
 dosomethingtostop()

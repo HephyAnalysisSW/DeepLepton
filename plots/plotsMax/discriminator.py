@@ -47,7 +47,8 @@ if args.mode == 'Top':
     data_sample = Sample.fromDirectory(
         "Predicted",
         directory = directory,
-        treeName  = "tree"
+        treeName  = "tree",
+        selectionString = "lep_genPartFlav!=15&&lep_precut==1"
         )
     if args.small:
         data_sample.reduceFiles( to = 4 )
@@ -59,20 +60,16 @@ elif args.mode == 'DYvsQCD':
     directoriesQCD = [os.path.join(directory, d)  for d in dirs if "QCD" in d]
     
     # TODO: weight the samples
-    sampleDY  = Sample.fromDirectory('DY',  directory=directoriesDY,  treeName='tree', selectionString='lep_isPromptId_Training==1&&lep_genPartFlav!=15')
-    sampleQCD = Sample.fromDirectory('QCD', directory=directoriesQCD, treeName='tree', selectionString='lep_isPromptId_Training==0&&lep_genPartFlav!=15')
-    data_sample = Sample.combine("Predicted", [sampleDY])
+    sampleDY  = Sample.fromDirectory('DY',  directory=directoriesDY,  treeName='tree', selectionString='lep_isPromptId_Training==1&&lep_genPartFlav!=15&&lep_precut==1')
+    sampleQCD = Sample.fromDirectory('QCD', directory=directoriesQCD, treeName='tree', selectionString='lep_isPromptId_Training==0&&lep_genPartFlav!=15&&lep_precut==1')
     if args.small:
         sampleDY.reduceFiles( to = 4 )
         sampleQCD.reduceFiles( to = 4 )
+#logger.info("%i files", len(data_sample.files))
 
-logger.info("%i files", len(data_sample.files))
-
-if args.small:
-    data_sample.reduceFiles( to = 4 )
 
 # copy samples:
-wp = 0.993 # Working Point
+wp = 0.995 # Working Point
 
 # As Signal
 if args.mode == "Top":
@@ -90,17 +87,16 @@ samplePrompt.texName       = "Prompt"
 samplePrompt.Name          = "Prompt"
 samplePrompt.style         = styles.lineStyle(ROOT.kRed)
 
-sampleNonPrompt            = deepcopy(data_sample)
 sampleNonPrompt.addSelectionString("lep_isNonPromptId_Training==1")
 sampleNonPrompt.texName    = "NonPrompt"
 sampleNonPrompt.Name       = "NonPrompt"
 sampleNonPrompt.style      = styles.lineStyle(ROOT.kBlue)
 
-sampleFake                 = deepcopy(data_sample)
 sampleFake.addSelectionString("lep_isFakeId_Training==1")
 sampleFake.texName         = "Fake"
 sampleFake.Name            = "Fake"
 sampleFake.style           = styles.lineStyle(ROOT.kGreen)
+
 
 read_variables = [
                   "lep_pt/F",

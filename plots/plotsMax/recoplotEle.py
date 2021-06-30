@@ -60,8 +60,12 @@ elif args.mode == 'DYvsQCD':
     directoriesQCD = [os.path.join(directory, d)  for d in dirs if "QCD" in d]
     
     # TODO: weight the samples
-    sampleDY  = Sample.fromDirectory('DY',  directory=directoriesDY,  treeName='tree', selectionString='lep_isPromptId_Training==1')
-    sampleQCD = Sample.fromDirectory('QCD', directory=directoriesQCD, treeName='tree', selectionString='lep_isPromptId_Training==0')
+    sampleDY  = Sample.fromDirectory('DY',  directory=directoriesDY,  treeName='tree',
+                                    selectionString='lep_isPromptId_Training==1&&lep_precut==1',
+                                    weightString="luminosity*genWeight*xsec(sample) / Sum(genWeights)")
+    sampleQCD = Sample.fromDirectory('QCD', directory=directoriesQCD, treeName='tree',
+                                    selectionString='lep_isPromptId_Training==0&&lep_precut==1'
+                                    weightString="luminosity*genWeight*xsec(sample) / Sum(genWeights)")
     data_sample = Sample.combine("Predicted", [sampleDY])
     if args.small:
         sampleDY.reduceFiles( to = 4 )

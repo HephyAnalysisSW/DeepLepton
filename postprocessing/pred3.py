@@ -32,7 +32,10 @@ def get_parser():
     argParser.add_argument('--versionName',                  action='store',                    type=str)
     argParser.add_argument('--ptSelection',                 action='store',         nargs='?',  type=str,  default='pt_5_-1',      help="pt selection of leptons")
     argParser.add_argument('--muFromTauArePrompt',    action='store_true',        help="Consider muons from tau leptons as prompt")        
-    argParser.add_argument('--modelPath',                       action='store',       help="Path to Keras model")
+    argParser.add_argument('--modelPathLSTM',                       action='store',       help="Path to Keras model")
+    argParser.add_argument('--modelPathGRU',                       action='store',       help="Path to Keras model")
+    argParser.add_argument('--modelPathSimpleRNN',                       action='store',       help="Path to Keras model")
+    argParser.add_argument('--modelPathNoCands',                       action='store',       help="Path to Keras model")
 
     return argParser
 
@@ -51,12 +54,33 @@ maxN = 2 if options.small else None
 #from keras.models import load_model
 logger.info('loading keras model, this may take a minute (or two)')
 import tensorflow as tf
-modelPath = options.modelPath
-if not os.path.exists(modelPath):
-    logger.error('modelPath is invalid')
-    raise RuntimeError('modelPath is invalid')
-model = tf.keras.models.load_model( modelPath )
-logger.info('loading Model complete')
+modelPathLSTM      = options.modelPathLSTM
+modelPathGRU       = options.modelPathGRU
+modelPathSimpleRNN = options.modelPathSimpleRNN
+modelPathNoCands   = options.modelPathNoCands
+
+if not os.path.exists(modelPathLSTM):
+    logger.error('modelPathLSTM is invalid')
+    raise RuntimeError('modelPathLSTM is invalid')
+modelLSTM = tf.keras.models.load_model( modelPathLSTM )
+
+if not os.path.exists(modelPathGRU):
+    logger.error('modelPathGRU is invalid')
+    raise RuntimeError('modelPathGRU is invalid')
+modelGRU = tf.keras.models.load_model( modelPathGRU )
+
+if not os.path.exists(modelPathSimpleRNN):
+    logger.error('modelPathSimpleRNN is invalid')
+    raise RuntimeError('modelPathSimpleRNN is invalid')
+modelSimpleRNN = tf.keras.models.load_model( modelPathSimpleRNN )
+
+if not os.path.exists(modelPathNoCands):
+    logger.error('modelPathNoCands is invalid')
+    raise RuntimeError('modelPathNoCands is invalid')
+modelNoCands = tf.keras.models.load_model( modelPathNoCands )
+
+
+logger.info('loading Models complete')
 
 # Load samples
 if options.year == 2016:
@@ -148,7 +172,11 @@ new_variables+= ["lep_StopsCompressed/I"]#, "lep_looseId/O", "lep_mediumId/O", "
 #out_variables += ["event/l", "lep_mvaTTH/F"]
 #out_variables += ["lep_StopsCompressed/I", "lep_looseId/F", "lep_mediumId/F", "lep_tightId/F"]
 #out_variables += ["lep_precut/F", "lep_pfRelIso03_all/F"]
-new_variables += ["lep_probPrompt/F", "lep_probNonPrompt/F", "lep_probFake/F", "lep_probNotPrompt/F"]
+new_variables += ["lep_probPrompt_LSTM/F", "lep_probNonPrompt_LSTM/F", "lep_probFake_LSTM/F", "lep_probNotPrompt_LSTM/F"]
+new_variables += ["lep_probPrompt_GRU/F", "lep_probNonPrompt_GRU/F", "lep_probFake_GRU/F", "lep_probNotPrompt_GRU/F"]
+new_variables += ["lep_probPrompt_SimpleRNN/F", "lep_probNonPrompt_SimpleRNN/F", "lep_probFake_SimpleRNN/F", "lep_probNotPrompt_SimpleRNN/F"]
+new_variables += ["lep_probPrompt_NoCands/F", "lep_probNonPrompt_NoCands/F", "lep_probFake_NoCands/F", "lep_probNotPrompt_NoCands/F"]
+
 new_variables += ["event/l", "lep_mvaTTH/F"]
 if options.flavour == 'muo':
     new_variables += ["lep_StopsCompressed/I", "lep_looseId/F", "lep_mediumId/F", "lep_tightId/F"]
@@ -381,21 +409,37 @@ while reader.run():
         muonB    = branches(pfCands["muon"],     pfCand_muon_branches,     npfCand_muon,     n=-2)
         svB      = branches(SV,                  SV_branches,              nSV,              n=-1)                
 
-        #toPredict = np.stack([ gb, neutralB, chargedB, photonB, electronB, muonB, svB ])
-        #toPredict = np.concatenate((gb, neutralB, chargedB, photonB, electronB, muonB, svB))
         toPredict = [ globalB, neutralB, chargedB, photonB, electronB, muonB, svB ]
-        prediction = model.predict(toPredict)[0]
-        #print(prediction)
-        #print(np.argmax(prediction))
-       # print(maker.event.lep_isPromptId_Training, maker.event.lep_isNonPromptId_Training, maker.event.lep_isFakeId_Training)
         
-        #if prediction[0] > 0.02:
-        #    print('PROMPT!')
-        maker.event.lep_probPrompt = prediction[0]
-        maker.event.lep_probNonPrompt = prediction[1]
-        maker.event.lep_probFake = prediction[2]
-        maker.event.lep_probNotPrompt = prediction[1] + prediction[2]
+        # LSTM
+        prediction = modelLSTM.predict(toPredict)[0]
+        maker.event.lep_probPrompt_LSTM    = prediction[0]
+        maker.event.lep_probNonPrompt_LSTM = prediction[1]
+        maker.event.lep_probFake_LSTM      = prediction[2]
+        maker.event.lep_probNotPrompt_LSTM = prediction[1] + prediction[2]
         
+        # GRU
+        prediction = modelGRU.predict(toPredict)[0]
+        maker.event.lep_probPrompt_GRU    = prediction[0]
+        maker.event.lep_probNonPrompt_GRU = prediction[1]
+        maker.event.lep_probFake_GRU      = prediction[2]
+        maker.event.lep_probNotPrompt_GRU = prediction[1] + prediction[2]
+        
+        # SimpleRNN
+        prediction = modelSimpleRNN.predict(toPredict)[0]
+        maker.event.lep_probPrompt_SimpleRNN    = prediction[0]
+        maker.event.lep_probNonPrompt_SimpleRNN = prediction[1]
+        maker.event.lep_probFake_SimpleRNN      = prediction[2]
+        maker.event.lep_probNotPrompt_SimpleRNN = prediction[1] + prediction[2]
+        
+        # NoCands
+        prediction = modelNoCands.predict(toPredict)[0]
+        maker.event.lep_probPrompt_NoCands    = prediction[0]
+        maker.event.lep_probNonPrompt_NoCands = prediction[1]
+        maker.event.lep_probFake_NoCands      = prediction[2]
+        maker.event.lep_probNotPrompt_NoCands = prediction[1] + prediction[2]
+
+
         maker.event.lep_pt = lep["pt"]
         maker.event.lep_eta = lep["eta"]
         

@@ -10,7 +10,6 @@ from RootTools.core.standard import *
 # DeepLepton
 from DeepLepton.Tools.user import skim_directory
 from DeepLepton.Tools.helpers import getCollection, deltaR, deltaR2
-from helpers import electronVIDSelector
 
 print('parsing')
 # parser
@@ -22,7 +21,7 @@ def get_parser():
 
     argParser.add_argument('--logLevel',                    action='store',         nargs='?',              choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET', 'SYNC'],     default='INFO',                     help="Log level for logging")
     #argParser.add_argument('--overwrite',                   action='store_true',                                                                                        help="Overwrite existing output files, bool flag set to True  if used")
-    argParser.add_argument('--year',                        action='store',                     type=int,   choices=[2016,2017, 2018],    required = True,                    help="Which year?")
+    argParser.add_argument('--year',                        action='store',                     type=int,   choices=[2016,2017],    required = True,                    help="Which year?")
     argParser.add_argument('--flavour',                      action='store',                     type=str,   choices=['muo', 'ele'], default='muo',                      help="muo or ele?")
     argParser.add_argument('--sample',                      action='store',         nargs='?',  type=str,                           default='WZTo3LNu',                 help="Sample to be post-processed")
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
@@ -61,11 +60,7 @@ logger.info('loading Model complete')
 # Load samples
 if options.year == 2016:
     from DeepLepton.Samples.nanoAOD_PFCands_Summer16 import *
-elif options.year == 2017:
-    from DeepLepton.Samples.nanoAOD_PFCands_Fall17 import *
-elif options.year == 2018:
-    from DeepLepton.Samples.nanoAOD_PFCands_Autumn18 import *
-else:    
+else:
     raise NotImplementedError
 
 # skim conditions. Take all for now.
@@ -153,8 +148,7 @@ new_variables += ["event/l", "lep_mvaTTH/F"]
 if options.flavour == 'muo':
     new_variables += ["lep_StopsCompressed/I", "lep_looseId/F", "lep_mediumId/F", "lep_tightId/F"]
     new_variables += ["lep_precut/F", "lep_pfRelIso03_all/F"]
-if options.flavour == 'ele':
-    new_variables += ["lep_precut/F", "lep_StopsCompressed/I"]
+
 
 for pf_flavour in pf_flavours:
     # per PFCandidate flavor, add a counter and a vector with all pf candidate variables
@@ -182,7 +176,7 @@ reader = sample.treeReader( \
 
 ####
 #outfilename =  os.path.join(output_directory, "predicted", options.flavour, options.ptSelection, sample_name, sample.name + '.root')
-outfilename =  os.path.join("/scratch-cbe/users/maximilian.moser/DeepLepton", "predicted", options.versionName, str(options.year), options.flavour, options.ptSelection, sample_name, sample.name + '.root')
+outfilename =  os.path.join("/scratch-cbe/users/maximilian.moser/DeepLepton", "predicted", options.versionName, options.flavour, options.ptSelection, sample_name, sample.name + '.root')
 logger.debug("Writing to: %s", outfilename)
 
 if not os.path.exists(os.path.dirname(outfilename)):
@@ -195,12 +189,12 @@ if not os.path.exists(os.path.dirname(outfilename)):
 tmp_directory = ROOT.gDirectory
 outfile = ROOT.TFile.Open(outfilename, 'recreate')
 outfile.cd()
-new_maker = TreeMaker( sequence  = [ ],
-    variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, new_variables),
-    treeName = 'tree')
+#new_maker = TreeMaker( sequence  = [ ],
+#    variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, new_variables),
+#    treeName = 'tree')
 tmp_directory.cd()
 
-new_maker.start()
+#new_maker.start()
 
 if options.flavour == 'muo':
     global_branches = [
@@ -279,6 +273,9 @@ def branches(pfC,pfC_flav_branches, npfC, n=-2, inlist=True): # n = -2 for pfCan
     nb = np.asarray([nb]).astype(np.float32, order='C')
     return nb
 
+Xlist = []
+Ylist = []
+
 
 reader.start()
 counter=0
@@ -317,12 +314,13 @@ while reader.run():
 
     for lep in leps:
         #now decide which maker to use
-        maker = new_maker # only use this one maker
+        #maker = new_maker # only use this one maker
         if type(lep['genPartFlav']) == int:
             genPartFlav = lep['genPartFlav']
         else:
             genPartFlav = ord(lep['genPartFlav'])
-        
+        if int(genPartFlav) == 15:
+            continue        
         
         #for leptonClass in leptonClasses.values():
         #    if leptonClass['selector'](genPartFlav):
@@ -330,20 +328,24 @@ while reader.run():
         #        break
         #if maker is None:
         #    raise RuntimeError("Unclassified lepton: genPartFlav: %i " % reader.event.lep_genPartFlav)
-        maker.event.event           = r.event
+        #maker.event.event           = r.event
         #maker.event.luminosityBlock = r.luminosityBlock
         #maker.event.run             = r.run
         # write the lepton
-        for b in lep_varnames:
-            if type(lep[b])==type(""):
-                setattr(maker.event, "lep_"+b, float(ord(lep[b])))
-            else:
-                setattr(maker.event, "lep_"+b, float(lep[b]))
+        #for b in lep_varnames:
+        #    if type(lep[b])==type(""):
+        #        setattr(maker.event, "lep_"+b, float(ord(lep[b])))
+        #    else:
+        #        setattr(maker.event, "lep_"+b, float(lep[b]))
 
-        maker.event.lep_isPromptId_Training     = leptonClasses['Prompt']['selector'](genPartFlav)
-        maker.event.lep_isNonPromptId_Training  = leptonClasses['NonPrompt']['selector'](genPartFlav)
-        maker.event.lep_isFakeId_Training       = leptonClasses['Fake']['selector'](genPartFlav)
-        maker.event.lep_isNotPromptId_Training  = (maker.event.lep_isNonPromptId_Training or maker.event.lep_isFakeId_Training)
+        lep_isPromptId_Training     = leptonClasses['Prompt']['selector'](genPartFlav)
+        if lep_isPromptId_Training == 0:
+            #continue
+            pass
+        
+        #maker.event.lep_isNonPromptId_Training  = leptonClasses['NonPrompt']['selector'](genPartFlav)
+        #maker.event.lep_isFakeId_Training       = leptonClasses['Fake']['selector'](genPartFlav)
+        #maker.event.lep_isNotPromptId_Training  = (maker.event.lep_isNonPromptId_Training or maker.event.lep_isFakeId_Training)
 
         # write vector with PF candidates
         
@@ -367,7 +369,15 @@ while reader.run():
             
         #fill_vector_collection( maker.event, 'SV', SV_varnames + ['ptRel', 'deltaR'], SV, nMax = 100 )
         # make sure that predicted are in the right Order
-        
+       
+        if options.flavour == "muo":
+            if abs(lep["eta"]) < 2.4 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
+                pass
+            else:
+                continue
+
+
+ 
         # Globals:
         gb = []
         for b in global_branches:
@@ -383,101 +393,142 @@ while reader.run():
 
         #toPredict = np.stack([ gb, neutralB, chargedB, photonB, electronB, muonB, svB ])
         #toPredict = np.concatenate((gb, neutralB, chargedB, photonB, electronB, muonB, svB))
+        
+        #if options.flavour == "muo":
+        #    if abs(lep["eta"]) < 2.4 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
+        #        pass
+        #    else:
+        #        continue 
+
+
+
+
+
+
+        # TO Predict is the relevant thing
         toPredict = [ globalB, neutralB, chargedB, photonB, electronB, muonB, svB ]
+        labels = [ int(leptonClasses['Prompt']['selector'](genPartFlav)), int(leptonClasses['NonPrompt']['selector'](genPartFlav)), int(leptonClasses['Fake']['selector'](genPartFlav)) ]
+        Xlist.append(toPredict)
+        Ylist.append(labels)
         prediction = model.predict(toPredict)[0]
+        
+        
         #print(prediction)
         #print(np.argmax(prediction))
-       # print(maker.event.lep_isPromptId_Training, maker.event.lep_isNonPromptId_Training, maker.event.lep_isFakeId_Training)
+        #print(maker.event.lep_isPromptId_Training, maker.event.lep_isNonPromptId_Training, maker.event.lep_isFakeId_Training)
         
         #if prediction[0] > 0.02:
         #    print('PROMPT!')
-        maker.event.lep_probPrompt = prediction[0]
-        maker.event.lep_probNonPrompt = prediction[1]
-        maker.event.lep_probFake = prediction[2]
-        maker.event.lep_probNotPrompt = prediction[1] + prediction[2]
+        #maker.event.lep_probPrompt = prediction[0]
+        #maker.event.lep_probNonPrompt = prediction[1]
+        #maker.event.lep_probFake = prediction[2]
+        #maker.event.lep_probNotPrompt = prediction[1] + prediction[2]
         
-        maker.event.lep_pt = lep["pt"]
-        maker.event.lep_eta = lep["eta"]
+        #maker.event.lep_pt = lep["pt"]
+        #maker.event.lep_eta = lep["eta"]
         
-        maker.event.lep_mvaTTH   = lep["mvaTTH"]
+        #maker.event.lep_mvaTTH   = lep["mvaTTH"]
         
-        if options.flavour == "muo":
-            maker.event.lep_looseId  = lep["looseId"]
-            maker.event.lep_mediumId = lep["mediumId"]
-            maker.event.lep_tightId  = lep["tightId"]
-            maker.event.lep_pfRelIso03_all = lep["pfRelIso03_all"]
+        #if options.flavour == "muo":
+        #    maker.event.lep_looseId  = lep["looseId"]
+        #    maker.event.lep_mediumId = lep["mediumId"]
+        #    maker.event.lep_tightId  = lep["tightId"]
+        #    maker.event.lep_pfRelIso03_all = lep["pfRelIso03_all"]
 
-            if lep["pt"] <= 25:
-                if abs(lep["eta"]) < 2.4 and lep["pfRelIso03_all"] * lep["pt"] < 5.0 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
-                    maker.event.lep_StopsCompressed = 1
-                else:
-                    maker.event.lep_StopsCompressed = 0
-            elif lep["pt"] > 25:
-                if abs(lep["eta"]) < 2.4 and lep["pfRelIso03_all"] < 0.2 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
-                    maker.event.lep_StopsCompressed = 1
-                else:
-                    maker.event.lep_StopsCompressed = 0
+        #    if lep["pt"] <= 25:
+        #        if abs(lep["eta"]) < 2.4 and lep["pfRelIso03_all"] * lep["pt"] < 5.0 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
+        #            maker.event.lep_StopsCompressed = 1
+        #        else:
+        #            maker.event.lep_StopsCompressed = 0
+        #    elif lep["pt"] > 25:
+        #        if abs(lep["eta"]) < 2.4 and lep["pfRelIso03_all"] < 0.2 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
+        #            maker.event.lep_StopsCompressed = 1
+        #        else:
+        #            maker.event.lep_StopsCompressed = 0
         
-            if abs(lep["eta"]) < 2.4 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
-                maker.event.lep_precut = 1
-            else:
-                maker.event.lep_precut = 0
-        
-        elif options.flavour == "ele":
-            maker.event.lep_pfRelIso03_all = lep["pfRelIso03_all"]
-            
-            if lep["pt"] <= 25:
-                if abs(lep["pdgId"]) == 11: 
-                    absEta = abs(lep["eta"] + lep["deltaEtaSC"])
-                else:
-                    absEta = abs(lep["eta"]) 
-                ECALGap = ( absEta > 1.566 or absEta < 1.4442 )
-                # StopsCompressed Id
-                if abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and abs(lep["eta"]) < 2.5 and (lep['pfRelIso03_all']*lep['pt']) < 5.0 \
-                        and ECALGap and electronVIDSelector( lep, idVal= 1, removedCuts=['pfRelIso03_all'] ):
-                    maker.event.lep_StopsCompressed = 1
-                else:
-                    maker.event.lep_StopsCompressed = 0
-                if abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and abs(lep["eta"]) < 2.5 \
-                        and ECALGap and electronVIDSelector( lep, idVal= 1, removedCuts=['pfRelIso03_all'] ):
-                    maker.event.lep_precut = 1
-                else:
-                    maker.event.lep_precut = 0
-                
-            else:
-                if abs(lep["pdgId"]) == 11:
-                    absEta = abs(lep["eta"] + lep["deltaEtaSC"])
-                else:
-                    absEta = abs(lep["eta"]) 
-                ECALGap = ( absEta > 1.566 or absEta < 1.4442 )
-                # StopsCompressed Id
-                if abs(lep["dxy"]) < 0.02 \
-                        and abs(lep["dz"]) < 0.1 \
-                        and abs(lep["eta"]) < 2.5 \
-                        and lep['pfRelIso03_all'] < 0.2 \
-                        and ECALGap and electronVIDSelector( lep, idVal= 1, removedCuts=['pfRelIso03_all'] ):
-                    maker.event.lep_StopsCompressed = 1
-                else:
-                    maker.event.lep_StopsCompressed = 0
-                if abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and abs(lep["eta"]) < 2.5 \
-                        and ECALGap and electronVIDSelector( lep, idVal= 1, removedCuts=['pfRelIso03_all'] ):
-                    maker.event.lep_precut = 1
-                else:
-                    maker.event.lep_precut = 0
-
-        maker.fill()
-        maker.event.init()
+        #    if abs(lep["eta"]) < 2.4 and abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and lep["looseId"]:
+        #        maker.event.lep_precut = 1
+        #    else:
+        #        maker.event.lep_precut = 0
+        #maker.fill()
+        #maker.event.init()
         
                 
         
     # stop early when small.
     if options.small:
-        if counter==200:
+        if counter>=1000:
+            break
+    else:
+        if counter >= 3000:
             break
 
-logger.info("Writing trees.")
-#leptonClass['maker'].tree.Write()
-outfile.Write()
-outfile.Close()
-logger.info( "Written %s", outfilename)
+#results = model.predict(Xlist)
+
+print("start permutation")
+from copy import deepcopy
+import random
+from sklearn.metrics import log_loss
+
+Ys = [np.argmax(y) for y in Ylist]
+
+def get_column(Xlist, i):
+    return [x[0][0][i] for x in Xlist]
+def set_column(Xlist, column, i):
+    xlist = deepcopy(Xlist)
+    for x, c in zip(xlist, column):
+        x[0][0][i] = c
+    return xlist
+
+
+from copy import deepcopy
+def shuffle(Xlist, i):
+    Xlistcp = deepcopy(Xlist)
+    column = get_column(Xlistcp, i)
+    #print(column)
+    random.shuffle(column)
+    #print(column)
+    newXlist = set_column(Xlistcp, column, i)
+    return newXlist
+
+
+def get_log_acc(Xlist, Ylist, Ys):
+    loglist = []
+    acclist = []
+    reslist = []
+    for X, Y, YY in zip(Xlist, Ylist, Ys):
+        res = model.predict(X)[0].tolist()
+        # print(res, Y)
+        loss = 0
+        for y, p in zip(Y, res):
+            loss -= y * np.log(p)
+        loglist.append(loss)
+        reslist.append(res)
+        if np.argmax(Y) == np.argmax(res):
+            acclist.append(1)
+        else:
+            acclist.append(0)
+    return np.mean(loglist), np.mean(acclist), 0#log_loss(Ys, reslist)
+
+
+print(len(Xlist), len(Ylist), len(Ys))
+baseloss, baseacc, baseloss2 = get_log_acc(Xlist, Ylist, Ys)
+print(baseloss, baseacc, baseloss2)
+losslist = []
+acclist = []
+for j in range(len(global_branches)):
+    print(j, " of ", len(global_branches))
+    for iii in range(4):
+        Xlistcp = deepcopy(Xlist)
+        newXlist = shuffle(Xlistcp, j)
+        #print(newXlist)
+        l, a,  l2 = get_log_acc(newXlist, Ylist, Ys)
+        losslist.append(l)
+        acclist.append(a)
+        print("variable {}: loss {}, lossdiff {}, acc {}, accdiff {}".format(global_branches[j], l, l-baseloss, a, a-baseacc))
+
+
+
+
+
 

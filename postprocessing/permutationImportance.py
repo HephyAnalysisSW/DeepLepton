@@ -6,6 +6,7 @@ from math import *
 import numpy as np
 # RootTools
 from RootTools.core.standard import *
+from helpers import electronVIDSelector
 
 # DeepLepton
 from DeepLepton.Tools.user import skim_directory
@@ -45,6 +46,7 @@ logger_rt = _logger_rt.get_logger(options.logLevel, logFile = None )
 
 maxN = 2 if options.small else None
 
+outdir = "/scratch-cbe/users/maximilian.moser/DeepLepton/permutation"
 
 #load keras model
 #from keras.models import load_model
@@ -292,7 +294,7 @@ while reader.run():
     # No leptons -> don't consider this event.
     if len(leps)==0: 
         continue
-    counter+=1
+    #counter+=1
 
     # get the candidates
     PFCands = getCollection(r, 'PFCands', cand_varnames_read, 'nPFCands', maxN = nPFCandMax)
@@ -340,8 +342,8 @@ while reader.run():
 
         lep_isPromptId_Training     = leptonClasses['Prompt']['selector'](genPartFlav)
         if lep_isPromptId_Training == 0:
-            #continue
-            pass
+            continue
+            #pass
         
         #maker.event.lep_isNonPromptId_Training  = leptonClasses['NonPrompt']['selector'](genPartFlav)
         #maker.event.lep_isFakeId_Training       = leptonClasses['Fake']['selector'](genPartFlav)
@@ -375,7 +377,17 @@ while reader.run():
                 pass
             else:
                 continue
-
+        else:
+            if abs(lep["pdgId"]) == 11:
+                absEta = abs(lep["eta"] + lep["deltaEtaSC"])
+            else:
+                absEta = abs(lep["eta"])
+            ECALGap = ( absEta > 1.566 or absEta < 1.4442 )
+            if abs(lep["dxy"]) < 0.02 and abs(lep["dz"]) < 0.1 and abs(lep["eta"]) < 2.5 \
+                        and ECALGap and electronVIDSelector( lep, idVal= 1, removedCuts=['pfRelIso03_all'] ):
+                pass
+            else:
+                continue
 
  
         # Globals:
@@ -411,7 +423,7 @@ while reader.run():
         Xlist.append(toPredict)
         Ylist.append(labels)
         prediction = model.predict(toPredict)[0]
-        
+        counter+=1
         
         #print(prediction)
         #print(np.argmax(prediction))
@@ -457,10 +469,10 @@ while reader.run():
         
     # stop early when small.
     if options.small:
-        if counter>=1000:
+        if counter>=500:
             break
     else:
-        if counter >= 3000:
+        if counter >= 10000:
             break
 
 #results = model.predict(Xlist)
@@ -511,6 +523,10 @@ def get_log_acc(Xlist, Ylist, Ys):
     return np.mean(loglist), np.mean(acclist), 0#log_loss(Ys, reslist)
 
 
+outfilename = os.path.join(outdir, "permutation_{}_{}_{}".format(options.year, options.flavour, str(options.job)+".txt"))
+f = open(outfilename, "w")
+
+
 print(len(Xlist), len(Ylist), len(Ys))
 baseloss, baseacc, baseloss2 = get_log_acc(Xlist, Ylist, Ys)
 print(baseloss, baseacc, baseloss2)
@@ -518,7 +534,7 @@ losslist = []
 acclist = []
 for j in range(len(global_branches)):
     print(j, " of ", len(global_branches))
-    for iii in range(4):
+    for iii in range(2):
         Xlistcp = deepcopy(Xlist)
         newXlist = shuffle(Xlistcp, j)
         #print(newXlist)
@@ -526,7 +542,9 @@ for j in range(len(global_branches)):
         losslist.append(l)
         acclist.append(a)
         print("variable {}: loss {}, lossdiff {}, acc {}, accdiff {}".format(global_branches[j], l, l-baseloss, a, a-baseacc))
+        f.write("variable {}: loss {}, lossdiff {}, acc {}, accdiff {}\n".format(global_branches[j], l, l-baseloss, a, a-baseacc))
 
+f.close()
 
 
 

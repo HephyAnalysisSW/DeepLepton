@@ -477,7 +477,7 @@ while reader.run():
 
 #results = model.predict(Xlist)
 
-print("start permutation")
+logger.info("start permutation")
 from copy import deepcopy
 import random
 from sklearn.metrics import log_loss
@@ -526,14 +526,14 @@ def get_log_acc(Xlist, Ylist, Ys):
 outfilename = os.path.join(outdir, "permutation_{}_{}_{}".format(options.year, options.flavour, str(options.job)+".txt"))
 f = open(outfilename, "w")
 
-
+logger.info("Get Baseline loss and accuracy")
 print(len(Xlist), len(Ylist), len(Ys))
 baseloss, baseacc, baseloss2 = get_log_acc(Xlist, Ylist, Ys)
 print(baseloss, baseacc, baseloss2)
 losslist = []
 acclist = []
 for j in range(len(global_branches)):
-    print(j, " of ", len(global_branches))
+    logger.info(str(j+1) + " of " + str(len(global_branches)))
     for iii in range(2):
         Xlistcp = deepcopy(Xlist)
         newXlist = shuffle(Xlistcp, j)
@@ -541,7 +541,7 @@ for j in range(len(global_branches)):
         l, a,  l2 = get_log_acc(newXlist, Ylist, Ys)
         losslist.append(l)
         acclist.append(a)
-        print("variable {}: loss {}, lossdiff {}, acc {}, accdiff {}".format(global_branches[j], l, l-baseloss, a, a-baseacc))
+        logger.info("variable {}: loss {}, lossdiff {}, acc {}, accdiff {}".format(global_branches[j], l, l-baseloss, a, a-baseacc))
         f.write("variable {}: loss {}, lossdiff {}, acc {}, accdiff {}\n".format(global_branches[j], l, l-baseloss, a, a-baseacc))
 
 f.close()

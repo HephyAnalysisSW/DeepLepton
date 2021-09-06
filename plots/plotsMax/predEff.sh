@@ -2,12 +2,12 @@
 #python predEff.py --flavour muo --mode TOP --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2016/muo/pt_3.5_-1/TT_pow/
 #python predEff.py --flavour muo --mode TOP --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2016/muo/pt_3.5_-1/TT_pow/
 
-#python predEff.py --flavour muo --mode DYvsQCD --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2016/muo/pt_3.5_-1/
-#python predEff.py --flavour muo --mode DYvsQCD --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2016/muo/pt_3.5_-1/
+python predEff.py --flavour muo --mode DYvsQCD --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2016/muo/pt_3.5_-1/
+python predEff.py --flavour muo --mode DYvsQCD --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2016/muo/pt_3.5_-1/
 
-  # NoPfCands
-python noCands_predEff.py --flavour muo --mode TOP --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3_NoPfCand_NoPfCands/2016/muo/pt_3.5_-1/TT_pow/
-python noCands_predEff.py --flavour muo --mode TOP --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3_NoPfCand_NoPfCands/2016/muo/pt_3.5_-1/TT_pow/
+# NoPfCands
+#python noCands_predEff.py --flavour muo --mode TOP --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3_NoPfCand_NoPfCands/2016/muo/pt_3.5_-1/TT_pow/
+#python noCands_predEff.py --flavour muo --mode TOP --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3_NoPfCand_NoPfCands/2016/muo/pt_3.5_-1/TT_pow/
 
 
 # 2016 ele
@@ -23,8 +23,34 @@ python noCands_predEff.py --flavour muo --mode TOP --long --directory /scratch-c
 #python predEff.py --flavour muo --mode TOP --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2017/muo/pt_3.5_-1/TTJets_LO/
 #python predEff.py --flavour muo --mode TOP --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2017/muo/pt_3.5_-1/TTJets_LO/
 
-#python predEff.py --flavour muo --mode DYvsQCD --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2017/muo/pt_3.5_-1/
-#python predEff.py --flavour muo --mode DYvsQCD --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2017/muo/pt_3.5_-1/
+python predEff.py --flavour muo --mode DYvsQCD --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2017/muo/pt_3.5_-1/
+python predEff.py --flavour muo --mode DYvsQCD --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2017/muo/pt_3.5_-1/
+
+# 2017 ele
+
+#python predEff.py --flavour ele --mode TOP --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2017/ele/pt_5_-1/TTJets_LO/
+#python predEff.py --flavour ele --mode TOP --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2017/ele/pt_5_-1/TTJets_LO/
+
+#python predEff.py --flavour ele --mode DYvsQCD --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2017/ele/pt_5_-1/
+#python predEff.py --flavour ele --mode DYvsQCD --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2017/ele/pt_5_-1/
+
+
+# 2018 muo
+
+#python predEff.py --flavour muo --mode TOP --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2018/muo/pt_3.5_-1/TTWJets_LO/
+#python predEff.py --flavour muo --mode TOP --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2018/muo/pt_3.5_-1/TTWJets_LO/
+
+#python predEff.py --flavour muo --mode DYvsQCD --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2018/muo/pt_3.5_-1/
+#python predEff.py --flavour muo --mode DYvsQCD --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2018/muo/pt_3.5_-1/
+
+
+# 2018 ele
+
+#python predEff.py --flavour ele --mode TOP --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2018/ele/pt_5_-1/TTWJets_LO/
+#python predEff.py --flavour ele --mode TOP --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2018/ele/pt_5_-1/TTWJets_LO/
+
+#python predEff.py --flavour ele --mode DYvsQCD --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2018/ele/pt_5_-1/
+#python predEff.py --flavour ele --mode DYvsQCD --long --directory /scratch-cbe/users/maximilian.moser/DeepLepton/predicted/v3/2018/ele/pt_5_-1/
 
 
 

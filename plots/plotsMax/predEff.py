@@ -36,6 +36,7 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 
 directory = args.directory
 sampleName = directory.split('/')[-2]
+
 print(sampleName)
 
 flav = args.flavour
@@ -89,14 +90,18 @@ truth   = []
 
 if args.long:
     if flav == "muo":
-        pt_bins = np.array([3.5,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100, 125, 150, 175, 200,250,300,400,500,],dtype=float)
+        #pt_bins = np.array([3.5,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100, 125, 150, 175, 200,250,300,400,500,],dtype=float)
+        pt_bins = np.array([3.5,7.5,12.5,17.5,25,35,45,75,150,300,500,],dtype=float)
     else:
-        pt_bins = np.array([5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100, 125, 150, 175, 200,250,300,400,500,],dtype=float)
+        #pt_bins = np.array([5,7.5,10,12.5,15,17.5,20,25,30,35,40,45,50,60,75,100, 125, 150, 175, 200,250,300,400,500,],dtype=float)
+        pt_bins = np.array([5,10,15,20,30,50,100,200,500,],dtype=float)
 else:
     if flav == "muo":
-        pt_bins = np.array([3.5,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45],dtype=float)
+        #pt_bins = np.array([3.5,5,7.5,10,12.5,15,17.5,20,25,30,35,40,45],dtype=float)
+        pt_bins = np.array([3.5,7.5,12.5,17.5,25,35,45],dtype=float)
     else:
-        pt_bins = np.array([5,7.5,10,12.5,15,17.5,20,25,30,35,40,45],dtype=float)
+        #pt_bins = np.array([5,7.5,10,12.5,15,17.5,20,25,30,35,40,45],dtype=float)
+        pt_bins = np.array([5,10,15,20,30,45],dtype=float)
 
                 #125,150,175,200,250,300,400,500,
                 #600,2000],dtype=float)

@@ -18,6 +18,8 @@ argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',       action='store',      default='INFO',      nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE', 'NOTSET'], help="Log level for logging")
 #argParser.add_argument('--plot_directory', action='store',      default='FourMuonInvariantMass')
 argParser.add_argument('--small',       action='store_true',                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used" )
+argParser.add_argument('--dir', action='store')
+
 args = argParser.parse_args()
 
 
@@ -34,8 +36,10 @@ redirector = "root://eos.grid.vbc.ac.at/"
 
 directory = [
         #"/eos/vbc/user/maximilian.moser/DeepLepton/v2/step2/2016/muo/pt_3.5_-1/DYvsQCD/",
-        "/scratch-cbe/users/maximilian.moser/DeepLepton/v2/step2/2016/ele/pt_5_-1/Top/"
+        #"/scratch-cbe/users/maximilian.moser/DeepLepton/v3/step2/2016/ele/pt_5_-1/Top/"
         ]
+
+directory = args.dir
 
 t0 = time.time()
 data_sample = Sample.fromDirectory(
@@ -49,6 +53,24 @@ logger.info("%i files", len(data_sample.files))
 
 if args.small:
     data_sample.reduceFiles( to = 4 )
+
+flav = 'ele'
+
+if "2016" in directory:
+    year = "2016"
+elif "2017" in directory:
+    year = "2017"
+elif "2018" in directory:
+    year = "2018"
+else:
+    logger.info("No Year in path")
+    year = 2000
+
+if "DY" in directory or "dy" in directory:
+    mode = "DYvsQCD"
+else:
+    mode = "TOP"
+
 
 # copy samples:
 
@@ -190,7 +212,7 @@ plots.append(Plot(name      = "lep_dxy",
 plots.append(Plot(name      = "lep_dxy_zoom",
                   texX      = 'dxy', texY = 'Number of Events ',
                   attribute = lambda event, sample: event.lep_dxy,
-                  binning   = [100,-0.05,0.05],# -5,5
+                  binning   = [100,-0.025,0.025],# -5,5
                   ))
 
 plots.append(Plot(name      = "lep_dz",
@@ -202,7 +224,7 @@ plots.append(Plot(name      = "lep_dz",
 plots.append(Plot(name      = "lep_dz_zoom",
                   texX      = 'dz', texY = 'Number of Events ',
                   attribute = lambda event, sample: event.lep_dz,
-                  binning   = [100,-1,1], # -0.1,0.1
+                  binning   = [100,-0.12,0.12], # -0.1,0.1
                   ))
 
 plots.append(Plot(name      = "lep_charge",
@@ -270,6 +292,12 @@ plots.append(Plot(name      = "lep_jetRelIso",
                   texX      = 'jetRelIso', texY = 'Number of Events ',
                   attribute = lambda event, sample: event.lep_jetRelIso,
                   binning   = [100,0,30],
+                  ))
+
+plots.append(Plot(name      = "lep_jetRelIso_zoom",
+                  texX      = 'jetRelIso', texY = 'Number of Events ',
+                  attribute = lambda event, sample: event.lep_jetRelIso,
+                  binning   = [100,0,4],
                   ))
 
 plots.append(Plot(name      = "lep_miniPFRelIso_chg",
@@ -378,7 +406,7 @@ plotting.fill(plots, read_variables = read_variables)
 
 for plot in plots:
     plotting.draw(plot, 
-                  plot_directory = os.path.join(plot_directory, "2016_ele_Top"),#args.plot_directory),
+                  plot_directory = os.path.join(plot_directory, "{}_ele_{}".format(year, mode)),#args.plot_directory),
                   ratio          = None, 
                   logX           = False, 
                   logY           = True,

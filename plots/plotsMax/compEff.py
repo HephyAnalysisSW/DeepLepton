@@ -39,6 +39,15 @@ sampleName = directory.split('/')[-2]
 
 print(sampleName)
 
+directoryLSTM      = "training_20" 
+directoryGRU       = "training_20_GRU" 
+directoryNoPfCands = "training_20_NoPfCands"
+directorySimpleRNN = "training_20_SimpleRNN"
+
+
+
+
+
 flav = args.flavour
 if "2016" in directory:
     year = "2016"
@@ -58,10 +67,14 @@ if flav == "muo":
              'lep_isFakeId_Training/I',
              'lep_pt/F',
              'lep_eta/F',
-             'lep_probPrompt/F',
-             'lep_probNonPrompt/F',
-             'lep_probFake/F',
-             'lep_probNotPrompt/F',
+             #'lep_probPrompt/F',
+             #'lep_probNonPrompt/F',
+             #'lep_probFake/F',
+             #'lep_probNotPrompt/F',
+             'lep_probPrompt_LSTM/F',
+             'lep_probPrompt_GRU/F',
+             'lep_probPrompt_SimpleRNN/F',
+             'lep_probPrompt_NoCands/F',
              'lep_mvaTTH/F',
              'lep_StopsCompressed/I',
              'lep_looseId/F',
@@ -76,17 +89,26 @@ else:
              'lep_isFakeId_Training/I',
              'lep_pt/F',
              'lep_eta/F',
-             'lep_probPrompt/F',
-             'lep_probNonPrompt/F',
-             'lep_probFake/F',
-             'lep_probNotPrompt/F',
+             #'lep_probPrompt/F',
+             #'lep_probNonPrompt/F',
+             #'lep_probFake/F',
+             #'lep_probNotPrompt/F',
+             'lep_probPrompt_LSTM/F',
+             'lep_probPrompt_GRU/F',
+             'lep_probPrompt_SimpleRNN/F',
+             'lep_probPrompt_NoCands/F',
              'lep_mvaTTH/F',
+             'lep_probPrompt_LSTM/F',
+             'lep_probPrompt_GRU/F',
+             'lep_probPrompt_SimpleRNN/F',
+             'lep_probPrompt_NoCands/F',
              'lep_StopsCompressed/I',
              'lep_precut/F',
             ]
     
 pred    = []
 truth   = []
+
 
 if args.long:
     if flav == "muo":
@@ -103,8 +125,6 @@ else:
         #pt_bins = np.array([5,7.5,10,12.5,15,17.5,20,25,30,35,40,45],dtype=float)
         pt_bins = np.array([5,10,15,20,30,45],dtype=float)
 
-                #125,150,175,200,250,300,400,500,
-                #600,2000],dtype=float)
 eta_bins = np.array(
             [-2.5,-2.,-1.5,-1.,-0.5,0.5,1,1.5,2.,2.5, 3.2],
             dtype=float
@@ -113,8 +133,15 @@ eta_bins = np.array(
 pt_truth  = [[] for i in range(len(pt_bins))]
 eta_truth = [[] for i in range(len(eta_bins))]
 
-pt_pred   = [[] for i in range(len(pt_bins))]
-eta_pred  = [[] for i in range(len(eta_bins))]
+pt_pred_LSTM      = [[] for i in range(len(pt_bins))]
+pt_pred_GRU       = [[] for i in range(len(pt_bins))]
+pt_pred_SimpleRNN = [[] for i in range(len(pt_bins))]
+pt_pred_NoCands   = [[] for i in range(len(pt_bins))]
+
+eta_pred_LSTM      = [[] for i in range(len(eta_bins))]
+eta_pred_GRU       = [[] for i in range(len(eta_bins))]
+eta_pred_SimpleRNN = [[] for i in range(len(eta_bins))]
+eta_pred_NoCands   = [[] for i in range(len(eta_bins))]
 
 pt_pred_tth   = [[] for i in range(len(pt_bins))]
 
@@ -149,7 +176,7 @@ counter = 0
 while reader.run():
     r = reader.event
     
-    lep_probPrompt              = r.lep_probPrompt
+    #lep_probPrompt              = r.lep_probPrompt
     #prob_isNonPrompt            = r.prob_isNonPrompt
     #prob_isFake                 = r.prob_isFake
     lep_isPromptId_Training     = r.lep_isPromptId_Training
@@ -160,9 +187,18 @@ while reader.run():
     lep_mvaTTH                  = r.lep_mvaTTH
     lep_StopsCompressed         = r.lep_StopsCompressed
     
+    lep_probPrompt_LSTM         = r.lep_probPrompt_LSTM
+    lep_probPrompt_GRU          = r.lep_probPrompt_GRU 
+    lep_probPrompt_SimpleRNN    = r.lep_probPrompt_SimpleRNN 
+    lep_probPrompt_NoCands      = r.lep_probPrompt_NoCands 
+    
     for i, pt in enumerate(pt_bins):
         if lep_pt < pt:
-            pt_pred[i-1].append(lep_probPrompt)
+            pt_pred_LSTM[i-1].append(lep_probPrompt_LSTM)
+            pt_pred_GRU[i-1].append(lep_probPrompt_GRU)
+            pt_pred_SimpleRNN[i-1].append(lep_probPrompt_SimpleRNN)
+            pt_pred_NoCands[i-1].append(lep_probPrompt_NoCands)
+
             pt_truth[i-1].append(lep_isPromptId_Training)
             pt_pred_tth[i-1].append(lep_mvaTTH)
             pt_pred_stops[i-1].append(lep_StopsCompressed)
@@ -223,56 +259,87 @@ pt_signal_eff_tth    , pt_background_eff_tth   = get_efficiencies(pt_pred_tth, p
 pt_signal_eff_stops , pt_background_eff_stops = get_efficiencies(pt_pred_stops, pt_truth, pt_bins, 0.5) # is 0 or 1
 
 for t in [0.9,0.91,0.92,0.95, 0.96, 0.97, 0.98,  0.99,0.991,0.992,0.993,  0.994, 0.995, 0.996, 0.997, 0.998, 0.999, 0.9983, 0.9985, 0.9987, 0.9988, 0.9989, 0.999]:
-    pt_signal_eff, pt_background_eff = get_efficiencies(pt_pred, pt_truth, pt_bins, t)
+    pt_signal_eff_LSTM,      pt_background_eff_LSTM      = get_efficiencies(pt_pred_LSTM,      pt_truth, pt_bins, t)
+    pt_signal_eff_GRU,       pt_background_eff_GRU       = get_efficiencies(pt_pred_GRU,       pt_truth, pt_bins, t)
+    pt_signal_eff_SimpleRNN, pt_background_eff_SimpleRNN = get_efficiencies(pt_pred_SimpleRNN, pt_truth, pt_bins, t)
+    pt_signal_eff_NoCands,   pt_background_eff_NoCands   = get_efficiencies(pt_pred_NoCands,   pt_truth, pt_bins, t)
      
-    gr1 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff))
-    gr2 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff))
+    gr1_LSTM      = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_LSTM))
+    gr2_LSTM      = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_LSTM))
+    gr1_GRU       = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_GRU))
+    gr2_GRU       = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_GRU))
+    gr1_SimpleRNN = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_SimpleRNN))
+    gr2_SimpleRNN = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_SimpleRNN))
+    gr1_NoCands   = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_NoCands))
+    gr2_NoCands   = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_NoCands))
 
     gr3 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_tth))
     gr4 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_tth))
     
-    if flav == "muo":
-        gr5 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_stops))
-        gr6 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_stops))
+    gr5 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_stops))
+    gr6 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_stops))
 
 
-    gr1.SetLineColorAlpha(ROOT.kBlue, 1)
-    gr2.SetLineColorAlpha(ROOT.kRed, 1)
+    gr1_LSTM.SetLineColorAlpha(ROOT.kBlue, 1)
+    gr2_LSTM.SetLineColorAlpha(ROOT.kRed, 1)
+    gr1_GRU.SetLineColorAlpha(ROOT.kBlue+4, 1)
+    gr2_GRU.SetLineColorAlpha(ROOT.kRed+3, 1)
+    gr1_SimpleRNN.SetLineColorAlpha(ROOT.kBlue-1, 1)
+    gr2_SimpleRNN.SetLineColorAlpha(ROOT.kRed-2, 1)
+    gr1_NoCands.SetLineColorAlpha(ROOT.kYellow+3, 1)
+    gr2_NoCands.SetLineColorAlpha(ROOT.kCyan-1, 1)
+    
     gr3.SetLineColorAlpha(ROOT.kCyan+1, 1)
     gr4.SetLineColorAlpha(ROOT.kMagenta+2, 1)
-    if flav == "muo":
-        gr5.SetLineColorAlpha(ROOT.kGreen+2, 1)
-        gr6.SetLineColorAlpha(ROOT.kYellow+1, 1)
+    gr5.SetLineColorAlpha(ROOT.kGreen+2, 1)
+    gr6.SetLineColorAlpha(ROOT.kYellow+1, 1)
 
-    gr1.SetMarkerStyle(34)
-    gr2.SetMarkerStyle(34)
+    gr1_LSTM.SetMarkerStyle(34)
+    gr2_LSTM.SetMarkerStyle(34)
+    gr1_GRU.SetMarkerStyle(34)
+    gr2_GRU.SetMarkerStyle(34)
+    gr1_SimpleRNN.SetMarkerStyle(34)
+    gr2_SimpleRNN.SetMarkerStyle(34)
+    gr1_NoCands.SetMarkerStyle(34)
+    gr2_NoCands.SetMarkerStyle(34)
     gr3.SetMarkerStyle(34)
     gr4.SetMarkerStyle(34)
-    if flav == "muo":
-        gr5.SetMarkerStyle(34)
-        gr6.SetMarkerStyle(34)
+    gr5.SetMarkerStyle(34)
+    gr6.SetMarkerStyle(34)
 
     c1 = ROOT.TCanvas("c1", "L", 200,100,1000,1000)
     
     c1.SetGrid()
     
-    gr1.SetTitle("Signal Efficiency DeepLepton")
-    gr2.SetTitle("Background Efficiency DeepLepton")
+    gr1_LSTM.SetTitle("Signal Efficiency DeepLepton LSTM")
+    gr2_LSTM.SetTitle("Background Efficiency DeepLepton LSTM")
+    gr1_GRU.SetTitle("Signal Efficiency DeepLepton GRU")
+    gr2_GRU.SetTitle("Background Efficiency DeepLepton GRU")
+    gr1_SimpleRNN.SetTitle("Signal Efficiency DeepLepton SimpleRNN")
+    gr2_SimpleRNN.SetTitle("Background Efficiency DeepLepton SimpleRNN")
+    gr1_NoCands.SetTitle("Signal Efficiency DeepLepton NoCands")
+    gr2_NoCands.SetTitle("Background Efficiency DeepLepton NoCands")
+    
     gr3.SetTitle("Signal Efficiency TTH")
     gr4.SetTitle("Background Efficiency TTH")
-    if flav == "muo":
-        gr5.SetTitle("Signal Efficiency StopsCompressed")
-        gr6.SetTitle("Background Efficiency StopsCompressed")
+    gr5.SetTitle("Signal Efficiency StopsCompressed")
+    gr6.SetTitle("Background Efficiency StopsCompressed")
 
     mg = ROOT.TMultiGraph()
 
-    mg.Add(gr1)
-    mg.Add(gr2)
+    mg.Add(gr1_LSTM)
+    mg.Add(gr2_LSTM)
+    mg.Add(gr1_GRU)
+    mg.Add(gr2_GRU)
+    mg.Add(gr1_SimpleRNN)
+    mg.Add(gr2_SimpleRNN)
+    mg.Add(gr1_NoCands)
+    mg.Add(gr2_NoCands)
+    
     mg.Add(gr3)
     mg.Add(gr4)
-    if flav == "muo":
-        mg.Add(gr5)
-        mg.Add(gr6)
+    mg.Add(gr5)
+    mg.Add(gr6)
 
     mg.SetTitle("Signal and Background Efficiency")
     
@@ -289,7 +356,7 @@ for t in [0.9,0.91,0.92,0.95, 0.96, 0.97, 0.98,  0.99,0.991,0.992,0.993,  0.994,
         os.mkdir(os.path.join(plot_directory, 'Efficiency_muo_Top_2016_{}/'))
     except:
         pass
-    c1.Print(os.path.join(plot_directory, 'Efficiency_{}_{}_{}_{}/pt_background_{}_{}-{}.png'.format(flav,args.mode,year, sampleName, t, 3.5, str(pt_bins[-1]))))
+    c1.Print(os.path.join(plot_directory, 'Efficiency_Comp_{}_{}_{}_{}/pt_background_{}_{}-{}.png'.format(flav,args.mode,year, sampleName, t, 3.5, str(pt_bins[-1]))))
 
 # ROC Curves
 
@@ -309,11 +376,14 @@ def numcheck(arr):
 
 
 # bin as key
-results_dl    = {}
-results_tth   = {}
-results_stops = {}
+results_lstm      = {}
+results_gru       = {}
+results_simplernn = {}
+results_nocands   = {}
+results_tth       = {}
+results_stops     = {}
 
-for truths, pred_dl, pred_tth, pred_stops, pt_bin in zip(pt_truth, pt_pred, pt_pred_tth, pt_pred_stops, pt_bins):
+for truths, pred_lstm, pred_gru, pred_simplernn, pred_nocands, pred_tth, pred_stops, pt_bin in zip(pt_truth, pt_pred_LSTM, pt_pred_GRU, pt_pred_SimpleRNN, pt_pred_NoCands, pt_pred_tth, pt_pred_stops, pt_bins):
     if pt_bin == pt_bins[-1]:
         continue
     #pred_dl = []
@@ -333,39 +403,78 @@ for truths, pred_dl, pred_tth, pred_stops, pt_bin in zip(pt_truth, pt_pred, pt_p
             break
     from sklearn.metrics import roc_curve, auc
      
-    rm_indices = numcheck(pred_dl)
+    rm_indices = numcheck(pred_lstm)
     truths2 = truths[:]
     for i in reversed(rm_indices):
         truths2.pop(i)
-        pred_dl.pop(i)
+        pred_lstm.pop(i)
+    fpr_lstm,      tpr_lstm,      thr_lstm      = roc_curve(truths2, pred_lstm)
     
-    fpr_dl,    tpr_dl,    thr_dl    = roc_curve(truths2, pred_dl)
-    fpr_tth,   tpr_tth,   thr_tth   = roc_curve(truths, pred_tth)
-    fpr_stops, tpr_stops, thr_stops = roc_curve(truths, pred_stops)
+    rm_indices = numcheck(pred_gru)
+    truths2 = truths[:]
+    for i in reversed(rm_indices):
+        truths2.pop(i)
+        pred_gru.pop(i)
+    fpr_gru,       tpr_gru,       thr_gru       = roc_curve(truths2, pred_gru)
     
-    results_dl[pt_bin] = [fpr_dl, tpr_dl, thr_dl]    
-    results_tth[pt_bin] = [fpr_tth, tpr_tth, thr_tth]    
-    results_stops[pt_bin] = [fpr_stops, tpr_stops, thr_stops]    
+    rm_indices = numcheck(pred_simplernn)
+    truths2 = truths[:]
+    for i in reversed(rm_indices):
+        truths2.pop(i)
+        pred_simplernn.pop(i)
+    fpr_simplernn, tpr_simplernn, thr_simplernn = roc_curve(truths2, pred_simplernn)
+    
+    rm_indices = numcheck(pred_nocands)
+    truths2 = truths[:]
+    for i in reversed(rm_indices):
+        truths2.pop(i)
+        pred_nocands.pop(i)
+    fpr_nocands,   tpr_nocands,   thr_nocands   = roc_curve(truths2, pred_nocands)
+    
+    fpr_tth,       tpr_tth,       thr_tth       = roc_curve(truths, pred_tth)
+    fpr_stops,     tpr_stops,     thr_stops     = roc_curve(truths, pred_stops)
+    
+    results_lstm[pt_bin]      = [fpr_lstm, tpr_lstm, thr_lstm]    
+    results_gru[pt_bin]       = [fpr_gru, tpr_gru, thr_gru]    
+    results_simplernn[pt_bin] = [fpr_simplernn, tpr_simplernn, thr_simplernn]    
+    results_nocands[pt_bin]   = [fpr_nocands, tpr_nocands, thr_nocands]    
+    results_tth[pt_bin]       = [fpr_tth, tpr_tth, thr_tth]    
+    results_stops[pt_bin]     = [fpr_stops, tpr_stops, thr_stops]    
 
-    gr1 = ROOT.TGraph(len(fpr_dl), array.array('d', fpr_dl), array.array('d', tpr_dl))
-    gr2 = ROOT.TGraph(len(fpr_tth), array.array('d', fpr_tth), array.array('d', tpr_tth))
-    gr3 = ROOT.TGraph(len(fpr_stops), array.array('d', fpr_stops), array.array('d', tpr_stops))
+    gr1_lstm      = ROOT.TGraph(len(fpr_lstm), array.array('d', fpr_lstm), array.array('d', tpr_lstm))
+    gr1_gru       = ROOT.TGraph(len(fpr_gru), array.array('d', fpr_gru), array.array('d', tpr_gru))
+    gr1_simplernn = ROOT.TGraph(len(fpr_simplernn), array.array('d', fpr_simplernn), array.array('d', tpr_simplernn))
+    gr1_nocands   = ROOT.TGraph(len(fpr_nocands), array.array('d', fpr_nocands), array.array('d', tpr_nocands))
+    gr2           = ROOT.TGraph(len(fpr_tth), array.array('d', fpr_tth), array.array('d', tpr_tth))
+    gr3           = ROOT.TGraph(len(fpr_stops), array.array('d', fpr_stops), array.array('d', tpr_stops))
     
-    gr1.SetLineColorAlpha(ROOT.kBlue, 0.8)
+    gr1_lstm.SetLineColorAlpha(ROOT.kBlue, 0.8)
+    gr1_gru.SetLineColorAlpha(ROOT.kPink+10, 0.8)
+    gr1_simplernn.SetLineColorAlpha(ROOT.kCyan, 0.8)
+    gr1_nocands.SetLineColorAlpha(ROOT.kBlack, 0.8)
     gr2.SetLineColorAlpha(ROOT.kRed, 0.8)
     gr3.SetLineColorAlpha(ROOT.kGreen, 0.8)
     
-    gr1.SetLineWidth(2)
+    gr1_lstm.SetLineWidth(2)
+    gr1_gru.SetLineWidth(2)
+    gr1_simplernn.SetLineWidth(2)
+    gr1_nocands.SetLineWidth(2)
     gr2.SetLineWidth(2)
     gr3.SetLineWidth(2)
     
     c1 = ROOT.TCanvas("c1", "L", 200,100,1000,1000)
-    gr1.SetTitle("Deep Lepton")
+    gr1_lstm.SetTitle("Deep Lepton LSTM")
+    gr1_gru.SetTitle("Deep Lepton GRU")
+    gr1_simplernn.SetTitle("Deep Lepton SimpleRNN")
+    gr1_nocands.SetTitle("Deep Lepton NoCands")
     gr2.SetTitle("TTH")
     gr3.SetTitle("Stops Compressed")
     
     mg = ROOT.TMultiGraph()
-    mg.Add(gr1)
+    mg.Add(gr1_lstm)
+    mg.Add(gr1_gru)
+    mg.Add(gr1_simplernn)
+    mg.Add(gr1_nocands)
     mg.Add(gr2)
     mg.Add(gr3)
     
@@ -379,7 +488,7 @@ for truths, pred_dl, pred_tth, pred_stops, pt_bin in zip(pt_truth, pt_pred, pt_p
     mg.GetYaxis().SetLimits(0,1)
     
     c1.BuildLegend()
-    c1.Print(os.path.join(plot_directory, 'Efficiency_{}_{}_{}_{}/pt_roc_{}.png'.format(flav, args.mode,year, sampleName, pt_bin)))
+    c1.Print(os.path.join(plot_directory, 'Efficiency_Comp_{}_{}_{}_{}/pt_roc_{}.png'.format(flav, args.mode,year, sampleName, pt_bin)))
 
     
 # now make a flat pt background plot:
@@ -394,13 +503,19 @@ def get_nearest_index(arr, val):
 
 targets = [0.01, 0.02, 0.05, 0.1]
 
-efficiencies_dl = {}
+efficiencies_lstm = {}
+efficiencies_gru = {}
+efficiencies_simplernn = {}
+efficiencies_nocands = {}
 
 
 for pt_bin in pt_bins[:-1]:
-    fpr_dl, tpr_dl, thr_dl          = results_dl[pt_bin]
-    fpr_tth, tpr_tth, thr_tth       = results_tth[pt_bin]
-    fpr_stops, tpr_stops, thr_stops = results_stops[pt_bin]
+    fpr_lstm, tpr_lstm, thr_lstm                = results_lstm[pt_bin]
+    fpr_gru, tpr_gru, thr_gru                   = results_gru[pt_bin]
+    fpr_simplernn, tpr_simplernn, thr_simplernn = results_simplernn[pt_bin]
+    fpr_nocands, tpr_nocands, thr_nocands       = results_nocands[pt_bin]
+    fpr_tth, tpr_tth, thr_tth                   = results_tth[pt_bin]
+    fpr_stops, tpr_stops, thr_stops             = results_stops[pt_bin]
     
     #print(fpr_dl, tpr_dl, thr_dl)
     #print(1)
@@ -408,23 +523,56 @@ for pt_bin in pt_bins[:-1]:
     #print(2)
     #print(fpr_stops, tpr_stops, thr_stops)
 
-    # get sig_eff and thr for dl:
+    # get sig_eff and thr for lstm:
     efficiencies = {}
     for target in targets:
-        index = get_nearest_index(fpr_dl, target)
-        signal_eff = tpr_dl[index]
-        background_eff = fpr_dl[index]
-        threshhold = thr_dl[index]
+        index = get_nearest_index(fpr_lstm, target)
+        signal_eff = tpr_lstm[index]
+        background_eff = fpr_lstm[index]
+        threshhold = thr_lstm[index]
         efficiencies[target] = [signal_eff, background_eff, threshhold, target, pt_bin]
-    efficiencies_dl[pt_bin] = efficiencies
+    efficiencies_lstm[pt_bin] = efficiencies
+    # get sig_eff and thr for gru:
+    efficiencies = {}
+    for target in targets:
+        index = get_nearest_index(fpr_gru, target)
+        signal_eff = tpr_gru[index]
+        background_eff = fpr_gru[index]
+        threshhold = thr_gru[index]
+        efficiencies[target] = [signal_eff, background_eff, threshhold, target, pt_bin]
+    efficiencies_gru[pt_bin] = efficiencies
+    # get sig_eff and thr for simplernn:
+    efficiencies = {}
+    for target in targets:
+        index = get_nearest_index(fpr_simplernn, target)
+        signal_eff = tpr_simplernn[index]
+        background_eff = fpr_simplernn[index]
+        threshhold = thr_simplernn[index]
+        efficiencies[target] = [signal_eff, background_eff, threshhold, target, pt_bin]
+    efficiencies_simplernn[pt_bin] = efficiencies
+    # get sig_eff and thr for nocands:
+    efficiencies = {}
+    for target in targets:
+        index = get_nearest_index(fpr_nocands, target)
+        signal_eff = tpr_nocands[index]
+        background_eff = fpr_nocands[index]
+        threshhold = thr_nocands[index]
+        efficiencies[target] = [signal_eff, background_eff, threshhold, target, pt_bin]
+    efficiencies_nocands[pt_bin] = efficiencies
 
 
 # get the right signal efficiencies:
 swap_back_eff = 15 # 2nd target, 0th target, swap at 3rd bin
 loose_target_index = 1
 tight_target_index = 0
-pt_signal_eff = []
-pt_background_eff = []
+pt_signal_eff_lstm = []
+pt_background_eff_lstm = []
+pt_signal_eff_gru = []
+pt_background_eff_gru = []
+pt_signal_eff_simplernn = []
+pt_background_eff_simplernn = []
+pt_signal_eff_nocands = []
+pt_background_eff_nocands = []
 
 for pt_bin in pt_bins[:-1]:
     if pt_bin <= swap_back_eff:
@@ -432,17 +580,35 @@ for pt_bin in pt_bins[:-1]:
     else:
         target = targets[tight_target_index]
     
-    sig_eff  = efficiencies_dl[pt_bin][target][0]
-    back_eff = efficiencies_dl[pt_bin][target][1]    
+    sig_eff_lstm  = efficiencies_lstm[pt_bin][target][0]
+    back_eff_lstm = efficiencies_lstm[pt_bin][target][1]    
+    sig_eff_gru  = efficiencies_gru[pt_bin][target][0]
+    back_eff_gru = efficiencies_gru[pt_bin][target][1]    
+    sig_eff_simplernn  = efficiencies_simplernn[pt_bin][target][0]
+    back_eff_simplernn = efficiencies_simplernn[pt_bin][target][1]    
+    sig_eff_nocands  = efficiencies_nocands[pt_bin][target][0]
+    back_eff_nocands = efficiencies_nocands[pt_bin][target][1]    
 
-    pt_signal_eff.append(sig_eff)
-    pt_background_eff.append(back_eff) 
+    pt_signal_eff_lstm.append(sig_eff_lstm)
+    pt_background_eff_lstm.append(back_eff_lstm) 
+    pt_signal_eff_gru.append(sig_eff_gru)
+    pt_background_eff_gru.append(back_eff_gru) 
+    pt_signal_eff_simplernn.append(sig_eff_simplernn)
+    pt_background_eff_simplernn.append(back_eff_simplernn) 
+    pt_signal_eff_nocands.append(sig_eff_nocands)
+    pt_background_eff_nocands.append(back_eff_nocands) 
 
 # make plot:
 logger.info("Making final plot")
  
-gr1 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff))
-gr2 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff))
+gr1_lstm = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_lstm))
+gr2_lstm = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_lstm))
+gr1_gru = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_gru))
+gr2_gru = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_gru))
+gr1_simplernn = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_simplernn))
+gr2_simplernn = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_simplernn))
+gr1_nocands = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_nocands))
+gr2_nocands = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_nocands))
 
 gr3 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_signal_eff_tth))
 gr4 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_tth))
@@ -451,15 +617,28 @@ gr5 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d
 gr6 = ROOT.TGraph(len(pt_bins)-1, array.array("d", pt_bins[:-1]), array.array("d", pt_background_eff_stops))
 
 
-gr1.SetLineColorAlpha(ROOT.kBlue, 1)
-gr2.SetLineColorAlpha(ROOT.kRed, 1)
+gr1_lstm.SetLineColorAlpha(ROOT.kBlue, 1)
+gr2_lstm.SetLineColorAlpha(ROOT.kRed, 1)
+gr1_gru.SetLineColorAlpha(ROOT.kBlue+4, 1)
+gr2_gru.SetLineColorAlpha(ROOT.kRed+3, 1)
+gr1_simplernn.SetLineColorAlpha(ROOT.kBlue-1, 1)
+gr2_simplernn.SetLineColorAlpha(ROOT.kRed-2, 1)
+gr1_nocands.SetLineColorAlpha(ROOT.kYellow+3, 1)
+gr2_nocands.SetLineColorAlpha(ROOT.kCyan-1, 1)
+
 gr3.SetLineColorAlpha(ROOT.kCyan+1, 1)
 gr4.SetLineColorAlpha(ROOT.kMagenta+2, 1)
 gr5.SetLineColorAlpha(ROOT.kGreen+2, 1)
 gr6.SetLineColorAlpha(ROOT.kYellow+1, 1)
 
-gr1.SetMarkerStyle(34)
-gr2.SetMarkerStyle(34)
+gr1_lstm.SetMarkerStyle(34)
+gr2_lstm.SetMarkerStyle(34)
+gr1_gru.SetMarkerStyle(34)
+gr2_gru.SetMarkerStyle(34)
+gr1_simplernn.SetMarkerStyle(34)
+gr2_simplernn.SetMarkerStyle(34)
+gr1_nocands.SetMarkerStyle(34)
+gr2_nocands.SetMarkerStyle(34)
 gr3.SetMarkerStyle(34)
 gr4.SetMarkerStyle(34)
 gr5.SetMarkerStyle(34)
@@ -469,8 +648,14 @@ c1 = ROOT.TCanvas("c1", "L", 200,100,1000,1000)
     
 c1.SetGrid()
     
-gr1.SetTitle("Signal Efficiency DeepLepton")
-gr2.SetTitle("Background Efficiency DeepLepton")
+gr1_lstm.SetTitle("Signal Efficiency DeepLepton LSTM")
+gr2_lstm.SetTitle("Background Efficiency DeepLepton LSTM")
+gr1_gru.SetTitle("Signal Efficiency DeepLepton GRU")
+gr2_gru.SetTitle("Background Efficiency DeepLepton GRU")
+gr1_simplernn.SetTitle("Signal Efficiency DeepLepton SimpleRNN")
+gr2_simplernn.SetTitle("Background Efficiency DeepLepton SimpleRNN")
+gr1_nocands.SetTitle("Signal Efficiency DeepLepton NoCands")
+gr2_nocands.SetTitle("Background Efficiency DeepLepton NoCands")
 gr3.SetTitle("Signal Efficiency TTH")
 gr4.SetTitle("Background Efficiency TTH")
 gr5.SetTitle("Signal Efficiency StopsCompressed")
@@ -478,8 +663,14 @@ gr6.SetTitle("Background Efficiency StopsCompressed")
 
 mg = ROOT.TMultiGraph()
 
-mg.Add(gr1)
-mg.Add(gr2)
+mg.Add(gr1_lstm)
+mg.Add(gr2_lstm)
+mg.Add(gr1_gru)
+mg.Add(gr2_gru)
+mg.Add(gr1_simplernn)
+mg.Add(gr2_simplernn)
+mg.Add(gr1_nocands)
+mg.Add(gr2_nocands)
 mg.Add(gr3)
 mg.Add(gr4)
 mg.Add(gr5)
@@ -500,7 +691,7 @@ try:
     os.mkdir(os.path.join(plot_directory, 'Efficiency_muo_Top_2016_{}/'))
 except:
     pass
-c1.Print(os.path.join(plot_directory, 'Efficiency_{}_{}_{}_{}/pt_flat_background_{}_{}-{}.png'.format(flav,args.mode, year, sampleName, t, 3.5, str(pt_bins[-1]))))
+c1.Print(os.path.join(plot_directory, 'Efficiency_Comp_{}_{}_{}_{}/pt_flat_background_{}_{}-{}.png'.format(flav,args.mode, year, sampleName, t, 3.5, str(pt_bins[-1]))))
 
 
 

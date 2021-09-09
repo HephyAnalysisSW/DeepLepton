@@ -174,7 +174,7 @@ lep_varnames = map( lambda n:n.split('/')[0], lep_vars )
 new_variables= map( lambda b: "lep_%s"%(b[:-1]+'F'), lep_vars )
 new_variables+= ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "lep_isNotPromptId_Training/I", "lep_isFakeId_Training/I"]
 if options.displaced:
-    new_variables += ["lep_isFromSUSY_Training/I", "lep_isFromSUSYHF_Training/I"]
+    new_variables += ["lep_isFromSUSY_Training/I", "lep_isFromSUSYHF_Training/I", "lep_isFromSUSYandHF_Training/I"]
 
 for pf_flavour in pf_flavours:
     # per PFCandidate flavor, add a counter and a vector with all pf candidate variables
@@ -303,9 +303,9 @@ while reader.run():
         maker.event.lep_isNotPromptId_Training  = (maker.event.lep_isNonPromptId_Training or maker.event.lep_isFakeId_Training)
         # additional training flags in case of leptons from SUSY
         if options.displaced:
-            maker.event.lep_isFromSUSY_Training   = leptonClasses['FromSUSY']['selector'](genPartFlav)
-            maker.event.lep_isFromSUSYHF_Training = leptonClasses['FromSUSYHF']['selector'](genPartFlav)
-        
+            maker.event.lep_isFromSUSY_Training      = leptonClasses['FromSUSY']['selector'](genPartFlav)
+            maker.event.lep_isFromSUSYHF_Training    = leptonClasses['FromSUSYHF']['selector'](genPartFlav)
+            maker.event.lep_isFromSUSYandHF_Training = leptonClasses['FromSUSY']['selector'](genPartFlav) or leptonClasses['FromSUSYHF']['selector'](genPartFlav) 
         # write vector with PF candidates
         for pf_flavour in pf_flavours:
             cands = filter( lambda c: deltaR2(c, lep) < dR_PF**2, sorted_cands[pf_flavour] )

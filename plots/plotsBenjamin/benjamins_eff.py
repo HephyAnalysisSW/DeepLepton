@@ -423,7 +423,7 @@ def plot(bins, sensitivity, back_eff, feature_name, threshold, color): #, fillco
     mg.SetMaximum(1)
     c1.BuildLegend(0.7, 0.4, 1, 0.6)
     c1.Print(os.path.join(plot_directory,
-                          'Training_v4',
+                          'Training_v6',
                           subdir,
                           output_file_name + "{}_{:0.2e}.png".format(feature_name, threshold)))
     

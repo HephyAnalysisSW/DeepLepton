@@ -12,26 +12,9 @@
 #SBATCH --error=%x.%j.err
 
 source config.sh
-# path="/eos/vbc/experiments/cms/store/user/liko/skims/v3/step1/2018/muo"
-
-# path="/eos/vbc/user/benjamin.wilhelmy/DeepLepton/v6/step1/2018/muo"
-# path="/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/v6_new/step1/2018/muo"
-# python plot.py --path ${path} --ncat 4 --step1 FromSUSY --normalize
-
-# for plot_predictdata the read types are different (important)
-python plot.py --path ${step2} --ncat ${ncat}
-# python plot.py --path ${step2} --ncat ${ncat} --normalize
-
-# python plot.py --special_output_path $special_output1 --predictOnSample $sample1 --ncat ${ncat} --path $datapath
-# python plot.py --special_output_path $special_output2 --predictOnSample $sample2 --ncat ${ncat} --path $datapath
-# python plot.py --special_output_path $special_output3 --predictOnSample $sample3 --ncat ${ncat} --path $datapath
-# python plot.py --special_output_path $special_output4 --predictOnSample $sample4 --ncat ${ncat} --path $datapath
-
-
-
 # python plot.py  --path $prediction --ncat ${ncat} --plot_predictdata # --special_output_path $output_file_name_3_1
-# python plot.py  --path $prediction --ncat ${ncat} --plot_predictdata --normalize 
-# # python plot.py --path $step2 --ncat ${ncat} --normalize
+python plot_step1.py --small --path $step1 --normalize --logLevel INFO
+# python plot_step1.py --path $step1 --normalize
 
 
 # pre="/scratch-cbe/users/${USER}/DeepLepton/trained"

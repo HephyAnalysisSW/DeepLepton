@@ -228,7 +228,7 @@ if args.special_output_path:
     plot_sub_dir = args.special_output_path
 else:
     plot_sub_dir = path_pred.split('/')[-2]
-c1.Print(os.path.join(plot_directory, "Training_v4", plot_sub_dir ,'roc_curve.png'))
+c1.Print(os.path.join(plot_directory, "Training_v6", plot_sub_dir ,'roc_curve.png'))
 
 logger.info("saving workpoints")
 np.save("workpoints/thresholds_{}.npy".format(plot_sub_dir), np.array(work_thresholds))

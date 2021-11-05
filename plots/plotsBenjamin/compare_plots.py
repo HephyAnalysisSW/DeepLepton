@@ -67,7 +67,7 @@ logger_rt = logger_rt.get_logger(args.logLevel, logFile = None)
 logger.info("Starting compare_plots.py")
 
 
-# little helper class
+# little helper class to store the data
 class Struct():
     def __init__(self):
         self.struct = {"lep_feature":[], "lep_truth":[], "lep_pred_DNN":[], "lep_pred_cut":[]}
@@ -92,26 +92,72 @@ class Struct():
         assert isinstance(a_list, list)
         self.struct[key] = a_list
 
+    def reset(self):
+        self.struct = {"lep_feature":[], "lep_truth":[], "lep_pred_DNN":[], "lep_pred_cut":[]}
+        logger.info("resetted struct")
+
+class modified_dict(dict):
+    def __init__(self, iterable = None, **kwargs):
+        '''
+        iterable = [("lep_dxyz/F", ["lep_dxy/F", "lep_dz/F", lambda dxy, dz: np.sqrt(dxy**2 + dz**2)])]
+        '''
+        print("hijacked the dict class :D")
+        if iterable:
+            super(modified_dict, self).__init__(iterable)
+        else:
+            super(modified_dict, self).__init__(kwargs)
+
+        if len(self.keys())>1:
+            raise ValueError("There should be only one key, \
+                              the name of the feature one wants to produce")
+
+        else:
+            print(self.keys(), self.values())
+            self._get_vars_and_fn()
+
+    def split(self, string):
+        return self.keys()[0].split(string) 
+
+    def _get_vars_and_fn(self):
+        self.variables = self.values()[0][:-1] # list of variables ["lep_pt/F", ...]
+        self.function  = self.values()[0][-1]
+        print("mod dict variables = {}".format(self.variables))
+        print("mod dict fn = {}".format(self.function))
+        logger.info("successfully init modified_dict")
+
+    def get_feature_value(self, event):
+        values    = [getattr(event, var.split("/")[0]) for var in self.variables]
+
+        return  self.function(*values)
+
 
 
 class Eff_Roc:
     def __init__(self,
-                lep_feature="lep_pt/F",
-                lep_feature_bins=np.array([3.5, 5, 10, 15, 20]),
+                lep_feature=["lep_pt/F"], # can take strings in this form and modified_dict
+                lep_feature_bins=[np.array([3.5, 5, 10, 15, 20])],
                 give_signal_eff=True,
                 eff=0.9,
-                preselection="lep_precut==1",
-                plotting_bins=[np.linspace(start=3.5, stop=5, num=10),
+                preselection="lep_eta < 2.4 && lep_looseId",
+                plotting_bins=[[np.linspace(start=3.5, stop=5, num=10),
                                         np.linspace(start=5, stop=10, num=10),
                                         np.linspace(start=10, stop=15, num=10),
-                                        np.linspace(start=15, stop=20, num=10)],
+                                        np.linspace(start=15, stop=20, num=10)], ],
                 input_dir="/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/predicted_on_sample/v6/2018/muo/pt_3.5_-1",
                 output_dir=plot_directory):
 
         # here we save the values for the different lep_feature_bins
-        self.lep_bin          = [Struct() for i in range(len(plotting_bins))]
-        self.latex_string     = []
+        # for every lep feature we make a list for the data of the corresponding bins we want to plot (nr. of plots)
+        logger.info("initializing Eff_Roc class")
 
+        self.lep_bin          = []
+        for i_ in range(len(lep_feature)):
+            self.lep_bin.append([Struct() for i in range(len(plotting_bins[i_]))])
+        
+        self.latex_string     = [[] for i_ in range(len(lep_feature))]
+        
+        if not isinstance(lep_feature, list):
+            raise TypeError("lep_feature must be list")
         self.lep_feature      = lep_feature
         self.lep_feature_bins = lep_feature_bins
         self.give_signal_eff  = give_signal_eff
@@ -120,6 +166,11 @@ class Eff_Roc:
         self.plotting_bins    = plotting_bins
         self.input_dir        = input_dir
         self.output_dir       = output_dir
+
+        # for the overall roc curve:
+        self.pred             = []
+        self.truth            = []
+        self.cut_pred         = []
 
         self.sample           = Sample.fromDirectory(name="pred", directory=self.input_dir, treeName='tree', selectionString = self.preselection)
         if args.small:
@@ -133,11 +184,24 @@ class Eff_Roc:
         else:
             logger.info("output directory does not exist, making it")
             os.makedirs(self.output_dir)
+            logger.info("trying to make a file in the new dir...")
+            with open(os.path.join(self.output_dir, "test")+".txt", 'w') as afile:
+                afile.write("hello-should be removed")
+            logger.info("worked now remove it again...")
+            os.remove(os.path.join(self.output_dir, "test")+".txt")
+            logger.info("removed.")
+                
+
 
         # self.pred  = []
         # self.truth = []
-        assert len(self.lep_feature_bins) != 0
-        assert len(self.lep_feature_bins)-1 == len(self.plotting_bins)
+        assert len(self.lep_feature) == len(self.lep_bin)
+        assert len(self.lep_feature) == len(self.lep_feature_bins)
+        assert len(self.lep_feature) == len(self.plotting_bins)
+        for i_ in range(len(self.lep_feature)):
+            assert len(self.lep_feature_bins[i_]) != 0
+            assert len(self.lep_feature_bins[i_])-1 == len(self.plotting_bins[i_])
+
 
         # How many lepton Classes
         self.n_classes = args.ncat
@@ -155,8 +219,17 @@ class Eff_Roc:
         
         self.variables = self.truth_vars +\
                          self.pred_vars +\
-                         [self.lep_feature] +\
-                         ["lep_StopsCompressed/I"]
+                         ["lep_pt/F", "lep_pfRelIso03_all/F"]
+
+                         # self.lep_feature +\
+        for feature in self.lep_feature:
+            if isinstance(feature, str):
+                self.variables.append(feature)
+            elif isinstance(feature, modified_dict):
+                print(feature.variables)
+                self.variables.extend(feature.variables)
+            else:
+                raise NotImplemented("strange value in self.lep_feature")
 
         logger.info("read variables are {}".format(self.variables))
 
@@ -175,11 +248,33 @@ class Eff_Roc:
 
     # What says the StopsCompressed cut
     def cut_Signal(self, event):
-        return getattr(event, "lep_StopsCompressed")
+        pt = getattr(event, "lep_pt")
+        reliso = getattr(event, "lep_pfRelIso03_all")
+        if pt <= 25:
+            if (reliso*pt) < 5.0:
+                return 1
+            else:
+                return 0
+        else:
+            if reliso < 0.2:
+                return 1
+            else:
+                return 0
+    
+    def _fill_single_lep_bin(self, event, lep_feature_value, lep_feature_bins, lep_bin):
+        for i_lep_bin, bin_edge in enumerate(lep_feature_bins[1:]):
+            if lep_feature_value < bin_edge and \
+                lep_feature_value > lep_feature_bins[i_lep_bin]:
+
+                values = [lep_feature_value,
+                            self.wasSignal(event),
+                            self.prob_wasSignal(event),
+                            self.cut_Signal(event)]
+                # print(len(lep_bin), len(lep_feature_bins[1:]))
+                lep_bin[i_lep_bin].add_value(values)
 
 
     def read_and_sort_for_bins(self):
-        # sample = Sample.fromDirectory(name="pred", directory=self.input_dir, treeName='tree', selectionString = self.preselection)
          
         reader = self.sample.treeReader(variables=self.variables)
         reader.start()
@@ -190,19 +285,24 @@ class Eff_Roc:
             # -> ["lep_feature", "lep_truth", "lep_pred_DNN", "lep_pred_cut"]
             r = reader.event
             # i_lep_bin = 0
-            lep_feature_value = getattr(r, self.lep_feature.split('/')[0])
-            #print(lep_feature_value)
-            for i_lep_bin, bin_edge in enumerate(self.lep_feature_bins[1:]):
-                if lep_feature_value < bin_edge and \
-                    lep_feature_value > self.lep_feature_bins[i_lep_bin]:
+            for i_, feature in enumerate(self.lep_feature):
+                if isinstance(feature, str):
+                    self._fill_single_lep_bin(r, 
+                                         getattr(r, feature.split('/')[0]),  
+                                         self.lep_feature_bins[i_], 
+                                         self.lep_bin[i_])
+                elif isinstance(feature, modified_dict):
+                     self._fill_single_lep_bin(r, 
+                                         feature.get_feature_value(r),
+                                         self.lep_feature_bins[i_], 
+                                         self.lep_bin[i_])
+       
+                else:
+                    raise NotImplemented("encountered strange type of feature in read_and_sort_for_bins")
 
-                    values = [lep_feature_value,
-                                self.wasSignal(r),
-                                self.prob_wasSignal(r),
-                                self.cut_Signal(r)]
-
-                    self.lep_bin[i_lep_bin].add_value(values)
-
+            self.pred.append(self.prob_wasSignal(r))
+            self.truth.append(self.wasSignal(r))
+            self.cut_pred.append(self.cut_Signal(r))
 
     def find_nearest(self, array, value):
         array = np.asarray(array)
@@ -250,91 +350,97 @@ class Eff_Roc:
         return [list(truth), list(pred), list(cut)]
 
 
+
     def fromStruct_make_plot(self):
-        # self.plotdata = [{} for i in range(len(self.lep_bin))]
-        for j, struct in enumerate(self.lep_bin):
-            # logger.debug("printing lep_truth = {} \n printing lep_pred_DNN = {}".format(struct.get("lep_truth"),
-            #                                                                             struct.get("lep_pred_DNN")))
-            
-            if args.logLevel == "DEBUG":
-                tmps = struct.get("lep_pred_DNN")
-                # tmps = np.array(tmps, dtype=np.float64)
-                logger.debug("tmp types {}".format(type(tmps[0])))
-                for tmp in tmps:
-                    if not((tmp >= 0) and (tmp<=1)):
-                        logger.debug("Found invalid value ?! {}".format(tmp))
+        logger.info("features = ({}) \n with bins = ({})".format(self.lep_feature, self.lep_feature_bins))
+        for i_ in range(len(self.lep_bin)):
+            for j, struct in enumerate(self.lep_bin[i_]):
+                logger.info("")
+                logger.info("Handling feature {} for bin {} to {}".format(\
+                                                                self.lep_feature[i_].split("/")[0],
+                                                                self.lep_feature_bins[i_][j],
+                                                                self.lep_feature_bins[i_][j+1]))
 
-            self.rm_nans(struct)
-            print("The {}th struct".format(j))
-            print("Values of the struct: \n truth: {} \n pred: {}".format(self.lep_bin[j].get("lep_truth"), self.lep_bin[j].get("lep_pred_DNN")))
+                logger.info("Containing {} leptons".format(len(struct.get("lep_feature"))))
 
-            fpr_dnn, tpr_dnn, thresholds_dnn = roc_curve(struct.get("lep_truth"), struct.get("lep_pred_DNN"), drop_intermediate=False)
-            
-            fpr_stopsComp, tpr_stopsComp, thresholds_stopsComp = roc_curve(struct.get("lep_truth"), struct.get("lep_pred_cut"), drop_intermediate=False)
-            # get the threshold for given efficiency:
-            if self.give_signal_eff:
-                i           = self.find_nearest(tpr_dnn, self.eff)
-                i_stopsComp = self.find_nearest(tpr_stopsComp, self.eff)
-            else:
-                i           = self.find_nearest(fpr_dnn, self.eff) 
-                i_stopsComp = self.find_nearest(fpr_stopsComp, self.eff)
-
-            threshold = thresholds_dnn[i]
-            roc_ptys = [i, fpr_dnn, tpr_dnn, thresholds_dnn, fpr_stopsComp, tpr_stopsComp, thresholds_stopsComp]
-            # make the roc curve...
-            self.plot_roc_curve(fpr_dnn, tpr_dnn, fpr_stopsComp, tpr_stopsComp,
-                            tpr_dnn[i], fpr_dnn[i],
-                            threshold, 
-                            os.path.join(self.output_dir,
-                                    self.lep_feature.split("/")[0],
-                                    "roc_curve_{}.png".format(self.lep_feature_bins[j+1])))
-
-            print("made the new roc_curve in {}".format(os.path.join(self.output_dir,
-                                    self.lep_feature.split("/")[0],
-                                    "roc_curve_{}.png".format(self.lep_feature_bins[j+1]))))
-            self.latex_string.append([self.lep_feature_bins[j],
-                                      self.lep_feature_bins[j+1],
-                                      tpr_dnn[i],
-                                      tpr_stopsComp[i_stopsComp],
-                                      fpr_dnn[i],
-                                      fpr_stopsComp[i_stopsComp],
-                                      threshold,
-                                      ])
-            # def __init__(self, x_bins, lep_feature = "lep_pt", structur, THRESHOLD):
-            logger.info("Creating HistoData_handler with {} leptons".format(len(struct.get("lep_feature"))))
-            data = HistoData_handler(x_bins=self.plotting_bins[j],
-                                     lep_feature=self.lep_feature.split('/')[0], 
-                                     structur=struct, 
-                                     THRESHOLD=threshold,
-                                     output_dir = self.output_dir,
-                                     roc_ptys=roc_ptys)
-            logger.info("rading data and fill the histos")
-            data.reading() # read and fill the histos
-            logger.info("making the eff plots...")
-            data.calc_eff_backeff_and_plot() # cal eff and backeff and plot it
-            logger.info("Done...")
-        if error:
-            raise ValueError()
-    def make_roc_curve(self):
-        pred     = []
-        truth    = []
-        cut_pred = []
-
-        # sample = Sample.fromDirectory(name="pred", directory=self.input_dir, treeName='tree', selectionString = self.preselection)
-       
-        reader = self.sample.treeReader(variables=self.variables)
-        reader.start()
+                if args.logLevel == "DEBUG":
+                    tmps = struct.get("lep_pred_DNN")
+                    # tmps = np.array(tmps, dtype=np.float64)
+                    logger.debug("tmp types {}".format(type(tmps[0])))
+                    for tmp in tmps:
+                        if not((tmp >= 0) and (tmp<=1)):
+                            logger.debug("Found invalid value ?! {}".format(tmp))
         
-        while reader.run():
-            r = reader.event
-            pred.append(self.prob_wasSignal(r))
-            truth.append(self.wasSignal(r))
-            cut_pred.append(self.cut_Signal(r))
+                self.rm_nans(struct)
+                fpr_dnn, tpr_dnn, thresholds_dnn = roc_curve(struct.get("lep_truth"), struct.get("lep_pred_DNN"), drop_intermediate=False)
+                
+                fpr_stopsComp, tpr_stopsComp, thresholds_stopsComp = roc_curve(struct.get("lep_truth"), struct.get("lep_pred_cut"), drop_intermediate=True)
+                # get the threshold for given efficiency:
+                if self.give_signal_eff:
+                    i           = self.find_nearest(tpr_dnn, self.eff)
+                    if len(tpr_stopsComp) == 3:
+                        i_stopsComp = 1
+                    else:
+                        print("tpr_stopsComp = {}".format(tpr_stopsComp))
+                        raise ValueError("wrong value of tpr_stopsComp")
+                else:
+                    i           = self.find_nearest(fpr_dnn, self.eff) 
+                    if len(tpr_stopsComp) == 3:
+                        i_stopsComp = 1
+                    else:
+                        print("tpr_stopsComp = {}".format(tpr_stopsComp))
+                        raise ValueError("wrong value of tpr_stopsComp")
+                    # i_stopsComp = self.find_nearest(fpr_stopsComp, self.eff)
+        
+                threshold = thresholds_dnn[i]
+                roc_ptys = [i, fpr_dnn, tpr_dnn, thresholds_dnn, fpr_stopsComp, tpr_stopsComp, thresholds_stopsComp]
+                # make the roc curve...
+                logger.info("plotting roc curve...")
+                self.plot_roc_curve(fpr_dnn, tpr_dnn, fpr_stopsComp, tpr_stopsComp,
+                                tpr_dnn[i], fpr_dnn[i],
+                                threshold, 
+                                os.path.join(self.output_dir,
+                                        self.lep_feature[i_].split("/")[0],
+                                        "roc_curve_{}.png".format(self.lep_feature_bins[i_][j+1])))
+        
+                logger.info("made the new roc_curve in {}".format(os.path.join(self.output_dir,
+                                        self.lep_feature[i_].split("/")[0],
+                                        "roc_curve_{}.png".format(self.lep_feature_bins[i_][j+1]))))
+        
+                self.latex_string[i_].append([self.lep_feature_bins[i_][j],
+                                          self.lep_feature_bins[i_][j+1],
+                                          tpr_dnn[i],
+                                          tpr_stopsComp[i_stopsComp],
+                                          fpr_dnn[i],
+                                          fpr_stopsComp[i_stopsComp],
+                                          threshold,
+                                          ])
+                # def __init__(self, x_bins, lep_feature = "lep_pt", structur, THRESHOLD):
+                logger.info("Creating HistoData_handler") 
+                data = HistoData_handler(x_bins=self.plotting_bins[i_][j],
+                                         lep_feature=self.lep_feature[i_].split('/')[0], 
+                                         structur=struct, 
+                                         THRESHOLD=threshold,
+                                         output_dir = self.output_dir,
+                                         roc_ptys=roc_ptys)
+                logger.info("reading data and fill the histos")
+                data.reading() # read and fill the histos
+                logger.info("making the eff plots...")
+                data.calc_eff_backeff_and_plot() # cal eff and backeff and plot it
+                logger.info("Done... and deleting data to save memory")
+                del data
+                struct.reset()
 
+
+    def make_roc_curve(self):
         logger.info("Making roc curve...")
-        [truth, pred, cut_pred] = self.rm_nans_from_lists(truth, pred, cut_pred)
-        fpr, tpr, thresholds = roc_curve(truth, pred, drop_intermediate=False)
-        fpr_cut, tpr_cut, thrsh_cut = roc_curve(truth, cut_pred, drop_intermediate=False) 
+        [self.truth, self.pred, self.cut_pred] = self.rm_nans_from_lists(self.truth,
+                                                          self.pred,
+                                                          self.cut_pred)
+
+        fpr, tpr, thresholds = roc_curve(self.truth, self.pred, drop_intermediate=False)
+        fpr_cut, tpr_cut, thrsh_cut = roc_curve(self.truth, self.cut_pred, drop_intermediate=True) 
+
         if self.give_signal_eff:
             i = self.find_nearest(tpr, self.eff)   
         else:
@@ -342,12 +448,11 @@ class Eff_Roc:
         global_threshold = thresholds[i]
         global_eff       = tpr[i]
         global_backeff   = fpr[i]
-        #os.path.join(self.output_dir, 'roc_curve.png'))
+
         self.plot_roc_curve(fpr, tpr, fpr_cut, tpr_cut,
                             global_eff, global_backeff,
                             global_threshold, 
                             os.path.join(self.output_dir, 'roc_curve.png'))
-        # print("plot_roc_curve WORKED!!!!!!!!!!!!!!!!!!!!!")
 
     def plot_roc_curve(self, fpr, tpr, fpr_cut, tpr_cut, 
                         global_eff, global_backeff,
@@ -395,40 +500,46 @@ class Eff_Roc:
         #     plot_sub_dir = args.special_output_path
         # else:
         #     plot_sub_dir = path_pred.split('/')[-2]
+        if not os.path.isdir("/".join(outname.split("/")[:-1])):
+            os.makedirs("/".join(outname.split("/")[:-1]))
+            logger.info("made directory {}".format("/".join(outname.split("/")[:-1])))
+
         c1.Print(outname) #os.path.join(self.output_dir, 'roc_curve.png'))
 
 
     def copy(self):
         from shutil import copyfile
         index="/mnt/hephy/cms/benjamin.wilhelmy/www/index.php"
-        print(os.path.join(self.output_dir, "index.php"))
-        print("/".join(self.output_dir.split("/")[:-1]))
-        print(os.path.join(self.output_dir, self.lep_feature, "index.php"))
-        copyfile(index, os.path.join(self.output_dir, "index.php")) 
-        copyfile(index, os.path.join("/".join(self.output_dir.split("/")[:-1]), "index.php"))
-        copyfile(index, os.path.join(self.output_dir, self.lep_feature.split("/")[0], "index.php"))
+        for i_ in range(len(self.lep_feature)):
+            print(os.path.join(self.output_dir, "index.php"))
+            print("/".join(self.output_dir.split("/")[:-1]))
+            print(os.path.join(self.output_dir, self.lep_feature[i_].split("/")[0], "index.php"))
+            copyfile(index, os.path.join(self.output_dir, "index.php")) 
+            copyfile(index, os.path.join("/".join(self.output_dir.split("/")[:-1]), "index.php"))
+            copyfile(index, os.path.join(self.output_dir, self.lep_feature[i_].split("/")[0], "index.php"))
    
 
 
     def make_latex_table(self):
-        with open(os.path.join(self.output_dir,
-                                self.lep_feature.split("/")[0])+".txt", 'w') as latex:
-            latex.write("\\begin{center} \n")
-            latex.write("\\begin{tabular}{||c| c c c||} \n")
-            latex.write("\\hline \n")
-            latex.write("{}".format(self.lep_feature.split("/")[0].split("_")[0])) 
-            latex.write("\_{")
-            latex.write("{}".format(self.lep_feature.split("/")[0].split("_")[1]))
-            latex.write("} & $\\epsilon _S$ & $\\epsilon _B$ & Threshold \\\ [1.0ex] \n")
-            latex.write("\\hline \n")
-            for values in self.latex_string:
-                latex.write("{}-{} & ".format(values[0], values[1]))
-                latex.write("{:.2f}\\% ({:.2f}) & ".format(100.0*values[2], 100.0*values[3]))
-                latex.write("{:.2f}\\% ({:.2f}) & ".format(100.0*values[4], 100.0*values[5]))
-                latex.write("{} \\\ [0.5ex] \n".format(values[6]))
+        for i_ in range(len(self.lep_feature)):
+            with open(os.path.join(self.output_dir,
+                                    self.lep_feature[i_].split("/")[0])+".txt", 'w') as latex:
+                latex.write("\\begin{center} \n")
+                latex.write("\\begin{tabular}{||c| c c c||} \n")
                 latex.write("\\hline \n")
-            latex.write("\\end{tabular} \n")
-            latex.write("\\end{center}")
+                latex.write("{}".format(self.lep_feature[i_].split("/")[0].split("_")[0])) 
+                latex.write("\_{")
+                latex.write("{}".format(self.lep_feature[i_].split("/")[0].split("_")[1]))
+                latex.write("} & $\\epsilon _S$ & $\\epsilon _B$ & Threshold \\\ [1.0ex] \n")
+                latex.write("\\hline \n")
+                for values in self.latex_string[i_]:
+                    latex.write("{}-{} & ".format(values[0], values[1]))
+                    latex.write("{:.2f}\\% ({:.2f}) & ".format(100.0*values[2], 100.0*values[3]))
+                    latex.write("{:.2f}\\% ({:.2f}) & ".format(100.0*values[4], 100.0*values[5]))
+                    latex.write("{} \\\ [0.5ex] \n".format(values[6]))
+                    latex.write("\\hline \n")
+                latex.write("\\end{tabular} \n")
+                latex.write("\\end{center}")
 
 
 
@@ -523,7 +634,7 @@ class HistoData_handler:
             if hist_b[i]:
                 tmp[i] = hist_a[i]/hist_b[i]
             else:
-                logger.info("A bin was empty -> consider other binning")
+                logger.info("Bin ({} to {}) was empty for feature: {} -> consider other binning".format(self.x_bins[i], self.x_bins[i+1], self.x))
                 tmp[i] = -1
         return tmp
     
@@ -545,7 +656,7 @@ class HistoData_handler:
             
             for category in self.categories:
                 if len(category[0]["x"]) >= self.n_max:
-                    logger.info("make a temporal histogram to save mem")
+                    logger.debug("make a temporal histogram to save mem")
                     category=self.make_histo(category)
                     #category[0]["x"] = []
                     #category[0]["y"] = []
@@ -577,8 +688,8 @@ class HistoData_handler:
                 mybins[i] = (self.x_bins[i]+self.x_bins[i+1])/2.
         else:
             mybins = deepcopy(self.x_bins)[:-1] 
-        print(len(mybins))
-        print((self.sensitivity_x))
+        # print(len(mybins))
+        # print((self.sensitivity_x))
         gr1 = ROOT.TGraph(len(mybins),
                             array.array("d", mybins),
                             array.array("d", self.sensitivity_x))
@@ -623,9 +734,10 @@ class HistoData_handler:
 
 
         if os.path.isdir(os.path.join(self.output_dir, "{}/".format(self.x))):
-            logger.info("feature directory already exists")
+            # logger.info("feature directory already exists")
+            pass
         else:
-            os.mkdir(os.path.join(self.output_dir, "{}".format(self.x)))
+            os.makedirs(os.path.join(self.output_dir, "{}".format(self.x)))
 
         c1.Print(os.path.join(self.output_dir,
                               "{}".format(self.x),
@@ -644,54 +756,55 @@ output_dir = os.path.join(plot_directory, args.outfilespath)
 #os.path.join(plot_directory, "Training_v4", "training_on_unbalanced_data_only4lep_classes_dxy_weighted_Keras-loss_20eps_0.1dropout", "vsStopsCompressed", "Stop250-dm10-006")
 
 
-Lep_Pt = Eff_Roc(lep_feature="lep_pt/F",
-        lep_feature_bins=np.array([3.5, 5, 10, 15, 20, 40]), 
+# kwargs = {lep_dxyz/F = ["lep_dxy/F", "lep_dz/F", lambda dxy, dz: np.sqrt(dxy**2 + dz**2)]}
+dxyz = modified_dict(iterable = [("lep_dxyz/F", ["lep_dxy/F", "lep_dz/F", lambda dxy, dz: np.sqrt(dxy**2 + dz**2)])])
+features = ["lep_pt/F", "lep_dxy/F", dxyz]
+
+pt_bins  = np.array([3.5, 5, 10, 15, 20, 40])
+pt_plotting_bins = [np.linspace(start=3.5, stop=5, num=10),
+                    np.linspace(start=5, stop=10, num=10),
+                    np.linspace(start=10, stop=15, num=10),
+                    np.linspace(start=15, stop=20, num=10),
+                    np.linspace(start=20, stop=40, num=10)]
+
+dxy_bins = np.array([-3.0, -1.0, -0.5, -0.05, -0.005, 0.005, 0.05, 0.5, 1.0, 3.0])
+dxy_plotting_bins = [np.linspace(start=-3.0, stop=-1.0, num=5),
+                     np.linspace(start=-1.0, stop=-0.5, num=5),
+                     np.linspace(start=-0.5, stop=-0.05, num=5),
+                     np.linspace(start=-0.05, stop=-0.005, num=5),
+                     np.linspace(start=-0.005, stop=0.005, num=10),
+                     np.linspace(start=0.005, stop=0.05, num=5),
+                     np.linspace(start=0.05, stop=0.5, num=5),
+                     np.linspace(start=0.5, stop=1.0, num=5),
+                     np.linspace(start=1.0, stop=3, num=5)]
+
+dxyz_bins = np.array([0, 0.005, 0.05, 0.5, 1.0, 3.0])
+dxyz_plotting_bins = [np.linspace(start=0.0, stop=0.005, num=10),
+                     np.linspace(start=0.005, stop=0.05, num=10),
+                     np.linspace(start=0.05, stop=0.5, num=5),
+                     np.linspace(start=0.5, stop=1.0, num=5),
+                     np.linspace(start=1.0, stop=3, num=5)]
+
+
+
+
+Lep_data = Eff_Roc(lep_feature=features,
+        lep_feature_bins=[pt_bins, dxy_bins, dxyz_bins],
         give_signal_eff=True,
         eff=0.9,
-        preselection="lep_precut==1",
-        plotting_bins=[np.linspace(start=3.5, stop=5, num=10),
-                                np.linspace(start=5, stop=10, num=10),
-                                np.linspace(start=10, stop=15, num=10),
-                                np.linspace(start=15, stop=20, num=10),
-                                np.linspace(start=20, stop=40, num=10)],
+        plotting_bins= [pt_plotting_bins, dxy_plotting_bins, dxyz_plotting_bins],
         input_dir=input_dir,
         output_dir=output_dir)
 
-Lep_dxy = Eff_Roc(lep_feature="lep_dxy/F",
-        lep_feature_bins=np.array([-3.0, -0.1, -0.005, 0.005, 0.1, 3]), 
-        give_signal_eff=True,
-        eff=0.9,
-        preselection="lep_precut==1",
-        plotting_bins=[np.linspace(start=-3.0, stop=-0.1, num=5),
-                                np.linspace(start=-0.1, stop=-0.005, num=5),
-                                np.linspace(start=-0.005, stop=0.005, num=20),
-                                np.linspace(start=0.005, stop=0.1, num=5),
-                                np.linspace(start=0.1, stop=3, num=5)],
-        input_dir=input_dir,
-        output_dir=output_dir)
 
 
 logger.info("read and sort for bins...")
-Lep_dxy.read_and_sort_for_bins()
+Lep_data.read_and_sort_for_bins()
 logger.info("from struct make plots...")
-Lep_dxy.fromStruct_make_plot()
-# logger.info("make roc curve...")
-# Lep_dxy.make_roc_curve()
-Lep_dxy.copy()
-Lep_dxy.make_latex_table()
-del Lep_dxy
-
-logger.info("read and sort for bins...")
-Lep_Pt.read_and_sort_for_bins()
-logger.info("from struct make plots...")
-Lep_Pt.fromStruct_make_plot()
-# logger.info("make roc curve...")
-# Lep_Pt.make_roc_curve()
-Lep_Pt.copy()
-Lep_Pt.make_latex_table()
-logger.info("deleting Lep_Pt to save mem...")
-
-
-
+Lep_data.fromStruct_make_plot()
+logger.info("make roc curve...")
+Lep_data.make_roc_curve()
+Lep_data.copy()
+Lep_data.make_latex_table()
 
 

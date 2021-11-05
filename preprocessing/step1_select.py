@@ -11,16 +11,15 @@ from RootTools.core.standard import *
 # DeepLepton
 from DeepLepton.Tools.helpers import getCollection, deltaR, deltaR2
 
-# Extend the Lept_genPartFlav vector with information of leptons from SUSY
-# Leptons from SUSY are flagged by 100. In case the decay chain containes
-# a heavy falvor this is marked by 105 or 104   
 def gen_part_susy_flav(nLept, Lept_genPartFlav, Lept_genPartIdx, GenPart_genPartIdxMother, GenPart_pdgId):
      
     newPartFlav = []
+    # go through all the leptons in the event
     for i in range(nLept):
         quark = 0
+        # Get the index of the lep in the event list
         j = Lept_genPartIdx[i]
-        if j > 0:
+        if j > 0: # then the particle is still a decay prod.
             # move back in the decay chain, as long there is no SUSY particle (pdg_id < 1000000)
             while abs(GenPart_pdgId[j]) < 1000000 and GenPart_genPartIdxMother[j] > 0:
                 # Extract the quark flavor q for charm and beauty hadrons 
@@ -33,9 +32,11 @@ def gen_part_susy_flav(nLept, Lept_genPartFlav, Lept_genPartIdx, GenPart_genPart
         if j > 0 and abs(GenPart_pdgId[j]) > 1000000:
             newPartFlav.append(100 + quark)
         else:
+            # did not find a susy part in decay chain
             newPartFlav.append(Lept_genPartFlav[i])
-
+    # return the list of genPartFlav corr to all leps in the event
     return newPartFlav
+
 
 # parser
 def get_parser():
@@ -55,7 +56,7 @@ def get_parser():
     argParser.add_argument('--version',             action='store',         nargs='?',  type=str,  required = True,                                 help="Version for output directory")
     argParser.add_argument('--ptSelection',         action='store',         nargs='?',  type=str,  default='pt_5_-1',                               help="pt selection of leptons")
     argParser.add_argument('--muFromTauArePrompt',  action='store_true',                                                                            help="Consider muons from tau leptons as prompt")  
-    argParser.add_argument('--displaced',           action='store_true',    default=False,                                                          help='Look for displaced leptons from SUSY')      
+    argParser.add_argument('--displaced',           action='store_true',    default=False,                                                          help='Look for displaced leptons from SUSY')
 
     return argParser
 
@@ -74,8 +75,52 @@ maxN = 2 if options.small else None
 
 # special case, there exists only the sample in roberts directory ....
 if options.displaced:
-     from RootTools.core.Sample import Sample
-     CompSUSY =  Sample.fromDirectory('CompSUSY', '/eos/vbc/user/robert.schoefbeck/DeepLepton/nanoAODUL17_PFCands/signal_stops_compressed', 'root://eos.grid.vbc.ac.at') 
+    from RootTools.core.Sample import Sample
+    # This line for the old susy data ca. 80'000 muons
+    # Compressed SUSY Scenario, this is the old data
+    CompSUSY =  Sample.fromDirectory('CompSUSY',
+                 '/eos/vbc/user/robert.schoefbeck/DeepLepton/nanoAODUL17_PFCands/signal_stops_compressed',
+                 'root://eos.grid.vbc.ac.at') 
+    stop250dm10 = Sample.fromDirectory('Stop250-dm10-006',
+                  # '/eos/vbc/experiments/cms/store/user/liko/CompStop/SUS-RunIIAutumn18FSPremix-Stop250-dm10-006-nanoAOD/210819_215726/0000',
+                  '/eos/vbc/user/benjamin.wilhelmy/DeepLepton/Stop250-dm10-006',
+                  'root://eos.grid.vbc.ac.at') 
+
+    stop250dm20 = Sample.fromDirectory('Stop250-dm20-006',
+                  # '/eos/vbc/experiments/cms/store/user/liko/CompStop/SUS-RunIIAutumn18FSPremix-Stop250-dm20-006-nanoAOD/210819_215740/0000',
+                  '/eos/vbc/user/benjamin.wilhelmy/DeepLepton/Stop250-dm20-006',
+                  'root://eos.grid.vbc.ac.at') 
+
+    stop600dm10 = Sample.fromDirectory('Stop600-dm10-006',
+                  # '/eos/vbc/experiments/cms/store/user/liko/CompStop/SUS-RunIIAutumn18FSPremix-Stop600-dm10-006-nanoAOD/210819_215757/0000',
+                  '/eos/vbc/user/benjamin.wilhelmy/DeepLepton/Stop600-dm10-006',
+                  'root://eos.grid.vbc.ac.at') 
+
+    stop600dm20 = Sample.fromDirectory('Stop600-dm20-006',
+                   # '/eos/vbc/experiments/cms/store/user/liko/CompStop/SUS-RunIIAutumn18FSPremix-Stop600-dm20-006-nanoAOD/210819_215811/0000',
+                   '/eos/vbc/user/benjamin.wilhelmy/DeepLepton/Stop600-dm20-006',
+                   'root://eos.grid.vbc.ac.at') 
+
+    TTJets_TuneCP5_13TeV = Sample.fromDirectory("TTJets_TuneCP5_13TeV",
+                    "/eos/vbc/experiments/cms/store/user/schoef/TTJets_TuneCP5_13TeV-madgraphMLM-pythia8/crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1_v6_PFCands/211014_093046/0000",
+                    'root://eos.grid.vbc.ac.at')
+
+    TTTo2L2Nu_TuneCP5_13TeV = Sample.fromDirectory("TTTo2L2Nu_TuneCP5_13TeV",
+                    "/eos/vbc/experiments/cms/store/user/schoef/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1_v6_PFCands/211014_093132/0000",
+                    'root://eos.grid.vbc.ac.at') 
+
+    TTToHadronic_TuneCP5_13TeV = Sample.fromDirectory("TTToHadronic_TuneCP5_13TeV",
+                    ["/eos/vbc/experiments/cms/store/user/schoef/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1_v6_PFCands/211014_093156/0000", "/eos/vbc/experiments/cms/store/user/schoef/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1_v6_PFCands/211014_093156/0001"],
+                    'root://eos.grid.vbc.ac.at')
+
+    TTToSemiLeptonic_TuneCP5_13TeV = Sample.fromDirectory("TTToSemiLeptonic_TuneCP5_13TeV",
+                    "/eos/vbc/experiments/cms/store/user/schoef/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1_v6_PFCands/211014_093234/0000",
+                    'root://eos.grid.vbc.ac.at')
+
+    TT_DiLept_TuneCP5_13TeV = Sample.fromDirectory("TT_DiLept_TuneCP5_13TeV",
+                    "/eos/vbc/experiments/cms/store/user/schoef/TT_DiLept_TuneCP5_13TeV-amcatnlo-pythia8/crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2_v6_PFCands/211014_093110/0000",
+                    'root://eos.grid.vbc.ac.at')
+
 elif options.year == 2016:
     from DeepLepton.Samples.nanoAOD_PFCands_Summer16 import *
 elif options.year == 2017:
@@ -110,7 +155,7 @@ if 'SKIMSDIR' in os.environ:
     output_directory = os.path.join( options.version+('_small' if options.small else ''), 'step1', str(options.year) ) 
 else:
     from DeepLepton.Tools.user import skim_directory
-    output_directory = os.path.join( skim_directory, options.version+('_small' if options.small else ''), 'step1', str(options.year) ) 
+    output_directory = os.path.join("/scratch-cbe/users/benjamin.wilhelmy/DeepLepton", options.version+('_small' if options.small else ''), 'step1', str(options.year) ) 
 
 
 if options.muFromTauArePrompt:
@@ -181,7 +226,9 @@ for pf_flavour in pf_flavours:
     new_variables.append( VectorTreeVariable.fromString( 'pfCand_%s[%s]'%(pf_flavour, ",".join(cand_vars_train[pf_flavour] + ['ptRel/F', 'deltaR/F'])), nMax = 100) ) # here
 
 new_variables.append( VectorTreeVariable.fromString( 'SV[%s]'%( ",".join(SV_vars + ['ptRel/F', 'deltaR/F'])), nMax = 100) )
-new_variables += ["event/l", "luminosityBlock/I", "run/I"]  
+new_variables += ["event/l", "luminosityBlock/I", "run/I", "lep_mvaTTH/F"]
+if options.flavour =='muo':
+    new_variables += ["lep_looseId/F", "lep_mediumId/F", "lep_tightId/F"]
 
 def fill_vector_collection( event, collection_name, collection_varnames, objects, nMax = 100):
     setattr( event, "n"+collection_name, len(objects) )
@@ -233,12 +280,18 @@ def ptRel(cand, lep):
 
 reader.start()
 counter=0
+#  logger.info("The read vars were: {}".format(read_variables))
+#  logger.info("The lep vars were:  {}".format(lep_varnames))
 while reader.run():
     r = reader.event
     if options.flavour == 'muo':
         leps = getCollection(r, 'Muon', lep_varnames, 'nMuon')
     elif options.flavour == 'ele':
         leps = getCollection(r, 'Electron', lep_varnames, 'nElectron')
+    
+#     for i, lep in enumerate(leps):
+#         logger.info("type = {}, value = {}".format(type(lep['genPartFlav']), lep['genPartFlav']))
+
 
     # if leptons from  SUSY replace genPartFlav with the corrected value
     if options.displaced:
@@ -248,7 +301,13 @@ while reader.run():
             lep_genPartFlav = gen_part_susy_flav(r.nElectron, r.Electron_genPartFlav, r.Electron_genPartIdx, r.GenPart_genPartIdxMother, r.GenPart_pdgId)
 
         for i, lep in enumerate(leps):
+            # logger.info("the type of the value of genpartflav is  {}".format(type(lep['genPartFlav'])))
+            # logger.info("genpartflav before the susyfunc {} and pt={}".format(lep['genPartFlav'], lep['pt']))
+            # logger.info("And after {}".format(lep_genPartFlav[i]))
             lep['genPartFlav'] = lep_genPartFlav[i]
+            # if options.logLevel == "DEBUG":
+            #     if lep['genPartFlav'] in [1, 5, 4, 15]:
+            #         logger.debbug("Found a prompt or nonprompt")
 
     # write leptons to event
     leps = filter( lambda l: (l['pt']>=pt_threshold[0] or pt_threshold[0]<0) and (l['pt']<pt_threshold[1] or pt_threshold[1]<0), leps )
@@ -319,7 +378,7 @@ while reader.run():
             
             fill_vector_collection( maker.event, 'pfCand_%s'%pf_flavour, cand_varnames_write[pf_flavour] + ['ptRel', 'deltaR'], cands, nMax = 100 )
         # write nearby SVs
-        SV = filter( lambda c: deltaR2(c, lep) < dR_PF**2, SVs )
+        SV = filter( lambda c: deltaR2(c, lep) < dR_SV**2, SVs )
         for sv in SV:
             sv["ptRel"]  = ptRel  (sv, lep)
             sv["deltaR"] = deltaR2(sv, lep)

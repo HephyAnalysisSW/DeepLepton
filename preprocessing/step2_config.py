@@ -183,46 +183,65 @@ Top = {2016: ['TTTo2L2Nu_noSC_pow',
               'TTZH_LO',
               'TTZZ_LO', ],
 
-       2018: ['ST_schannel_4f_NLO',
-              'ST_schannel_4f_NLO_PS',
-              'ST_tchannel_antitop_4f_incl_pow',
-              'ST_tchannel_antitop_5f_pow_PS',
-              'ST_tchannel_antitop_5f_pow_PS_old_pmx',
-              'ST_tchannel_top_4f_incl_pow',
-              'ST_tchannel_top_5f_pow',
-              'ST_tchannel_top_5f_pow_old_pmx',
-              'ST_tW_antitop_incl_5f_pow',
-              'ST_tW_antitop_incl_5f_pow_PS',
-              'ST_tW_antitop_NoFullyHad_5f_pow_PS',
-              'ST_tW_top_incl_5f_pow',
-              'ST_tW_top_incl_5f_pow_PS',
-              'ST_tW_top_NoFullyHad_5f_pow',
-              'ST_tW_top_NoFullyHad_5f_pow_PS',
-              'ST_tWll_5f_LO',
-              'ST_tWnunu_5f_LO',
-              'TTHH_LO',
-              'TTJets_dilep_genMET150_LO',
-              'TTJets_dilep_LO',
-              'TTJets_HT1200to2500_LO',
-              'TTJets_HT2500toInf_LO',
-              'TTJets_HT600to800_LO',
-              'TTJets_HT800to1200_LO',
-              'TTJets_LO',
-              'TTJets_NLO',
-              'TTJets_semilepFromT_genMET150_LO',
-              'TTJets_semilepFromT_LO',
-              'TTJets_semilepFromTbar_genMET150_LO',
-              'TTJets_semilepFromTbar_LO',
+       2018: [# 'ST_schannel_4f_NLO',
+              # 'ST_schannel_4f_NLO_PS',
+              # 'ST_tchannel_antitop_4f_incl_pow',
+              # 'ST_tchannel_antitop_5f_pow_PS',
+              # 'ST_tchannel_antitop_5f_pow_PS_old_pmx',
+              # 'ST_tchannel_top_4f_incl_pow',
+              # 'ST_tchannel_top_5f_pow',
+              # 'ST_tchannel_top_5f_pow_old_pmx',
+              # 'ST_tW_antitop_incl_5f_pow',
+              # 'ST_tW_antitop_incl_5f_pow_PS',
+              # 'ST_tW_antitop_NoFullyHad_5f_pow_PS',
+              # 'ST_tW_top_incl_5f_pow',
+              # 'ST_tW_top_incl_5f_pow_PS',
+              # 'ST_tW_top_NoFullyHad_5f_pow',
+              # 'ST_tW_top_NoFullyHad_5f_pow_PS',
+              # 'ST_tWll_5f_LO',
+              # 'ST_tWnunu_5f_LO',
+              # 'TTHH_LO',
+              # 'TTJets_dilep_genMET150_LO',
+              # 'TTJets_dilep_LO',
+              # 'TTJets_HT1200to2500_LO',
+              # 'TTJets_HT2500toInf_LO',
+              # 'TTJets_HT600to800_LO',
+              # 'TTJets_HT800to1200_LO',
+              # 'TTJets_LO',
+              # 'TTJets_NLO',
+              # 'TTJets_semilepFromT_genMET150_LO',
+              # 'TTJets_semilepFromT_LO',
+              # 'TTJets_semilepFromTbar_genMET150_LO',
+              # 'TTJets_semilepFromTbar_LO',
+              # 'TTTo2L2Nu_pow',
+              # 'TTTo2L2Nu_pow_PS',
+              # 'TTToSemiLeptonic_pow',
+              # 'TTToSemiLeptonic_pow_PS',
+              # 'TTWH_LO',
+              # 'TTWW_LO',
+              # 'TTWZ_LO',
+              # 'TTZH_LO',
+              # 'TTZZ_LO', 
+              'ST_schannel_LO',
+              'ST_tW_antitop_pow',
+              'ST_tW_top_pow',
+              'ST_tWll_LO',
+              'ST_tWnunu_LO',
+              'ST_tchannel_antitop_4f_pow',
+              'ST_tchannel_top_4f_pow',
+              'TGJets_lep_NLO',
               'TTTo2L2Nu_pow',
-              'TTTo2L2Nu_pow_PS',
-              'TTToSemiLeptonic_pow',
-              'TTToSemiLeptonic_pow_PS',
-              'TTWH_LO',
-              'TTWW_LO',
-              'TTWZ_LO',
-              'TTZH_LO',
-              'TTZZ_LO', ]}
+              'TTZJets_LO',
+              'TT_LO',
+              'TT_dilep_NLO',
+              ]}
 
+TTbar = {2018: ["TTJets_TuneCP5_13TeV",
+                "TTTo2L2Nu_TuneCP5_13TeV",
+                "TTToHadronic_TuneCP5_13TeV",
+                 "TTToSemiLeptonic_TuneCP5_13TeV",
+                 "TT_DiLept_TuneCP5_13TeV",
+                ]}
 
 QCD = {'muo': {2016: [# 'QCD_Mu_pt15to20',
                       # 'QCD_Mu_pt20to30',
@@ -317,7 +336,11 @@ QCD = {'muo': {2016: [# 'QCD_Mu_pt15to20',
                       'QCD_EMEnriched_pt50to80',
                       'QCD_EMEnriched_pt80to120', ]}}
 
-STopvsTop = {2017: ['CompSUSY', ]}
+STopvsTop = {2017: ['CompSUSY', ],
+             2018: ['Stop250-dm10-006',
+                    'Stop250-dm20-006',
+                    'Stop600-dm10-006',
+                    'Stop600-dm20-006']}
 
 
 # parser
@@ -331,7 +354,7 @@ def get_parser():
     argParser.add_argument('--year',
                            action='store',
                            type=int,
-                           choices=[2016, 2017],
+                           choices=[2016, 2017, 2018],
                            required=True,
                            help="Which year?")
 
@@ -387,7 +410,7 @@ def get_parser():
     argParser.add_argument('--sampleSelection',
                            action='store',
                            type=str,
-                           choices=['DYvsQCD', 'Top', 'all', 'STopvsTop'],
+                           choices=['DYvsQCD', 'Top', 'all', 'STopvsTop', 'STopvsTTbar', 'STop1vsTTbar', 'STop2vsTTbar', 'STop3vsTTbar', 'STop4vsTTbar'],
                            required=True,
                            help="Which flavour?")
 
@@ -640,47 +663,326 @@ elif args.sampleSelection == "all":
                     'unbalanced': [leptonClass for leptonClass in leptonClasses],}
 
 
+elif args.sampleSelection == "STopvsTTbar":
+    sub_dirs = [TTbar[args.year], STopvsTop[args.year]]
+    inputdirs = ["/scratch-cbe/users/benjamin.wilhelmy/DeepLepton",
+                 "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton"]    
 
+    version = [args.version, args.version]
+    year = [args.year, args.year]
 
-elif args.sampleSelection == "STopvsTop":
-    # prepare vars for getInputFromOthers for the Fake class
-    sub_dirs = [Top[args.year], STopvsTop[2017]]
-    inputdirs = ["/eos/vbc/experiments/cms/store/user/liko/skims/",
-                 "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/"]
-
-    version = ["v3", "v3"]
-    year = [args.year, 2017]
-
-    samplePrompt = getInputFromOthers(sub_dirs,
+    # In the step1 of susy data there is no prompt and nonpromt 
+    # So we take them from the Background ->Top sample
+    samplePrompt = getInputFromOthers(sub_dirs[0],
                                       "Prompt",
-                                      inputdirs=inputdirs,
-                                      version=version,
-                                      year=year)
+                                      inputdirs=inputdirs[0],
+                                      version=version[0],
+                                      year=year[0])
 
-    sampleNonPrompt = getInputFromOthers(sub_dirs,
+    sampleNonPrompt = getInputFromOthers(sub_dirs[0],
                                          "NonPrompt",
-                                         inputdirs=inputdirs,
-                                         version=version,
-                                         year=year)
-
-    sampleFake = getInputFromOthers([Top[args.year]],
+                                         inputdirs=inputdirs[0],
+                                         version=version[0],
+                                         year=year[0])
+    # there is fake data in the susy data, however we take the Top-fakes for now. 
+    sampleFake = getInputFromOthers(sub_dirs[0],
                                     "Fake",
                                     inputdirs=inputdirs[0],
                                     version=version[0],
                                     year=year[0])
 
     sampleFromSUSY = getInputFromOthers(
-        [["CompSUSY"]],
+        sub_dirs[1],
         "FromSUSY",
         inputdirs=inputdirs[1],
         version=version[1],
         year=year[1])
 
     sampleFromSUSYHF = getInputFromOthers(
-        [["CompSUSY"]],
+        sub_dirs[1],
         "FromSUSYHF",
         inputdirs=inputdirs[1],
         version=version[1],
+        year=year[1])
+
+    prompt = {'sample': samplePrompt, }
+    nonPrompt = {'sample': sampleNonPrompt, }
+    fake = {'sample': sampleFake, }
+    fromSUSY = {'sample': sampleFromSUSY, }
+    fromSUSYHF = {'sample': sampleFromSUSYHF, }
+    leptonClasses = [prompt, nonPrompt, fake, fromSUSY, fromSUSYHF]
+    
+    # The value of balanced should be a list containing two lists
+    # the balance function will balance the first list against the second
+    leptonRatios = {'balanced': [[prompt, nonPrompt, fake],
+                                  [fromSUSY, fromSUSYHF]],
+                     'unbalanced': [leptonClass for leptonClass in leptonClasses],}
+                     
+elif args.sampleSelection == "STop1vsTTbar":
+    sub_dirs = [TTbar[args.year], "Stop250-dm10-006"]
+    inputdirs = ["/scratch-cbe/users/benjamin.wilhelmy/DeepLepton",
+                 "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton"]                 
+
+    version = [args.version, args.version]
+    year = [args.year, args.year]
+
+    # In the step1 of susy data there is no prompt and nonpromt 
+    # So we take them from the Background ->Top sample
+    samplePrompt = getInputFromOthers(sub_dirs[0],
+                                      "Prompt",
+                                      inputdirs=inputdirs[0],
+                                      version=version[0],
+                                      year=year[0])
+
+    sampleNonPrompt = getInputFromOthers(sub_dirs[0],
+                                         "NonPrompt",
+                                         inputdirs=inputdirs[0],
+                                         version=version[0],
+                                         year=year[0])
+    # there is fake data in the susy data, however we take the Top-fakes for now. 
+    sampleFake = getInputFromOthers(sub_dirs[0],
+                                    "Fake",
+                                    inputdirs=inputdirs[0],
+                                    version=version[0],
+                                    year=year[0])
+
+    sampleFromSUSY = getInputFromOthers(
+        sub_dirs[1],
+        "FromSUSY",
+        inputdirs=inputdirs[1],
+        version=version[1],
+        year=year[1])
+
+    sampleFromSUSYHF = getInputFromOthers(
+        sub_dirs[1],
+        "FromSUSYHF",
+        inputdirs=inputdirs[1],
+        version=version[1],
+        year=year[1])
+
+    prompt = {'sample': samplePrompt, }
+    nonPrompt = {'sample': sampleNonPrompt, }
+    fake = {'sample': sampleFake, }
+    fromSUSY = {'sample': sampleFromSUSY, }
+    fromSUSYHF = {'sample': sampleFromSUSYHF, }
+    leptonClasses = [prompt, nonPrompt, fake, fromSUSY, fromSUSYHF]
+    
+    # The value of balanced should be a list containing two lists
+    # the balance function will balance the first list against the second
+    leptonRatios = {'balanced': [[prompt, nonPrompt, fake],
+                                  [fromSUSY, fromSUSYHF]],
+                     'unbalanced': [leptonClass for leptonClass in leptonClasses],}
+
+elif args.sampleSelection == "STop2vsTTbar":
+    sub_dirs = [TTbar[args.year], "Stop250-dm20-006"]
+    inputdirs = ["/scratch-cbe/users/benjamin.wilhelmy/DeepLepton",
+                 "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton"]    
+
+    version = [args.version, args.version]
+    year = [args.year, args.year]
+
+    # In the step1 of susy data there is no prompt and nonpromt 
+    # So we take them from the Background ->Top sample
+    samplePrompt = getInputFromOthers(sub_dirs[0],
+                                      "Prompt",
+                                      inputdirs=inputdirs[0],
+                                      version=version[0],
+                                      year=year[0])
+
+    sampleNonPrompt = getInputFromOthers(sub_dirs[0],
+                                         "NonPrompt",
+                                         inputdirs=inputdirs[0],
+                                         version=version[0],
+                                         year=year[0])
+    # there is fake data in the susy data, however we take the Top-fakes for now. 
+    sampleFake = getInputFromOthers(sub_dirs[0],
+                                    "Fake",
+                                    inputdirs=inputdirs[0],
+                                    version=version[0],
+                                    year=year[0])
+
+    sampleFromSUSY = getInputFromOthers(
+        sub_dirs[1],
+        "FromSUSY",
+        inputdirs=inputdirs[1],
+        version=version[1],
+        year=year[1])
+
+    sampleFromSUSYHF = getInputFromOthers(
+        sub_dirs[1],
+        "FromSUSYHF",
+        inputdirs=inputdirs[1],
+        version=version[1],
+        year=year[1])
+
+    prompt = {'sample': samplePrompt, }
+    nonPrompt = {'sample': sampleNonPrompt, }
+    fake = {'sample': sampleFake, }
+    fromSUSY = {'sample': sampleFromSUSY, }
+    fromSUSYHF = {'sample': sampleFromSUSYHF, }
+    leptonClasses = [prompt, nonPrompt, fake, fromSUSY, fromSUSYHF]
+    
+    # The value of balanced should be a list containing two lists
+    # the balance function will balance the first list against the second
+    leptonRatios = {'balanced': [[prompt, nonPrompt, fake],
+                                  [fromSUSY, fromSUSYHF]],
+                     'unbalanced': [leptonClass for leptonClass in leptonClasses],}
+
+elif args.sampleSelection == "STop3vsTTbar":
+    sub_dirs = [TTbar[args.year], "Stop600-dm10-006"]
+    inputdirs = ["/scratch-cbe/users/benjamin.wilhelmy/DeepLepton",
+                 "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton"]    
+
+    version = [args.version, args.version]
+    year = [args.year, args.year]
+
+    # In the step1 of susy data there is no prompt and nonpromt 
+    # So we take them from the Background ->Top sample
+    samplePrompt = getInputFromOthers(sub_dirs[0],
+                                      "Prompt",
+                                      inputdirs=inputdirs[0],
+                                      version=version[0],
+                                      year=year[0])
+
+    sampleNonPrompt = getInputFromOthers(sub_dirs[0],
+                                         "NonPrompt",
+                                         inputdirs=inputdirs[0],
+                                         version=version[0],
+                                         year=year[0])
+    # there is fake data in the susy data, however we take the Top-fakes for now. 
+    sampleFake = getInputFromOthers(sub_dirs[0],
+                                    "Fake",
+                                    inputdirs=inputdirs[0],
+                                    version=version[0],
+                                    year=year[0])
+
+    sampleFromSUSY = getInputFromOthers(
+        sub_dirs[1],
+        "FromSUSY",
+        inputdirs=inputdirs[1],
+        version=version[1],
+        year=year[1])
+
+    sampleFromSUSYHF = getInputFromOthers(
+        sub_dirs[1],
+        "FromSUSYHF",
+        inputdirs=inputdirs[1],
+        version=version[1],
+        year=year[1])
+
+    prompt = {'sample': samplePrompt, }
+    nonPrompt = {'sample': sampleNonPrompt, }
+    fake = {'sample': sampleFake, }
+    fromSUSY = {'sample': sampleFromSUSY, }
+    fromSUSYHF = {'sample': sampleFromSUSYHF, }
+    leptonClasses = [prompt, nonPrompt, fake, fromSUSY, fromSUSYHF]
+    
+    # The value of balanced should be a list containing two lists
+    # the balance function will balance the first list against the second
+    leptonRatios = {'balanced': [[prompt, nonPrompt, fake],
+                                  [fromSUSY, fromSUSYHF]],
+                     'unbalanced': [leptonClass for leptonClass in leptonClasses],}
+
+elif args.sampleSelection == "STop4vsTTbar":
+    sub_dirs = [TTbar[args.year], "Stop600-dm20-006"]
+    inputdirs = ["/scratch-cbe/users/benjamin.wilhelmy/DeepLepton",
+                 "/scratch-cbe/users/benjamin.wilhelmy/DeepLepton"]    
+
+    version = [args.version, args.version]
+    year = [args.year, args.year]
+
+    # In the step1 of susy data there is no prompt and nonpromt 
+    # So we take them from the Background ->Top sample
+    samplePrompt = getInputFromOthers(sub_dirs[0],
+                                      "Prompt",
+                                      inputdirs=inputdirs[0],
+                                      version=version[0],
+                                      year=year[0])
+
+    sampleNonPrompt = getInputFromOthers(sub_dirs[0],
+                                         "NonPrompt",
+                                         inputdirs=inputdirs[0],
+                                         version=version[0],
+                                         year=year[0])
+    # there is fake data in the susy data, however we take the Top-fakes for now. 
+    sampleFake = getInputFromOthers(sub_dirs[0],
+                                    "Fake",
+                                    inputdirs=inputdirs[0],
+                                    version=version[0],
+                                    year=year[0])
+
+    sampleFromSUSY = getInputFromOthers(
+        sub_dirs[1],
+        "FromSUSY",
+        inputdirs=inputdirs[1],
+        version=version[1],
+        year=year[1])
+
+    sampleFromSUSYHF = getInputFromOthers(
+        sub_dirs[1],
+        "FromSUSYHF",
+        inputdirs=inputdirs[1],
+        version=version[1],
+        year=year[1])
+
+    prompt = {'sample': samplePrompt, }
+    nonPrompt = {'sample': sampleNonPrompt, }
+    fake = {'sample': sampleFake, }
+    fromSUSY = {'sample': sampleFromSUSY, }
+    fromSUSYHF = {'sample': sampleFromSUSYHF, }
+    leptonClasses = [prompt, nonPrompt, fake, fromSUSY, fromSUSYHF]
+    
+    # The value of balanced should be a list containing two lists
+    # the balance function will balance the first list against the second
+    leptonRatios = {'balanced': [[prompt, nonPrompt, fake],
+                                  [fromSUSY, fromSUSYHF]],
+                     'unbalanced': [leptonClass for leptonClass in leptonClasses],}
+
+elif args.sampleSelection == "STopvsTop":
+    # prepare vars for getInputFromOthers for the Fake class
+    sub_dirs = [Top[args.year], STopvsTop[args.year]]
+    if args.year == 2017:
+        inputdirs = ["/eos/vbc/experiments/cms/store/user/liko/skims/",
+                     "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/"]
+    elif args.year == 2018:
+        inputdirs = ["/eos/vbc/experiments/cms/store/user/liko/skims/",
+                     "/eos/vbc/user/benjamin.wilhelmy/DeepLepton/"]
+
+    version = ["v3", args.version]
+    year = [args.year, args.year]
+
+    # In the step1 of susy data there is no prompt and nonpromt 
+    # So we take them from the Background ->Top sample
+    samplePrompt = getInputFromOthers(sub_dirs[1],
+                                      "Prompt",
+                                      inputdirs=inputdirs[1],
+                                      version="v6",
+                                      year=year[1])
+
+    sampleNonPrompt = getInputFromOthers(sub_dirs[1],
+                                         "NonPrompt",
+                                         inputdirs=inputdirs[1],
+                                         version="v6",
+                                         year=year[1])
+    # there is fake data in the susy data, however we take the Top-fakes for now. 
+    sampleFake = getInputFromOthers(sub_dirs[1],
+                                    "Fake",
+                                    inputdirs=inputdirs[1],
+                                    version="v6",
+                                    year=year[1])
+
+    sampleFromSUSY = getInputFromOthers(
+        [STopvsTop[args.year]],
+        "FromSUSY",
+        inputdirs=inputdirs[1],
+        version="v6", #version[1],
+        year=year[1])
+
+    sampleFromSUSYHF = getInputFromOthers(
+        [STopvsTop[args.year]],
+        "FromSUSYHF",
+        inputdirs=inputdirs[1],
+        version="v6", #version[1],
         year=year[1])
 
     prompt = {'sample': samplePrompt, }
@@ -745,7 +1047,7 @@ def balance(lepRatios):
 
     if args.ratio == 'unbalance':
         logger.info(
-            "Calling the balance function even args.ratio is unbalance!")
+            "Calling the balance function even args.ratio is unbalance!!!")
 
     if sum(lepRatios['balanced'][0]) >= sum(lepRatios['balanced'][1]):
         # we call the lep classes with more entries background and the others

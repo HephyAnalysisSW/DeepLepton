@@ -25,11 +25,16 @@ structure = {'': []}
 # be the last element of leptonClasses
 for l in leptonClasses[-1]['sample'].chain.GetListOfLeaves():
     # this is an element of a vector branch:
+    #print(l.GetName())
+    # print(l.GetLeafCount())
     if l.GetLeafCount():
         counter_var = l.GetLeafCount().GetName()
+        #print(counter_var)
         vector_name = counter_var[1:]
+        #print(vector_name)
         vector_branch_declaration = (
             l.GetName()[len(vector_name)+1:], shortTypeDict[l.GetTypeName()])
+        #print(vector_branch_declaration)
 
         if not structure.has_key(vector_name):
             structure[vector_name] = [vector_branch_declaration]
@@ -37,6 +42,10 @@ for l in leptonClasses[-1]['sample'].chain.GetListOfLeaves():
             structure[vector_name].append(vector_branch_declaration)
     else:
         structure[''].append((l.GetName(), shortTypeDict[l.GetTypeName()]))
+# for key in structure.keys():
+#     if key != '':
+#         print("{}: {}".format(key, structure[key]))
+
 
 # define variables for reading and writing
 # they should be the same no?
@@ -52,7 +61,6 @@ for key, value in structure.iteritems():
         write_variables.append(
             key+'[%s]' % (','.join(map(lambda v: '/'.join(v), value))))
         read_variables.append('n'+key+'/I')
-
 variables = []
 for v in read_variables:
     if v.startswith("SV") or v.startswith("pfCand"):

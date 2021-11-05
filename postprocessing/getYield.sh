@@ -1,1 +1,1 @@
-python getYield.py --logLevel DEBUG --small 
+python getYield.py --logLevel DEBUG --small --sample TTSingleLep_pow

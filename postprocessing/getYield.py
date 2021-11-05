@@ -32,6 +32,8 @@ argParser.add_argument('--sample',
                        nargs='?',
                        type=str,
                        default='TTLep_pow',
+                       choices = ["TTLep_pow", "TTSingleLep_pow",
+                                  "TTHad_pow", "TTbar", "TTLep_NLO"],
                        help="sample name from Samples repository")
 
 argParser.add_argument('--nJobs',
@@ -64,6 +66,36 @@ preselection = ["MET_pt>200", "Sum$(Jet_pt * (Jet_pt>30))>300", "(Sum$(Jet_pt>10
 
 preselection = "&&".join(preselection)
 
+data_paths = {"TTLep_pow":[os.path.join("/eos/vbc/experiments/cms/store/user/schoef/",
+                            "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/",
+                            "crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1_v6_PFCands/",
+                            "211014_093132/0000")],
+              "TTSingleLep_pow":[os.path.join("/eos/vbc/experiments/cms/store/user/schoef/",
+                                  "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/",
+                                  "crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1_v6_PFCands/",
+                                  "211014_093234/0000")],
+              "TTHad_pow":[os.path.join("/eos/vbc/experiments/cms/store/user/schoef/",
+                            "TTToHadronic_TuneCP5_13TeV-powheg-pythia8/",
+                            "crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1_v6_PFCands/",
+                            "211014_093156/0000"),
+                           os.path.join("/eos/vbc/experiments/cms/store/user/schoef/",
+                            "TTToHadronic_TuneCP5_13TeV-powheg-pythia8/",
+                            "crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1_v6_PFCands/",
+                            "211014_093156/0001")],
+              "TTbar":[os.path.join("/eos/vbc/experiments/cms/store/user/schoef/",
+                        "TTJets_TuneCP5_13TeV-madgraphMLM-pythia8/",
+                        "crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1_v6_PFCands/",
+                        "211014_093046/0000")],
+              "TTLep_NLO":[os.path.join("/eos/vbc/experiments/cms/store/user/",
+                            "schoef/TT_DiLept_TuneCP5_13TeV-amcatnlo-pythia8/",
+                            "crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2_v6_PFCands/",
+                            "211014_093110/0000")]}
+
+L = 137.
+XSecBR = eval(args.sample).xSection 
+PATH = data_paths[args.sample]
+print("selected path is \n {}".format(PATH))
+
 def select(r, jet, lep):
     result = []
     result.append(r.MET_pt>200)
@@ -73,6 +105,7 @@ def select(r, jet, lep):
     result.append(r.nMuon >= 1)
     result.append((sum(l.get("pt")>20 for l in lep))<2)
     result.append(r.nTau==0)
+    # TODO: needs modification
     result.append(lep[0]["pt"]<=30)
     jet2 = deepcopy(jet)
     store = False
@@ -85,7 +118,7 @@ def select(r, jet, lep):
     result.append(store)
     if len(lep) >1:
         print("found multiple muons")
-    print(result)
+    # print(result)
     return False if 0 in result else True
 
 r_vars = ["MET_pt/F", "nMuon/I", "nTau/I", "genWeight/F"]
@@ -99,52 +132,47 @@ read_vars.extend(r_vars)
 jet_vars = map( lambda n:n.split('/')[0], jet_vars )
 lep_vars = map( lambda n:n.split('/')[0], lep_vars)
 
-PATH = ["/eos/vbc/experiments/cms/store/user/schoef/TT_DiLept_TuneCP5_13TeV-amcatnlo-pythia8/crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2_v6_PFCands/211014_093110/0000"]
+# PATH = ["/eos/vbc/experiments/cms/store/user/schoef/TT_DiLept_TuneCP5_13TeV-amcatnlo-pythia8/crab_RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2_v6_PFCands/211014_093110/0000"]
 
-chain = ROOT.TChain("Events")
-icnt = 0 
-for path in PATH:
-    for name in os.listdir(path):
-        if name.endswith(".root"):
-            if icnt >0:
-                break
-            chain.Add("{}/{}".format(path, name))
-            print(name)
-            icnt += 1
+# chain = ROOT.TChain("Events")
+# icnt = 0 
+# for path in PATH:
+#     for name in os.listdir(path):
+#         if name.endswith(".root"):
+#             if icnt >0:
+#                 break
+#             chain.Add("{}/{}".format(path, name))
+#             print(name)
+#             icnt += 1
 
-sample = Sample.fromDirectory("ttbar", PATH, redirector="root://eos.grid.vbc.ac.at/",\
+sample = Sample.fromDirectory(args.sample, PATH, redirector="root://eos.grid.vbc.ac.at/",\
             selectionString = preselection, weightString = None, normalization = None,\
             xSection = -1,  treeName = "Events")
+
 if args.small:
     sample.reduceFiles(to=1)
-reader = sample.treeReader(variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_vars),
-                selectionString = None)
-print("init reader")
+
+reader = sample.treeReader(variables = map( lambda v: TreeVariable.fromString(v) \
+                                            if type(v)==type("") else v, read_vars),
+                           selectionString = None)
+
 reader.start()
-counter = 0
+# counter = 0
 while reader.run():
-    print(counter)
     r = reader.event
     jet = getCollection(r, "Jet", jet_vars, "nJet")
-    # print(r.Muon_pt)
     lep = getCollection(r, "Muon", ["pt",], "nMuon")
-    # print(jet)
-    # print(lep)
-    # print(len(lep))
-    # print(type(lep))
-    # print(select(r, jet))
-    if counter < 0:
-        break
-    counter +=1
     if not select(r, jet, lep):
         print("happens if there are several muons and bec of ISR jet")
-        # break
+ 
     else:
-        weight = r.genWeight
+        #TODO: divide through sum of gen weights
+        weight = L*XSecBR*r.genWeight
         print(weight)
-print(reader.nEvents)
-print(sample._chain.GetEntries())
-print(chain.GetEntries(preselection))
+
+# print(reader.nEvents)
+# print(sample._chain.GetEntries())
+# print(chain.GetEntries(preselection))
 
 
 

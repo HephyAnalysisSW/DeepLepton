@@ -28,11 +28,13 @@ def get_parser():
     argParser.add_argument('--nJobs',                       action='store',         nargs='?',  type=int,                           default=1,                          help="Maximum number of simultaneous jobs.")
     argParser.add_argument('--job',                         action='store',                     type=int,                           default=0,                          help="Run only job i")
     argParser.add_argument('--small',                       action='store_true',                                                                                        help="Run the file on a small sample (for test purpose), bool flag set to True if used")
-    argParser.add_argument('--vers',                     action='store',         nargs='?',  type=str,  default='v2',         help="Version for output directory")
+    # argParser.add_argument('--vers',                     action='store',         nargs='?',  type=str,  default='v2',         help="Version for output directory")
     argParser.add_argument('--versionName',                  action='store',                    type=str)
     argParser.add_argument('--ptSelection',                 action='store',         nargs='?',  type=str,  default='pt_5_-1',      help="pt selection of leptons")
     argParser.add_argument('--muFromTauArePrompt',    action='store_true',        help="Consider muons from tau leptons as prompt")        
     argParser.add_argument('--modelPath',                       action='store',       help="Path to Keras model")
+
+    argParser.add_argument('--displaced',           action='store_true',    default=False,                                                          help='Look for displaced leptons from SUSY')
 
     return argParser
 
@@ -58,8 +60,64 @@ if not os.path.exists(modelPath):
 model = tf.keras.models.load_model( modelPath )
 logger.info('loading Model complete')
 
+def gen_part_susy_flav(nLept, Lept_genPartFlav, Lept_genPartIdx, GenPart_genPartIdxMother, GenPart_pdgId):
+     
+    newPartFlav = []
+    for i in range(nLept):
+        quark = 0
+        j = Lept_genPartIdx[i]
+        if j > 0:
+            # move back in the decay chain, as long there is no SUSY particle (pdg_id < 1000000)
+            while abs(GenPart_pdgId[j]) < 1000000 and GenPart_genPartIdxMother[j] > 0:
+                # Extract the quark flavor q for charm and beauty hadrons 
+                # The pdg_Id for mesons and hadrons is qXX and qXXX
+                pdg_id = str(abs(GenPart_pdgId[j]))
+                if len(pdg_id) in [3, 4] and pdg_id[0] in ['4', '5']:
+                    quark = int(pdg_id[0])
+                j = GenPart_genPartIdxMother[j]
+
+        if j > 0 and abs(GenPart_pdgId[j]) > 1000000:
+            newPartFlav.append(100 + quark)
+        else:
+            newPartFlav.append(Lept_genPartFlav[i])
+
+    return newPartFlav
+
 # Load samples
-if options.year == 2016:
+
+# special case, there exists only the sample in roberts directory ....
+if options.displaced:
+    from RootTools.core.Sample import Sample
+     # This line for the old susy data ca. 80'000 muons
+     # Compressed SUSY Scenario, this is the old data
+    CompSUSY =  Sample.fromDirectory('CompSUSY',
+                 '/eos/vbc/user/robert.schoefbeck/DeepLepton/nanoAODUL17_PFCands/signal_stops_compressed',
+                 'root://eos.grid.vbc.ac.at') 
+    stop250dm10 = Sample.fromDirectory('Stop250-dm10-006',
+                  # '/eos/vbc/experiments/cms/store/user/liko/CompStop/SUS-RunIIAutumn18FSPremix-Stop250-dm10-006-nanoAOD/210819_215726/0000',
+                  '/eos/vbc/user/benjamin.wilhelmy/DeepLepton/Stop250-dm10-006',
+                  'root://eos.grid.vbc.ac.at') 
+
+    stop250dm20 = Sample.fromDirectory('Stop250-dm20-006',
+                  # '/eos/vbc/experiments/cms/store/user/liko/CompStop/SUS-RunIIAutumn18FSPremix-Stop250-dm20-006-nanoAOD/210819_215740/0000',
+                  '/eos/vbc/user/benjamin.wilhelmy/DeepLepton/Stop250-dm20-006',
+                  'root://eos.grid.vbc.ac.at') 
+
+    stop600dm10 = Sample.fromDirectory('Stop600-dm10-006',
+                  # '/eos/vbc/experiments/cms/store/user/liko/CompStop/SUS-RunIIAutumn18FSPremix-Stop600-dm10-006-nanoAOD/210819_215757/0000',
+                  '/eos/vbc/user/benjamin.wilhelmy/DeepLepton/Stop600-dm10-006',
+                  'root://eos.grid.vbc.ac.at') 
+
+    stop600dm20 = Sample.fromDirectory('Stop600-dm20-006',
+                  # '/eos/vbc/experiments/cms/store/user/liko/CompStop/SUS-RunIIAutumn18FSPremix-Stop600-dm20-006-nanoAOD/210819_215811/0000',
+                  '/eos/vbc/user/benjamin.wilhelmy/DeepLepton/Stop600-dm20-006',
+                  'root://eos.grid.vbc.ac.at') 
+
+    step2_v4_test = Sample.fromDirectory('step2_v4_test',
+                                    '/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/v4_small/step2/2018/muo/unbalanced/pt_3.5_-1/STopvsTTbar',
+                                    treeName = "tree")
+
+elif options.year == 2016:
     from DeepLepton.Samples.nanoAOD_PFCands_Summer16 import *
 elif options.year == 2017:
     from DeepLepton.Samples.nanoAOD_PFCands_Fall17 import *
@@ -87,8 +145,9 @@ logger.info( " Run over %i/%i files for job %i/%i."%(len(sample.files), len_orig
 logger.debug( "Files to be run over:\n%s", "\n".join(sample.files) )
 if options.small:
     sample.reduceFiles(to=1)
-#output directory
-output_directory = os.path.join( skim_directory, options.vers+('_small' if options.small else ''), 'step1', str(options.year) ) 
+
+# output directory
+# output_directory = os.path.join( skim_directory, options.vers+('_small' if options.small else ''), 'step1', str(options.year) ) 
 
 
 if options.muFromTauArePrompt:
@@ -96,10 +155,17 @@ if options.muFromTauArePrompt:
 else:
     absPdgIds = {'Prompt':[1],    'NonPrompt':[5, 4, 15], 'Fake':[0,3,22],  'NotPrompt':[0,3,4,5,15,22]}
 
-leptonClasses  = {'Prompt'     : {'selector': lambda genPartFlav: abs(genPartFlav) in absPdgIds['Prompt']}, 
-                  'NonPrompt'  : {'selector': lambda genPartFlav: abs(genPartFlav) in absPdgIds['NonPrompt']}, 
-                  'Fake'       : {'selector': lambda genPartFlav: abs(genPartFlav) not in (absPdgIds['Prompt']+absPdgIds['NonPrompt'])},
+leptonClasses  = {'Prompt'     : {'selector': lambda genPartFlav: genPartFlav in absPdgIds['Prompt']}, 
+                  'NonPrompt'  : {'selector': lambda genPartFlav: genPartFlav in absPdgIds['NonPrompt']}, 
+                  'Fake'       : {'selector': lambda genPartFlav: genPartFlav not in (absPdgIds['Prompt']+absPdgIds['NonPrompt'])},
                   }
+
+# for leptons from SUSY additional lepton classes
+if options.displaced:
+    leptonClasses['FromSUSY']   = { 'selector': lambda genPartFlav: genPartFlav == 100 }
+    leptonClasses['FromSUSYHF'] = { 'selector': lambda genPartFlav: genPartFlav in [104,105] }
+    leptonClasses['Fake']       = { 'selector': lambda genPartFlav: genPartFlav not in absPdgIds['Prompt']+absPdgIds['NonPrompt']+[100,104,105]}
+
 
 leptonFlavour  =  {'name':'muo', 'pdgId': 13} if options.flavour == 'muo' else  {'name':'ele', 'pdgId': 11}
 
@@ -120,7 +186,7 @@ read_variables = [
     "SV[%s]"%(",".join(SV_vars)),
     ]
 read_variables += ["event/l", "luminosityBlock/I", "run/I"]
-#read_variables += ["lep_looseId/O"]
+# read_variables += ["lep_looseId/O"] #
 
 cand_varnames_read  = map( lambda n:n.split('/')[0], cand_vars_read) 
 cand_varnames_write = {pf_flavour: map( lambda n:n.split('/')[0], cand_vars_train[pf_flavour]) for pf_flavour in pf_flavours} 
@@ -130,16 +196,26 @@ if options.flavour == 'ele':
     lep_vars = ele_vars 
     if not sample.isData:
         lep_vars.extend(['genPartFlav/b'])
+        if options.displaced:
+            lep_vars.extend(['genPartIdx/I'])
     read_variables.extend(['nElectron/I', 'Electron[%s]'%(",".join(lep_vars))])
 elif options.flavour == 'muo':
     lep_vars = muo_vars 
     if not sample.isData:
         lep_vars.extend(['genPartFlav/b'])
+        if options.displaced:
+            lep_vars.extend(['genPartIdx/I'])
     read_variables.extend(['nMuon/I', 'Muon[%s]'%(",".join(lep_vars))])
+
+if options.displaced:
+    read_variables.append(VectorTreeVariable.fromString("GenPart[pdgId/I,genPartIdxMother/I]", nMax=5000))
 
 lep_varnames = map( lambda n:n.split('/')[0], lep_vars ) 
 new_variables= map( lambda b: "lep_%s"%(b[:-1]+'F'), lep_vars )
 new_variables+= ["lep_isPromptId_Training/I", "lep_isNonPromptId_Training/I", "lep_isNotPromptId_Training/I", "lep_isFakeId_Training/I"]
+if options.displaced:
+    new_variables += ["lep_isFromSUSY_Training/I", "lep_isFromSUSYHF_Training/I", "lep_isFromSUSYandHF_Training/I"]
+
 new_variables+= ["lep_StopsCompressed/I"]#, "lep_looseId/O", "lep_mediumId/O", "lep_tightId/O"]
 
 ############### out_variables
@@ -149,12 +225,18 @@ new_variables+= ["lep_StopsCompressed/I"]#, "lep_looseId/O", "lep_mediumId/O", "
 #out_variables += ["lep_StopsCompressed/I", "lep_looseId/F", "lep_mediumId/F", "lep_tightId/F"]
 #out_variables += ["lep_precut/F", "lep_pfRelIso03_all/F"]
 new_variables += ["lep_probPrompt/F", "lep_probNonPrompt/F", "lep_probFake/F", "lep_probNotPrompt/F"]
-new_variables += ["event/l", "lep_mvaTTH/F"]
+if options.displaced:
+    new_variables += ["prob_lep_isFromSUSYandHF/F",] # prob_isFromSUSY/F, prob_isFromSUSYHF/F
+
+# we already have event?
+new_variables += ["lep_mvaTTH/F"] #["event/l", "lep_mvaTTH/F"]
 if options.flavour == 'muo':
     new_variables += ["lep_StopsCompressed/I", "lep_looseId/F", "lep_mediumId/F", "lep_tightId/F"]
-    new_variables += ["lep_precut/F", "lep_pfRelIso03_all/F"]
+    # we already have reliso...
+    # TODO: lep_precut should be /I !!! then change in plot script as well!
+    new_variables += ["lep_precut/F"] #, "lep_pfRelIso03_all/F"]
 if options.flavour == 'ele':
-    new_variables += ["lep_precut/F", "lep_StopsCompressed/I"]
+    new_variables += ["lep_precut/F"] #, "lep_StopsCompressed/I"]
 
 for pf_flavour in pf_flavours:
     # per PFCandidate flavor, add a counter and a vector with all pf candidate variables
@@ -174,7 +256,7 @@ def fill_vector_collection( event, collection_name, collection_varnames, objects
                     obj[var] = float(obj[var])
                 getattr(event, collection_name+"_"+var)[i_obj] = obj[var]
 
-
+logger.debug("the read_variables are {}".format(read_variables))
 reader = sample.treeReader( \
     variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, read_variables),
     selectionString = "&&".join(skimConds)
@@ -182,7 +264,9 @@ reader = sample.treeReader( \
 
 ####
 #outfilename =  os.path.join(output_directory, "predicted", options.flavour, options.ptSelection, sample_name, sample.name + '.root')
-outfilename =  os.path.join("/scratch-cbe/users/maximilian.moser/DeepLepton", "predicted", options.versionName, str(options.year), options.flavour, options.ptSelection, sample_name, sample.name + '.root')
+
+# maybe ad parser argument take from users.py
+outfilename =  os.path.join("/scratch-cbe/users/benjamin.wilhelmy/DeepLepton", "predicted_on_sample", options.versionName + ("_small" if options.small else ""), modelPath.split('/')[-2],  str(options.year), options.flavour, options.ptSelection, sample_name, sample.name + '.root')
 logger.debug("Writing to: %s", outfilename)
 
 if not os.path.exists(os.path.dirname(outfilename)):
@@ -195,6 +279,7 @@ if not os.path.exists(os.path.dirname(outfilename)):
 tmp_directory = ROOT.gDirectory
 outfile = ROOT.TFile.Open(outfilename, 'recreate')
 outfile.cd()
+logger.debug("the new variables are {}".format(new_variables))
 new_maker = TreeMaker( sequence  = [ ],
     variables = map( lambda v: TreeVariable.fromString(v) if type(v)==type("") else v, new_variables),
     treeName = 'tree')
@@ -202,18 +287,35 @@ tmp_directory.cd()
 
 new_maker.start()
 
+# compare with trainings data class
 if options.flavour == 'muo':
     global_branches = [
             #'lep_pt', 'lep_eta',
+            'lep_pt', 
+            'lep_eta',
             'lep_phi',
             'lep_mediumId',
             'lep_miniPFRelIso_all',
-            'lep_sip3d', 'lep_dxy', 'lep_dz',
+            'lep_sip3d', 
+            'lep_dxy', 
+            'lep_dz',
             'lep_charge',
-            'lep_dxyErr', 'lep_dzErr', 'lep_ip3d',
-            'lep_jetPtRelv2', 'lep_jetRelIso',
-            'lep_miniPFRelIso_chg', 'lep_mvaLowPt', 'lep_nStations', 'lep_nTrackerLayers', 'lep_pfRelIso03_all', 'lep_pfRelIso03_chg', 'lep_pfRelIso04_all', 'lep_ptErr',
-            'lep_segmentComp', 'lep_tkRelIso', 'lep_tunepRelPt',
+            'lep_dxyErr', 
+            'lep_dzErr', 
+            'lep_ip3d',
+            'lep_jetPtRelv2', 
+            'lep_jetRelIso',
+            'lep_miniPFRelIso_chg', 
+            'lep_mvaLowPt', 
+            'lep_nStations', 
+            'lep_nTrackerLayers', 
+            'lep_pfRelIso03_all', 
+            'lep_pfRelIso03_chg', 
+            'lep_pfRelIso04_all', 
+            'lep_ptErr',
+            'lep_segmentComp', 
+            'lep_tkRelIso', 
+            'lep_tunepRelPt',
             ]
 
 elif options.flavour == 'ele':
@@ -233,22 +335,96 @@ elif options.flavour == 'ele':
             'lep_pfRelIso03_chg', 'lep_r9',
             'lep_sieie',]
 
-pfCand_neutral_branches  = ['pfCand_neutral_eta', 'pfCand_neutral_phi', 'pfCand_neutral_pt', 'pfCand_neutral_puppiWeight', 'pfCand_neutral_puppiWeightNoLep',
-                            'pfCand_neutral_ptRel', 'pfCand_neutral_deltaR',]
-pfCand_charged_branches  = ['pfCand_chargeid_d0', 'pfCand_charged_d0Err', 'pfCand_charged_dz', 'pfCand_charged_dzErr', 'pfCand_charged_eta', 'pfCand_charged_mass',
-                            'pfCand_charged_phi', 'pfCand_charged_pt', 'pfCand_charged_puppiWeight', 'pfCand_charged_puppiWeightNoLep', 'pfCand_charged_trkChi2',
-                            'pfCand_charged_vtxChi2', 'pfCand_charged_charge', 'pfCand_charged_lostInnerHits', 'pfCand_charged_pvAssocQuality',
-                            'pfCand_charged_trkQuality', 'pfCand_charged_ptRel', 'pfCand_charged_deltaR',]
-pfCand_photon_branches   = ['pfCand_photon_eta', 'pfCand_photon_phi', 'pfCand_photon_pt', 'pfCand_photon_puppiWeight', 'pfCand_photon_puppiWeightNoLep', 'pfCand_photon_ptRel', 'pfCand_photon_deltaR',]
-pfCand_electron_branches = ['pfCand_electron_d0', 'pfCand_electron_d0Err', 'pfCand_electron_dz', 'pfCand_electron_dzErr', 'pfCand_electron_eta', 'pfCand_electron_mass',
-                            'pfCand_electron_phi', 'pfCand_electron_pt', 'pfCand_electron_puppiWeight', 'pfCand_electron_puppiWeightNoLep', 'pfCand_electron_trkChi2',
-                            'pfCand_electron_vtxChi2', 'pfCand_electron_charge', 'pfCand_electron_lostInnerHits', 'pfCand_electron_pvAssocQuality',
-                            'pfCand_electron_trkQuality', 'pfCand_electron_ptRel', 'pfCand_electron_deltaR',]
-pfCand_muon_branches     = ['pfCand_muon_d0', 'pfCand_muon_d0Err', 'pfCand_muon_dz', 'pfCand_muon_dzErr', 'pfCand_muon_eta', 'pfCand_muon_mass', 'pfCand_muon_phi',
-                            'pfCand_muon_pt', 'pfCand_muon_puppiWeight', 'pfCand_muon_puppiWeightNoLep', 'pfCand_muon_trkChi2', 'pfCand_muon_vtxChi2', 'pfCand_muon_charge',
-                            'pfCand_muon_lostInnerHits', 'pfCand_muon_pvAssocQuality', 'pfCand_muon_trkQuality', 'pfCand_muon_ptRel', 'pfCand_muon_deltaR']
-SV_branches              = ['SV_dlen', 'SV_dlenSig', 'SV_dxy', 'SV_dxySig', 'SV_pAngle', 'SV_chi2', 'SV_eta', 'SV_mass',
-                            'SV_ndof', 'SV_phi', 'SV_pt', 'SV_x', 'SV_y', 'SV_z', 'SV_ptRel', 'SV_deltaR',]
+pfCand_neutral_branches  = ['pfCand_neutral_eta', 
+                            'pfCand_neutral_phi', 
+                            'pfCand_neutral_pt', 
+                            'pfCand_neutral_puppiWeight', 
+                            'pfCand_neutral_puppiWeightNoLep',
+                            'pfCand_neutral_ptRel', 
+                            'pfCand_neutral_deltaR',]
+
+pfCand_charged_branches  = ['pfCand_chargeid_d0', 
+                            'pfCand_charged_d0Err', 
+                            'pfCand_charged_dz', 
+                            'pfCand_charged_dzErr', 
+                            'pfCand_charged_eta', 
+                            'pfCand_charged_mass',
+                            'pfCand_charged_phi', 
+                            'pfCand_charged_pt', 
+                            'pfCand_charged_puppiWeight', 
+                            'pfCand_charged_puppiWeightNoLep', 
+                            'pfCand_charged_trkChi2',
+                            'pfCand_charged_vtxChi2', 
+                            'pfCand_charged_charge', 
+                            'pfCand_charged_lostInnerHits', 
+                            'pfCand_charged_pvAssocQuality',
+                            'pfCand_charged_trkQuality', 
+                            'pfCand_charged_ptRel', 
+                            'pfCand_charged_deltaR',]
+
+pfCand_photon_branches   = ['pfCand_photon_eta', 
+                            'pfCand_photon_phi', 
+                            'pfCand_photon_pt', 
+                            'pfCand_photon_puppiWeight', 
+                            'pfCand_photon_puppiWeightNoLep', 
+                            'pfCand_photon_ptRel', 
+                            'pfCand_photon_deltaR',]
+
+pfCand_electron_branches = ['pfCand_electron_d0', 
+                            'pfCand_electron_d0Err', 
+                            'pfCand_electron_dz', 
+                            'pfCand_electron_dzErr', 
+                            'pfCand_electron_eta', 
+                            'pfCand_electron_mass',
+                            'pfCand_electron_phi', 
+                            'pfCand_electron_pt', 
+                            'pfCand_electron_puppiWeight', 
+                            'pfCand_electron_puppiWeightNoLep', 
+                            'pfCand_electron_trkChi2',
+                            'pfCand_electron_vtxChi2', 
+                            'pfCand_electron_charge', 
+                            'pfCand_electron_lostInnerHits', 
+                            'pfCand_electron_pvAssocQuality',
+                            'pfCand_electron_trkQuality', 
+                            'pfCand_electron_ptRel', 
+                            'pfCand_electron_deltaR',]
+
+pfCand_muon_branches     = ['pfCand_muon_d0', 
+                            'pfCand_muon_d0Err', 
+                            'pfCand_muon_dz', 
+                            'pfCand_muon_dzErr', 
+                            'pfCand_muon_eta', 
+                            'pfCand_muon_mass', 
+                            'pfCand_muon_phi',
+                            'pfCand_muon_pt', 
+                            'pfCand_muon_puppiWeight', 
+                            'pfCand_muon_puppiWeightNoLep', 
+                            'pfCand_muon_trkChi2', 
+                            'pfCand_muon_vtxChi2', 
+                            'pfCand_muon_charge',
+                            'pfCand_muon_lostInnerHits', 
+                            'pfCand_muon_pvAssocQuality', 
+                            'pfCand_muon_trkQuality', 
+                            'pfCand_muon_ptRel', 
+                            'pfCand_muon_deltaR']
+
+SV_branches              = ['SV_dlen', 
+                            'SV_dlenSig', 
+                            'SV_dxy', 
+                            'SV_dxySig', 
+                            'SV_pAngle', 
+                            'SV_chi2', 
+                            'SV_eta', 
+                            'SV_mass',
+                            'SV_ndof', 
+                            'SV_phi', 
+                            'SV_pt', 
+                            'SV_x', 
+                            'SV_y', 
+                            'SV_z', 
+                            'SV_ptRel', 
+                            'SV_deltaR',]
+
 
 npfCand_neutral  = 10
 npfCand_charged  = 80
@@ -259,14 +435,16 @@ nSV              = 10
 
 
 
-def SVpt(SV):
-    return SV["pt"]
+# def SVpt(SV):
+#     return SV["pt"]
 
 def ptRel(cand, lep):
     a = ROOT.TVector3(cos(lep['phi']),sin(lep['phi']),sinh(lep['eta']))
     o = ROOT.TLorentzVector(cand['pt']*cos(cand['phi']), cand['pt']*sin(cand['phi']),cand['pt']*sinh(cand['eta']),cand['pt']*cosh(cand['eta']),)
     return o.Perp(a)
 
+# there is a problem if the event has for example more npfCand_charged ...
+# gives WARNING:tensorflow:Model was constructed with shape (None, 80, 18) for input Tensor("2:0", shape=(None, 80, 18), dtype=float32),but it was called on an input with incompatible shape (None, 101, 18). 
 def branches(pfC,pfC_flav_branches, npfC, n=-2, inlist=True): # n = -2 for pfCand, -1 for SV
     nb = []
     for cand in pfC:
@@ -282,12 +460,34 @@ def branches(pfC,pfC_flav_branches, npfC, n=-2, inlist=True): # n = -2 for pfCan
 
 reader.start()
 counter=0
+# logger.info("the lep_varnames are {}".format(lep_varnames))
+# logger.info("the read vars are    {}".format(read_variables))
 while reader.run():
     r = reader.event
     if options.flavour == 'muo':
         leps = getCollection(r, 'Muon', lep_varnames, 'nMuon')
     elif options.flavour == 'ele':
         leps = getCollection(r, 'Electron', lep_varnames, 'nElectron')
+
+    # if leptons from  SUSY replace genPartFlav with the corrected value
+    if options.displaced:
+        if options.flavour == 'muo':
+            lep_genPartFlav = gen_part_susy_flav(r.nMuon, r.Muon_genPartFlav, r.Muon_genPartIdx, r.GenPart_genPartIdxMother, r.GenPart_pdgId)
+        else:
+            lep_genPartFlav = gen_part_susy_flav(r.nElectron, r.Electron_genPartFlav, r.Electron_genPartIdx, r.GenPart_genPartIdxMother, r.GenPart_pdgId)
+
+        # override new genpartflav
+        for i, lep in enumerate(leps):
+            # logger.info("type of genpartflav is {}".format(type(lep['genPartFlav'])))
+            # logger.info("the lep keys are {}".format(lep.keys())) 
+            # logger.info("genpartflav before the susyfunc {} and pt={}".format(lep['genPartFlav'], lep['pt']))
+            # logger.info("And after {}".format(lep_genPartFlav[i]))
+            lep['genPartFlav'] = lep_genPartFlav[i]
+            # if options.logLevel == "DEBUG":
+            #     # logger.debug("looking for a mistake in genPartFlav...")
+            #     # logger.debug(lep['genPartFlav'])
+            #     if lep['genPartFlav'] in [1, 5, 4, 15]:
+            #         logger.debug("Found a wrong value in genPartFlav. {}!".format(lep['genPartFlav']))
 
     # write leptons to event
     leps = filter( lambda l: (l['pt']>=pt_threshold[0] or pt_threshold[0]<0) and (l['pt']<pt_threshold[1] or pt_threshold[1]<0), leps )
@@ -318,10 +518,11 @@ while reader.run():
     for lep in leps:
         #now decide which maker to use
         maker = new_maker # only use this one maker
-        if type(lep['genPartFlav']) == int:
-            genPartFlav = lep['genPartFlav']
-        else:
-            genPartFlav = ord(lep['genPartFlav'])
+        genPartFlav = lep['genPartFlav']
+        # if type(lep['genPartFlav']) == int:
+        #     genPartFlav = lep['genPartFlav']
+        # else:
+        #     genPartFlav = ord(lep['genPartFlav'])
         
         
         #for leptonClass in leptonClasses.values():
@@ -331,8 +532,8 @@ while reader.run():
         #if maker is None:
         #    raise RuntimeError("Unclassified lepton: genPartFlav: %i " % reader.event.lep_genPartFlav)
         maker.event.event           = r.event
-        #maker.event.luminosityBlock = r.luminosityBlock
-        #maker.event.run             = r.run
+        maker.event.luminosityBlock = r.luminosityBlock
+        maker.event.run             = r.run
         # write the lepton
         for b in lep_varnames:
             if type(lep[b])==type(""):
@@ -344,6 +545,12 @@ while reader.run():
         maker.event.lep_isNonPromptId_Training  = leptonClasses['NonPrompt']['selector'](genPartFlav)
         maker.event.lep_isFakeId_Training       = leptonClasses['Fake']['selector'](genPartFlav)
         maker.event.lep_isNotPromptId_Training  = (maker.event.lep_isNonPromptId_Training or maker.event.lep_isFakeId_Training)
+
+        # additional training flags in case of leptons from SUSY
+        if options.displaced:
+            maker.event.lep_isFromSUSY_Training      = leptonClasses['FromSUSY']['selector'](genPartFlav)
+            maker.event.lep_isFromSUSYHF_Training    = leptonClasses['FromSUSYHF']['selector'](genPartFlav)
+            maker.event.lep_isFromSUSYandHF_Training = leptonClasses['FromSUSY']['selector'](genPartFlav) or leptonClasses['FromSUSYHF']['selector'](genPartFlav) 
 
         # write vector with PF candidates
         
@@ -384,7 +591,10 @@ while reader.run():
         #toPredict = np.stack([ gb, neutralB, chargedB, photonB, electronB, muonB, svB ])
         #toPredict = np.concatenate((gb, neutralB, chargedB, photonB, electronB, muonB, svB))
         toPredict = [ globalB, neutralB, chargedB, photonB, electronB, muonB, svB ]
+        # prediction = model.predict(toPredict)# [0]
+        # print(prediction) -> [[1.28700320e-03 6.61074229e-03 9.91939474e-01 1.62780672e-04]]
         prediction = model.predict(toPredict)[0]
+
         #print(prediction)
         #print(np.argmax(prediction))
        # print(maker.event.lep_isPromptId_Training, maker.event.lep_isNonPromptId_Training, maker.event.lep_isFakeId_Training)
@@ -396,8 +606,14 @@ while reader.run():
         maker.event.lep_probFake = prediction[2]
         maker.event.lep_probNotPrompt = prediction[1] + prediction[2]
         
-        maker.event.lep_pt = lep["pt"]
-        maker.event.lep_eta = lep["eta"]
+        if options.displaced:
+            maker.event.prob_lep_isFromSUSYandHF = prediction[3]
+            # maker.event.prob_isFromSUSY = prediction[3]
+            # maker.event.prob_isFromSUSYHF = prediction [40] -> check if order of these 2 are correct
+
+        # probably used if one removes pt and eta from global features
+        # maker.event.lep_pt = lep["pt"]
+        # maker.event.lep_eta = lep["eta"]
         
         maker.event.lep_mvaTTH   = lep["mvaTTH"]
         

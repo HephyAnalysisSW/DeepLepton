@@ -151,7 +151,7 @@ data_paths = {"TTLep_pow":[os.path.join("/eos/vbc/experiments/cms/store/user/sch
 
 signal_sample_norms = {"Stop250dm10": "genEventSumw_T2tt_dM_10to80_genHT_160_genMET_80_250_240",
                        "Stop250dm20": "genEventSumw_T2tt_dM_10to80_genHT_160_genMET_80_250_230",
-                       "Stop600dm10": "genEventSumw_T2tt_dM_10to80_genHT_160_genMET_80_600_580",
+                       "Stop600dm10": "genEventSumw_T2tt_dM_10to80_genHT_160_genMET_80_600_590",
                        "Stop600dm20": "genEventSumw_T2tt_dM_10to80_genHT_160_genMET_80_600_580"
                         }
 L = 137.
@@ -173,8 +173,8 @@ if args.sample in signal_sample_list:
     norm_reader.start()
     while norm_reader.run():
         r = norm_reader.event
-        NORMALIZATION += r.genEventSumw_T2tt_dM_10to80_genHT_160_genMET_80_250_240
-    # TODO: 
+        NORMALIZATION += getattr(r, signal_sample_norms[args.sample]) 
+   # TODO: 
     XSecBR = -1
     logger.info("found a normalization {}".format(NORMALIZATION))
 
@@ -226,7 +226,7 @@ while reader.run():
         Yield += weight
         event_counter += 1
 
-logger.info("Got yield = {}".format(Yield))
+logger.info("Got yield = {}, with {} leptons passing selection".format(Yield, event_counter))
 with open("/scratch-cbe/users/benjamin.wilhelmy/DeepLepton/Yields/yield_bkg_{}{}.txt".format("small_" if args.small else "", args.sample), "w") as f:
     f.write("Sample name: {} \n".format(args.sample))
     f.writelines("Yield: {} \n".format(Yield))

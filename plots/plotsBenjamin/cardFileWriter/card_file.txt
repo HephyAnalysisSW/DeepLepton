@@ -1,0 +1,17 @@
+#cardFileWriter, 11:57AM on February 09, 2022
+imax 2
+jmax *
+kmax *
+
+# SR: 
+# SR2: 
+
+bin                                                                     SR          SR2
+observation                                                           5000           25
+
+bin                                                                     SR           SR          SR2          SR2
+process                                                             signal           tt       signal           tt
+process                                                                  0            1            0            1
+rate                                                                 100.0       5000.0         50.0         25.0
+
+lumi                           lnN                                   1.036        1.036        1.036        1.036

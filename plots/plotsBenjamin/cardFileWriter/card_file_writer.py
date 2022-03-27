@@ -185,16 +185,17 @@ for i, pt_b in enumerate(pt_bins[:-1]):
             # name = "pt_{}--{}_dxy_{}_--_{}".format( pt_b, pt_bins[i+1],
             #                                         dxy_bins[j],
             #                                         dxy_bins[j+1])
-            name = "bin"+str(i*(len(dxy_bins)-1)+j+1)
-            signal_region_names.append(name)
-            bkg_obs = bkg_yields["yields"][i,j]
-            # for debugging
-            print("{:5s}".format(name)+"{:25s}".format(": signal={}".format(signal_yields["yields"][i][j]))\
-                    +"{:20s}".format(" | bkg=obs={}".format(bkg_obs)))
-            c.addBin(name, processes)
-            c.specifyExpectation(name, "signal", signal_yields["yields"][i][j])
-            c.specifyExpectation(name, "tt", bkg_obs)
-            c.specifyObservation(name, int(round(bkg_obs)))
+            if signal_yields["yields"][i][j]:
+                name = "bin"+str(i*(len(dxy_bins)-1)+j+1)
+                signal_region_names.append(name)
+                bkg_obs = bkg_yields["yields"][i,j]
+                # for debugging
+                print("{:5s}".format(name)+"{:25s}".format(": signal={}".format(signal_yields["yields"][i][j]))\
+                        +"{:20s}".format(" | bkg=obs={}".format(bkg_obs)))
+                c.addBin(name, processes)
+                c.specifyExpectation(name, "signal", signal_yields["yields"][i][j])
+                c.specifyExpectation(name, "tt", bkg_obs)
+                c.specifyObservation(name, int(round(bkg_obs)))
         if args.small:
             break
 for p in processes+["signal"]:
